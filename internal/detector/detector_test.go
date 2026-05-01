@@ -96,21 +96,40 @@ func TestDetect_BothProjectFilesPresent_BothDetected(t *testing.T) {
 	}
 }
 
-func TestDetect_GeminiGlobalFile_NeverDetected(t *testing.T) {
+func TestDetect_GeminiProjectConfig_Detected(t *testing.T) {
 	root := t.TempDir()
-	geminiTmp := t.TempDir()
 
 	reg := providers.NewRegistry()
-	geminiPath := filepath.Join(geminiTmp, "gemini-settings.json")
-	if err := os.WriteFile(geminiPath, []byte("{}"), 0o644); err != nil {
+	reg.Register(providers.NewGeminiProvider())
+
+	geminiDir := filepath.Join(root, ".gemini")
+	if err := os.MkdirAll(geminiDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	reg.Register(providers.NewGeminiProviderWithPath(geminiPath))
+	if err := os.WriteFile(filepath.Join(geminiDir, "settings.json"), []byte("{}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	got := detector.Detect(root, reg)
+
+	if len(got) != 1 {
+		t.Fatalf("expected 1 provider, got %d", len(got))
+	}
+	if got[0].Config().Name != "gemini" {
+		t.Errorf("expected gemini, got %q", got[0].Config().Name)
+	}
+}
+
+func TestDetect_GeminiProjectConfig_AbsentNotDetected(t *testing.T) {
+	root := t.TempDir()
+
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewGeminiProvider())
 
 	got := detector.Detect(root, reg)
 
 	if len(got) != 0 {
-		t.Errorf("expected 0 providers (gemini is global-only), got %d", len(got))
+		t.Errorf("expected 0 providers, got %d", len(got))
 	}
 }
 

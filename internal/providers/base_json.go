@@ -90,7 +90,7 @@ func (b *baseJSONProvider) Parse(content string) (map[string]types.MCPServer, er
 func geminiConfigPath() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return filepath.Join(".config", "gemini", "settings.json")
+		return filepath.Join(".gemini", "settings.json")
 	}
-	return filepath.Join(home, ".config", "gemini", "settings.json")
+	return filepath.Join(home, ".gemini", "settings.json")
 }
