@@ -7,6 +7,7 @@ golangci-lint = "2.11.4"
 "github:swanysimon/mdlint" = "latest"
 lefthook = "2.1.5"
 shellcheck = "latest"
+actionlint = "latest"
 goreleaser = "latest"
 
 [tasks]
