@@ -12,6 +12,26 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump calendar version
+        run: |
+          CALVER="$(date -u +%Y.%-m.0)"
+          CURRENT=$(jq -r '.["."]' .release-please-manifest.json)
+          CURRENT_YM="${CURRENT%.*}"
+          NOW_YM="${CALVER%.*}"
+          if [ "$CURRENT_YM" != "$NOW_YM" ]; then
+            jq --arg v "$CALVER" '. + {".": $v}' \
+              .release-please-manifest.json > tmp.json && mv tmp.json .release-please-manifest.json
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .release-please-manifest.json
+            git commit -m "chore: bump calendar version to $CALVER"
+            git push
+          fi
+
       - uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
