@@ -4,12 +4,10 @@
 
 ## Config file
 
-| Scope   | Path                    |
-|---------|-------------------------|
-| Project | —                       |
-| Global  | `~/.codex/config.toml`  |
-
-Project-level config is not supported.
+| Scope   | Path                     |
+|---------|--------------------------|
+| Project | `.codex/config.toml`     |
+| Global  | `~/.codex/config.toml`   |
 
 ## Format
 

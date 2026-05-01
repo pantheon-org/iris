@@ -57,7 +57,7 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 | Claude Desktop (`claude-desktop`) | — | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |
 | Gemini CLI (`gemini`) | `.gemini/settings.json` | `~/.gemini/settings.json` |
 | OpenCode (`opencode`) | `opencode.json` | `~/.config/opencode/opencode.json` |
-| OpenAI Codex (`codex`) | — | `~/.codex/config.toml` |
+| OpenAI Codex (`codex`) | `.codex/config.toml` | `~/.codex/config.toml` |
 | Cursor (`cursor`) | `.cursor/mcp.json` | `~/.cursor/mcp.json` |
 | Windsurf (`windsurf`) | — | `~/.codeium/windsurf/mcp_config.json` |
 | VS Code Copilot (`vscode-copilot`) | `.vscode/mcp.json` | — |

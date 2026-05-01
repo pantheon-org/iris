@@ -20,23 +20,27 @@ func TestCodexProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 
 	assert.Equal(t, "codex", cfg.Name)
 	assert.Equal(t, "OpenAI Codex", cfg.DisplayName)
-	assert.False(t, cfg.SupportsProjectConfig)
+	assert.True(t, cfg.SupportsProjectConfig)
 
 	home, err := os.UserHomeDir()
 	require.NoError(t, err)
 	assert.Equal(t, filepath.Join(home, ".codex", "config.toml"), cfg.GlobalConfigPath)
 }
 
-func TestCodexProvider_ConfigFilePath_IgnoresProjectRoot(t *testing.T) {
+func TestCodexProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {
+	p := providers.NewCodexProvider()
+	got := p.ConfigFilePath("/any/project")
+	want := filepath.Join("/any/project", ".codex", "config.toml")
+	assert.Equal(t, want, got)
+}
+
+func TestCodexProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.T) {
 	p := providers.NewCodexProvider()
 
 	home, err := os.UserHomeDir()
 	require.NoError(t, err)
-	expected := filepath.Join(home, ".codex", "config.toml")
-
-	assert.Equal(t, expected, p.ConfigFilePath("/some/project/root"))
-	assert.Equal(t, expected, p.ConfigFilePath(""))
-	assert.Equal(t, expected, p.ConfigFilePath("/different/path"))
+	want := filepath.Join(home, ".codex", "config.toml")
+	assert.Equal(t, want, p.ConfigFilePath(""))
 }
 
 func TestCodexProvider_Exists_ReturnsFalseWhenFileAbsent(t *testing.T) {

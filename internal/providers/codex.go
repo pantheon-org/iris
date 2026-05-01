@@ -15,6 +15,7 @@ import (
 
 type CodexProvider struct {
 	configPath string
+	pinned     bool // when true, ConfigFilePath always returns configPath regardless of projectRoot
 }
 
 func codexGlobalPath() string {
@@ -26,22 +27,25 @@ func NewCodexProvider() *CodexProvider {
 	return &CodexProvider{configPath: codexGlobalPath()}
 }
 
-// NewCodexProviderWithPath creates a CodexProvider using a custom config path.
+// NewCodexProviderWithPath creates a CodexProvider pinned to a fixed config path.
 // Intended for use in tests.
 func NewCodexProviderWithPath(path string) *CodexProvider {
-	return &CodexProvider{configPath: path}
+	return &CodexProvider{configPath: path, pinned: true}
 }
 
 func (p *CodexProvider) Config() ProviderConfig {
 	return ProviderConfig{
 		Name:                  "codex",
 		DisplayName:           "OpenAI Codex",
-		SupportsProjectConfig: false,
+		SupportsProjectConfig: true,
 		GlobalConfigPath:      p.configPath,
 	}
 }
 
-func (p *CodexProvider) ConfigFilePath(_ string) string {
+func (p *CodexProvider) ConfigFilePath(projectRoot string) string {
+	if !p.pinned && projectRoot != "" {
+		return filepath.Join(projectRoot, ".codex", "config.toml")
+	}
 	return p.configPath
 }
 
