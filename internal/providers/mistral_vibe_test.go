@@ -17,8 +17,30 @@ func TestMistralVibeProvider_Config(t *testing.T) {
 	if cfg.Name != "mistral-vibe" {
 		t.Fatalf("expected name %q, got %q", "mistral-vibe", cfg.Name)
 	}
-	if cfg.SupportsProjectConfig {
-		t.Fatal("expected SupportsProjectConfig=false")
+	if !cfg.SupportsProjectConfig {
+		t.Fatal("expected SupportsProjectConfig=true")
+	}
+}
+
+func TestMistralVibeProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {
+	p := providers.NewMistralVibeProvider()
+	got := p.ConfigFilePath("/any/project")
+	want := filepath.Join("/any/project", ".vibe", "config.toml")
+	if got != want {
+		t.Errorf("ConfigFilePath = %q, want %q", got, want)
+	}
+}
+
+func TestMistralVibeProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.T) {
+	p := providers.NewMistralVibeProvider()
+	got := p.ConfigFilePath("")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join(home, ".vibe", "config.toml")
+	if got != want {
+		t.Errorf("ConfigFilePath = %q, want %q", got, want)
 	}
 }
 

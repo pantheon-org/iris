@@ -206,3 +206,40 @@ func TestDetect_QwenProjectConfig_AbsentNotDetected(t *testing.T) {
 		t.Errorf("expected 0 providers, got %d", len(got))
 	}
 }
+
+func TestDetect_MistralVibeProjectConfig_Detected(t *testing.T) {
+	root := t.TempDir()
+
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewMistralVibeProvider())
+
+	vibeDir := filepath.Join(root, ".vibe")
+	if err := os.MkdirAll(vibeDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(vibeDir, "config.toml"), []byte(""), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	got := detector.Detect(root, reg)
+
+	if len(got) != 1 {
+		t.Fatalf("expected 1 provider, got %d", len(got))
+	}
+	if got[0].Config().Name != "mistral-vibe" {
+		t.Errorf("expected mistral-vibe, got %q", got[0].Config().Name)
+	}
+}
+
+func TestDetect_MistralVibeProjectConfig_AbsentNotDetected(t *testing.T) {
+	root := t.TempDir()
+
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewMistralVibeProvider())
+
+	got := detector.Detect(root, reg)
+
+	if len(got) != 0 {
+		t.Errorf("expected 0 providers, got %d", len(got))
+	}
+}

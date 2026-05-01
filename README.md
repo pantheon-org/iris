@@ -65,7 +65,7 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 | Qwen Code (`qwen`) | `.qwen/settings.json` | `~/.qwen/settings.json` |
 | Warp (`warp`) | — | `~/.warp/mcp.json` |
 | Kimi Code (`kimi`) | — | `~/.kimi/mcp.json` |
-| Mistral Vibe (`mistral-vibe`) | — | `~/.vibe/config.toml` |
+| Mistral Vibe (`mistral-vibe`) | `.vibe/config.toml` | `~/.vibe/config.toml` |
 | IntelliJ IDEA (`intellij`) | `.idea/mcp.json` | — |
 
 ## Development
