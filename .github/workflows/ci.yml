@@ -45,6 +45,9 @@ jobs:
 
       - uses: jdx/mise-action@v2
 
+      - name: actionlint
+        run: actionlint
+
       - name: mdlint
         run: mdlint check .
 
