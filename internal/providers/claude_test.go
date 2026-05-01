@@ -1,0 +1,153 @@
+package providers_test
+
+import (
+	"encoding/json"
+	"errors"
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/pantheon-org/iris/internal/ierrors"
+	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/types"
+)
+
+func TestClaudeProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
+	p := providers.NewClaudeProvider()
+	cfg := p.Config()
+
+	if cfg.Name != "claude" {
+		t.Errorf("Name = %q, want %q", cfg.Name, "claude")
+	}
+	if cfg.DisplayName != "Claude" {
+		t.Errorf("DisplayName = %q, want %q", cfg.DisplayName, "Claude")
+	}
+	if !cfg.SupportsProjectConfig {
+		t.Error("SupportsProjectConfig = false, want true")
+	}
+	if cfg.ConfigPath != ".mcp.json" {
+		t.Errorf("ConfigPath = %q, want %q", cfg.ConfigPath, ".mcp.json")
+	}
+}
+
+func TestClaudeProvider_ConfigFilePath_ReturnsProjectRelativePath(t *testing.T) {
+	p := providers.NewClaudeProvider()
+	got := p.ConfigFilePath("/some/project")
+	want := "/some/project/.mcp.json"
+	if got != want {
+		t.Errorf("ConfigFilePath = %q, want %q", got, want)
+	}
+}
+
+func TestClaudeProvider_Exists_ReturnsFalseWhenAbsent(t *testing.T) {
+	p := providers.NewClaudeProvider()
+	tmp := t.TempDir()
+	if p.Exists(tmp) {
+		t.Error("Exists = true, want false for missing file")
+	}
+}
+
+func TestClaudeProvider_Exists_ReturnsTrueWhenPresent(t *testing.T) {
+	p := providers.NewClaudeProvider()
+	tmp := t.TempDir()
+	if err := os.WriteFile(filepath.Join(tmp, ".mcp.json"), []byte("{}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if !p.Exists(tmp) {
+		t.Error("Exists = false, want true when file present")
+	}
+}
+
+func TestClaudeProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *testing.T) {
+	p := providers.NewClaudeProvider()
+	servers := map[string]types.MCPServer{
+		"my-server": {
+			Command:   "npx",
+			Args:      []string{"-y", "@modelcontextprotocol/server-filesystem"},
+			Transport: types.TransportStdio,
+		},
+	}
+
+	out, err := p.Generate(servers, "")
+	if err != nil {
+		t.Fatalf("Generate error: %v", err)
+	}
+
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("output not valid JSON: %v", err)
+	}
+	if _, ok := doc["mcpServers"]; !ok {
+		t.Error("output missing mcpServers key")
+	}
+}
+
+func TestClaudeProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *testing.T) {
+	p := providers.NewClaudeProvider()
+
+	input, err := os.ReadFile("testdata/claude_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	servers := map[string]types.MCPServer{
+		"filesystem": {
+			Command:   "npx",
+			Args:      []string{"-y", "@modelcontextprotocol/server-filesystem"},
+			Transport: types.TransportStdio,
+		},
+	}
+
+	out, err := p.Generate(servers, string(input))
+	if err != nil {
+		t.Fatalf("Generate error: %v", err)
+	}
+
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("output not valid JSON: %v", err)
+	}
+
+	if _, ok := doc["extraKey"]; !ok {
+		t.Error("Generate dropped extraKey from existing content")
+	}
+	if _, ok := doc["mcpServers"]; !ok {
+		t.Error("Generate missing mcpServers key")
+	}
+}
+
+func TestClaudeProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+	p := providers.NewClaudeProvider()
+
+	content, err := os.ReadFile("testdata/claude_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+
+	if len(servers) != 2 {
+		t.Errorf("len(servers) = %d, want 2", len(servers))
+	}
+	fs, ok := servers["filesystem"]
+	if !ok {
+		t.Fatal("missing filesystem server")
+	}
+	if fs.Command != "npx" {
+		t.Errorf("filesystem.Command = %q, want %q", fs.Command, "npx")
+	}
+}
+
+func TestClaudeProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *testing.T) {
+	p := providers.NewClaudeProvider()
+	_, err := p.Parse("{not valid json")
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if !errors.Is(err, ierrors.ErrMalformedConfig) {
+		t.Errorf("error = %v, want wrapping ErrMalformedConfig", err)
+	}
+}
