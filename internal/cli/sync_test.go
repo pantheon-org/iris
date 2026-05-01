@@ -2,7 +2,6 @@ package cli_test
 
 import (
 	"bytes"
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -144,5 +143,3 @@ func indexOf(s, substr string) int {
 	}
 	return -1
 }
-
-var _ = json.Marshal
