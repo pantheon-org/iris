@@ -8,6 +8,7 @@ import (
 	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/config"
 	"github.com/pantheon-org/iris/internal/detector"
+	"github.com/pantheon-org/iris/internal/i18n"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/types"
 )
@@ -22,7 +23,7 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *provid
 
 	// Detect installed harnesses and offer to import their existing MCP servers.
 	for _, p := range detector.Detect(projectRoot, registry) {
-		importIt, err := r.PromptConfirm(fmt.Sprintf("Detected %s — import its servers?", p.Config().DisplayName))
+		importIt, err := r.PromptConfirm(i18n.T("wizard.import_prompt", p.Config().DisplayName))
 		if err != nil {
 			return fmt.Errorf("prompt import %s: %w", p.Config().Name, err)
 		}
@@ -44,7 +45,7 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *provid
 	}
 
 	for {
-		more, err := r.PromptConfirm("Add a server? (yes to continue, no to finish)")
+		more, err := r.PromptConfirm(i18n.T("wizard.add_server"))
 		if err != nil {
 			return fmt.Errorf("prompt confirm: %w", err)
 		}
@@ -52,17 +53,17 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *provid
 			break
 		}
 
-		name, err := r.PromptText("Server name", "")
+		name, err := r.PromptText(i18n.T("wizard.server_name"), "")
 		if err != nil {
 			return fmt.Errorf("prompt server name: %w", err)
 		}
 
-		command, err := r.PromptText("Command", "")
+		command, err := r.PromptText(i18n.T("wizard.command"), "")
 		if err != nil {
 			return fmt.Errorf("prompt command: %w", err)
 		}
 
-		argsRaw, err := r.PromptText("Args (space-separated, leave blank for none)", "")
+		argsRaw, err := r.PromptText(i18n.T("wizard.args"), "")
 		if err != nil {
 			return fmt.Errorf("prompt args: %w", err)
 		}
@@ -73,7 +74,7 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *provid
 			}
 		}
 
-		transport, err := r.PromptSelect("Transport", []string{"stdio", "sse"})
+		transport, err := r.PromptSelect(i18n.T("wizard.transport"), []string{"stdio", "sse"})
 		if err != nil {
 			return fmt.Errorf("prompt transport: %w", err)
 		}
