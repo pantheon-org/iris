@@ -1,5 +1,21 @@
 # Changelog
 
+## [2026.5.5](https://github.com/pantheon-org/iris/compare/v2026.5.4...v2026.5.5) (2026-05-01)
+
+
+### Features
+
+* **cli:** add --provider flag to sync and init subcommands ([#56](https://github.com/pantheon-org/iris/issues/56)) ([d5bdd8d](https://github.com/pantheon-org/iris/commit/d5bdd8d8f55233fa03aa72ced48da68a0555b777))
+* **wizard:** detect installed harnesses and offer to import servers on init ([#55](https://github.com/pantheon-org/iris/issues/55)) ([87d144c](https://github.com/pantheon-org/iris/commit/87d144ce403673eb465b61e1f7b9605714473edc))
+
+
+### Bug Fixes
+
+* **providers:** correct Gemini config path and enable project-level config ([#46](https://github.com/pantheon-org/iris/issues/46)) ([0ea5383](https://github.com/pantheon-org/iris/commit/0ea5383620ecbbfcbe1436305c6d1849b39d04f3))
+* **providers:** enable project-level config support for Codex (.codex/config.toml) ([#50](https://github.com/pantheon-org/iris/issues/50)) ([c11340b](https://github.com/pantheon-org/iris/commit/c11340b7a938fe928503921c6761aa0067e3b6e6))
+* **providers:** enable project-level config support for Mistral Vibe (.vibe/config.toml) ([#52](https://github.com/pantheon-org/iris/issues/52)) ([eaea507](https://github.com/pantheon-org/iris/commit/eaea507cc68ca849abc42eac070afe25c1721eda))
+* **providers:** enable project-level config support for Qwen Code (.qwen/settings.json) ([#51](https://github.com/pantheon-org/iris/issues/51)) ([4326257](https://github.com/pantheon-org/iris/commit/4326257726981e55e07ba402cbfe50e0a83110d2))
+
 ## [2026.5.4](https://github.com/pantheon-org/iris/compare/v2026.5.3...v2026.5.4) (2026-05-01)
 
 
