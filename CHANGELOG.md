@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.5.3](https://github.com/pantheon-org/iris/compare/v2026.5.2...v2026.5.3) (2026-05-01)
+
+
+### Features
+
+* **providers:** add 10 new providers + docs ([#38](https://github.com/pantheon-org/iris/issues/38)) ([30874dd](https://github.com/pantheon-org/iris/commit/30874ddc23c035f8d7fa902e6ece8b0ea5afd2c7))
+
 ## [2026.5.2](https://github.com/pantheon-org/iris/compare/v2026.5.1...v2026.5.2) (2026-05-01)
 
 
