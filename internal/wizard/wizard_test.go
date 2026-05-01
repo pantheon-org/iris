@@ -1,6 +1,7 @@
 package wizard_test
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -39,7 +40,7 @@ func TestRunInit_happyPath_twoServers(t *testing.T) {
 		"no",       // Add a server?
 	})
 
-	err := wizard.RunInit(r, store, newRegistry())
+	err := wizard.RunInit(r, "", store, newRegistry())
 	require.NoError(t, err)
 
 	cfg, err := store.Load()
@@ -58,7 +59,7 @@ func TestRunInit_noServers_emptyConfig(t *testing.T) {
 		"no", // Add a server? — immediate no
 	})
 
-	err := wizard.RunInit(r, store, newRegistry())
+	err := wizard.RunInit(r, "", store, newRegistry())
 	require.NoError(t, err)
 
 	cfg, err := store.Load()
@@ -77,13 +78,63 @@ func TestRunInit_cancelMidFlow_partialSave(t *testing.T) {
 		"no",       // Add a server?
 	})
 
-	err := wizard.RunInit(r, store, newRegistry())
+	err := wizard.RunInit(r, "", store, newRegistry())
 	require.NoError(t, err)
 
 	cfg, err := store.Load()
 	require.NoError(t, err)
 	assert.Len(t, cfg.Servers, 1)
 	assert.Contains(t, cfg.Servers, "server-a")
+}
+
+func TestRunInit_importDetectedProvider_importsServers(t *testing.T) {
+	dir := t.TempDir()
+	store, err := config.NewStore(filepath.Join(dir, ".iris.json"))
+	require.NoError(t, err)
+
+	// Write a Claude .mcp.json with one server in the project root.
+	mcpJSON := `{"mcpServers":{"imported-srv":{"command":"npx","args":["-y","thing"],"type":"stdio"}}}`
+	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(mcpJSON), 0o600))
+
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewClaudeProvider())
+
+	r := wizard.NewScriptedRunner([]string{
+		"yes", // Detected Claude Code — import its servers?
+		"no",  // Add a server?
+	})
+
+	err = wizard.RunInit(r, dir, store, reg)
+	require.NoError(t, err)
+
+	cfg, err := store.Load()
+	require.NoError(t, err)
+	assert.Contains(t, cfg.Servers, "imported-srv")
+	assert.Equal(t, "npx", cfg.Servers["imported-srv"].Command)
+}
+
+func TestRunInit_importDetectedProvider_declineImport(t *testing.T) {
+	dir := t.TempDir()
+	store, err := config.NewStore(filepath.Join(dir, ".iris.json"))
+	require.NoError(t, err)
+
+	mcpJSON := `{"mcpServers":{"imported-srv":{"command":"npx","args":[],"type":"stdio"}}}`
+	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(mcpJSON), 0o600))
+
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewClaudeProvider())
+
+	r := wizard.NewScriptedRunner([]string{
+		"no", // Detected Claude Code — import its servers? — declined
+		"no", // Add a server?
+	})
+
+	err = wizard.RunInit(r, dir, store, reg)
+	require.NoError(t, err)
+
+	cfg, err := store.Load()
+	require.NoError(t, err)
+	assert.Empty(t, cfg.Servers)
 }
 
 func TestRunInit_duplicateName_overwritten(t *testing.T) {
@@ -102,7 +153,7 @@ func TestRunInit_duplicateName_overwritten(t *testing.T) {
 		"no",     // Add a server?
 	})
 
-	err := wizard.RunInit(r, store, newRegistry())
+	err := wizard.RunInit(r, "", store, newRegistry())
 	require.NoError(t, err)
 
 	cfg, err := store.Load()
