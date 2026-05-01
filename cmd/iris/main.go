@@ -67,6 +67,25 @@ func main() {
 		Use:     "iris",
 		Short:   i18n.T("cmd.root"),
 		Version: version.Version,
+		// Apply lang from .iris.json when --lang was not given on the CLI.
+		// PersistentPreRunE runs before every subcommand, so all output is translated.
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if parseLangArg(os.Args[1:]) != "" {
+				return nil // --lang already applied at startup
+			}
+			store, err := loadConfig(configFlag)
+			if err != nil {
+				return err
+			}
+			cfg, err := store.Load()
+			if err != nil {
+				return nil // config may not exist yet (e.g. during init)
+			}
+			if cfg.Lang != "" {
+				i18n.SetLang(cfg.Lang)
+			}
+			return nil
+		},
 	}
 
 	root.PersistentFlags().StringVarP(&configFlag, "config", "C", config.DefaultConfigFile, i18n.T("flag.config"))
