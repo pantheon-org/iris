@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/types"
@@ -87,10 +86,4 @@ func (b *baseJSONProvider) Parse(content string) (map[string]types.MCPServer, er
 	return result, nil
 }
 
-func geminiConfigPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return filepath.Join(".gemini", "settings.json")
-	}
-	return filepath.Join(home, ".gemini", "settings.json")
-}
+func geminiConfigPath() string { return homePath(".gemini", "settings.json") }

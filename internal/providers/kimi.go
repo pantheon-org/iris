@@ -1,10 +1,5 @@
 package providers
 
-import (
-	"os"
-	"path/filepath"
-)
-
 type KimiProvider struct {
 	baseJSONProvider
 }
@@ -34,10 +29,4 @@ func NewKimiProviderWithPath(path string) *KimiProvider {
 	return newKimiProviderWithPath(path)
 }
 
-func kimiConfigPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return filepath.Join(".kimi", "mcp.json")
-	}
-	return filepath.Join(home, ".kimi", "mcp.json")
-}
+func kimiConfigPath() string { return homePath(".kimi", "mcp.json") }

@@ -16,10 +16,7 @@ import (
 // Mistral Vibe stores MCP servers in ~/.vibe/config.toml under [[mcp_servers]].
 // The format mirrors Codex: a TOML array of tables with an explicit name field.
 
-func mistralVibeConfigPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".vibe", "config.toml")
-}
+func mistralVibeConfigPath() string { return homePath(".vibe", "config.toml") }
 
 func NewMistralVibeProvider() *MistralVibeProvider {
 	return &MistralVibeProvider{configPath: mistralVibeConfigPath()}

@@ -1,7 +1,6 @@
 package providers
 
 import (
-	"os"
 	"path/filepath"
 )
 
@@ -48,10 +47,4 @@ func NewQwenProviderWithPath(path string) *QwenProvider {
 	return p
 }
 
-func qwenConfigPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return filepath.Join(".qwen", "settings.json")
-	}
-	return filepath.Join(home, ".qwen", "settings.json")
-}
+func qwenConfigPath() string { return homePath(".qwen", "settings.json") }
