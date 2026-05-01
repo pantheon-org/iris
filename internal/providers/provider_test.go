@@ -75,3 +75,34 @@ func TestRegistry_Names_ReturnsAllProviderNames(t *testing.T) {
 	assert.Contains(t, names, "claude")
 	assert.Contains(t, names, "gemini")
 }
+
+func TestRegistry_Filter_ReturnsSubset(t *testing.T) {
+	r := providers.NewRegistry()
+	r.Register(&mockProvider{name: "claude"})
+	r.Register(&mockProvider{name: "gemini"})
+	r.Register(&mockProvider{name: "cursor"})
+
+	filtered, err := r.Filter([]string{"claude", "cursor"})
+	require.NoError(t, err)
+	assert.Len(t, filtered.All(), 2)
+	assert.Contains(t, filtered.Names(), "claude")
+	assert.Contains(t, filtered.Names(), "cursor")
+}
+
+func TestRegistry_Filter_UnknownName_WrapsErrProviderNotFound(t *testing.T) {
+	r := providers.NewRegistry()
+	r.Register(&mockProvider{name: "claude"})
+
+	_, err := r.Filter([]string{"claude", "nope"})
+	require.Error(t, err)
+	assert.True(t, errors.Is(err, ierrors.ErrProviderNotFound))
+}
+
+func TestRegistry_Filter_EmptySlice_ReturnsEmptyRegistry(t *testing.T) {
+	r := providers.NewRegistry()
+	r.Register(&mockProvider{name: "claude"})
+
+	filtered, err := r.Filter([]string{})
+	require.NoError(t, err)
+	assert.Empty(t, filtered.All())
+}
