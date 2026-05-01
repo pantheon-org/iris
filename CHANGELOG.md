@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026.5.4](https://github.com/pantheon-org/iris/compare/v2026.5.3...v2026.5.4) (2026-05-01)
+
+
+### Features
+
+* **cli:** add short flag aliases for all subcommand options ([#44](https://github.com/pantheon-org/iris/issues/44)) ([99ed9cc](https://github.com/pantheon-org/iris/commit/99ed9ccfe90663b5ac7d85a95d34ae5ebef6a93c))
+* **providers:** add IntelliJ IDEA provider (.idea/mcp.json) ([#41](https://github.com/pantheon-org/iris/issues/41)) ([758e6e1](https://github.com/pantheon-org/iris/commit/758e6e1e5171e58f912ebf9e02004c0a59f5fde8))
+
 ## [2026.5.3](https://github.com/pantheon-org/iris/compare/v2026.5.2...v2026.5.3) (2026-05-01)
 
 
