@@ -19,6 +19,7 @@ internal/
   providers/              # Provider interface + Registry + Claude/Gemini/OpenCode/Codex impls
   detector/               # Detect() — scans project root for present provider configs
   merger/                 # SyncProvider / SyncAllProviders — thin orchestrator
+  version/                # Version string injected at build time via ldflags
   wizard/                 # Runner interface + ScriptedRunner + BubbleteaRunner + RunInit
   cli/                    # RunList, RunStatus, RunAdd, RunRemove, RunSync, RunInitNonInteractive
   integration/            # end-to-end tests (full pipeline, no mocks)
