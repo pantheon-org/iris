@@ -15,9 +15,6 @@ import (
 
 // Mistral Vibe stores MCP servers in ~/.vibe/config.toml under [[mcp_servers]].
 // The format mirrors Codex: a TOML array of tables with an explicit name field.
-type MistralVibeProvider struct {
-	configPath string
-}
 
 func mistralVibeConfigPath() string {
 	home, _ := os.UserHomeDir()
@@ -28,14 +25,20 @@ func NewMistralVibeProvider() *MistralVibeProvider {
 	return &MistralVibeProvider{configPath: mistralVibeConfigPath()}
 }
 
+// MistralVibeProvider with pinned=true always returns configPath regardless of projectRoot.
+type MistralVibeProvider struct {
+	configPath string
+	pinned     bool
+}
+
 func newMistralVibeProviderWithPath(path string) *MistralVibeProvider {
 	return &MistralVibeProvider{configPath: path}
 }
 
-// NewMistralVibeProviderWithPath creates a MistralVibeProvider using a custom config path.
+// NewMistralVibeProviderWithPath creates a MistralVibeProvider pinned to a fixed config path.
 // Intended for use in tests.
 func NewMistralVibeProviderWithPath(path string) *MistralVibeProvider {
-	return newMistralVibeProviderWithPath(path)
+	return &MistralVibeProvider{configPath: path, pinned: true}
 }
 
 func (p *MistralVibeProvider) Config() ProviderConfig {
@@ -43,15 +46,20 @@ func (p *MistralVibeProvider) Config() ProviderConfig {
 		Name:                  "mistral-vibe",
 		DisplayName:           "Mistral Vibe",
 		ConfigPath:            "~/.vibe/config.toml",
-		SupportsProjectConfig: false,
+		SupportsProjectConfig: true,
 		GlobalConfigPath:      p.configPath,
 	}
 }
 
-func (p *MistralVibeProvider) ConfigFilePath(_ string) string { return p.configPath }
+func (p *MistralVibeProvider) ConfigFilePath(projectRoot string) string {
+	if !p.pinned && projectRoot != "" {
+		return filepath.Join(projectRoot, ".vibe", "config.toml")
+	}
+	return p.configPath
+}
 
-func (p *MistralVibeProvider) Exists(_ string) bool {
-	_, err := os.Stat(p.configPath)
+func (p *MistralVibeProvider) Exists(projectRoot string) bool {
+	_, err := os.Stat(p.ConfigFilePath(projectRoot))
 	return err == nil
 }
 

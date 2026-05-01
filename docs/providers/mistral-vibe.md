@@ -4,12 +4,12 @@
 
 ## Config file
 
-| Scope   | Path                   |
-|---------|------------------------|
-| Project | —                      |
-| Global  | `~/.vibe/config.toml`  |
+| Scope   | Path                    |
+|---------|-------------------------|
+| Project | `.vibe/config.toml`     |
+| Global  | `~/.vibe/config.toml`   |
 
-Project-level config is not supported. The home directory can be overridden via `VIBE_HOME`.
+The home directory can be overridden via `VIBE_HOME`.
 
 ## Format
 
