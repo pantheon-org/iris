@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/types"
@@ -115,10 +114,4 @@ func (p *ZedProvider) Parse(content string) (map[string]types.MCPServer, error) 
 	return result, nil
 }
 
-func zedConfigPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return filepath.Join(".config", "zed", "settings.json")
-	}
-	return filepath.Join(home, ".config", "zed", "settings.json")
-}
+func zedConfigPath() string { return homePath(".config", "zed", "settings.json") }

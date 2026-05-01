@@ -1,10 +1,5 @@
 package providers
 
-import (
-	"os"
-	"path/filepath"
-)
-
 type WarpProvider struct {
 	baseJSONProvider
 }
@@ -34,10 +29,4 @@ func NewWarpProviderWithPath(path string) *WarpProvider {
 	return newWarpProviderWithPath(path)
 }
 
-func warpConfigPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return filepath.Join(".warp", "mcp.json")
-	}
-	return filepath.Join(home, ".warp", "mcp.json")
-}
+func warpConfigPath() string { return homePath(".warp", "mcp.json") }

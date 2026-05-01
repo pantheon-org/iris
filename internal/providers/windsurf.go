@@ -1,10 +1,5 @@
 package providers
 
-import (
-	"os"
-	"path/filepath"
-)
-
 type WindsurfProvider struct {
 	baseJSONProvider
 }
@@ -34,10 +29,4 @@ func NewWindsurfProviderWithPath(path string) *WindsurfProvider {
 	return newWindsurfProviderWithPath(path)
 }
 
-func windsurfConfigPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return filepath.Join(".codeium", "windsurf", "mcp_config.json")
-	}
-	return filepath.Join(home, ".codeium", "windsurf", "mcp_config.json")
-}
+func windsurfConfigPath() string { return homePath(".codeium", "windsurf", "mcp_config.json") }

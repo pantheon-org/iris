@@ -18,10 +18,7 @@ type CodexProvider struct {
 	pinned     bool // when true, ConfigFilePath always returns configPath regardless of projectRoot
 }
 
-func codexGlobalPath() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".codex", "config.toml")
-}
+func codexGlobalPath() string { return homePath(".codex", "config.toml") }
 
 func NewCodexProvider() *CodexProvider {
 	return &CodexProvider{configPath: codexGlobalPath()}
