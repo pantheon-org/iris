@@ -66,6 +66,7 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 | Warp (`warp`) | — | `~/.warp/mcp.json` |
 | Kimi Code (`kimi`) | — | `~/.kimi/mcp.json` |
 | Mistral Vibe (`mistral-vibe`) | — | `~/.vibe/config.toml` |
+| IntelliJ IDEA (`intellij`) | `.idea/mcp.json` | — |
 
 ## Development
 
