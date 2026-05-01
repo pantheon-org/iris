@@ -24,6 +24,24 @@ func loadConfig(configFlag string) (*config.Store, error) {
 	return store, nil
 }
 
+func buildRegistry() *providers.Registry {
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeDesktopProvider())
+	reg.Register(providers.NewGeminiProvider())
+	reg.Register(providers.NewOpenCodeProvider())
+	reg.Register(providers.NewCodexProvider())
+	reg.Register(providers.NewCursorProvider())
+	reg.Register(providers.NewWindsurfProvider())
+	reg.Register(providers.NewVSCodeCopilotProvider())
+	reg.Register(providers.NewZedProvider())
+	reg.Register(providers.NewQwenProvider())
+	reg.Register(providers.NewWarpProvider())
+	reg.Register(providers.NewKimiProvider())
+	reg.Register(providers.NewMistralVibeProvider())
+	return reg
+}
+
 func main() {
 	var configFlag string
 
@@ -47,12 +65,7 @@ func main() {
 						return err
 					}
 					if interactive {
-						reg := providers.NewRegistry()
-						reg.Register(providers.NewClaudeProvider())
-						reg.Register(providers.NewGeminiProvider())
-						reg.Register(providers.NewOpenCodeProvider())
-						reg.Register(providers.NewCodexProvider())
-						return wizard.RunInit(wizard.NewBubbleteaRunner(), store, reg)
+						return wizard.RunInit(wizard.NewBubbleteaRunner(), store, buildRegistry())
 					}
 					return cli.RunInitNonInteractive(store, os.Stdout)
 				},
@@ -150,12 +163,7 @@ func main() {
 				if err != nil {
 					return fmt.Errorf("load config: %w", err)
 				}
-				reg := providers.NewRegistry()
-				reg.Register(providers.NewClaudeProvider())
-				reg.Register(providers.NewGeminiProvider())
-				reg.Register(providers.NewOpenCodeProvider())
-				reg.Register(providers.NewCodexProvider())
-				if err := cli.RunSync(projectRoot, cfg, reg, os.Stdout); err != nil {
+				if err := cli.RunSync(projectRoot, cfg, buildRegistry(), os.Stdout); err != nil {
 					fmt.Fprintln(os.Stderr, err)
 					os.Exit(1)
 				}
@@ -178,12 +186,7 @@ func main() {
 				if err != nil {
 					return fmt.Errorf("load config: %w", err)
 				}
-				reg := providers.NewRegistry()
-				reg.Register(providers.NewClaudeProvider())
-				reg.Register(providers.NewGeminiProvider())
-				reg.Register(providers.NewOpenCodeProvider())
-				reg.Register(providers.NewCodexProvider())
-				return cli.RunStatus(projectRoot, cfg, reg, os.Stdout)
+				return cli.RunStatus(projectRoot, cfg, buildRegistry(), os.Stdout)
 			},
 		},
 	)

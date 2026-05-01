@@ -2,7 +2,7 @@
 
 > Sync MCP server configs across all your AI providers.
 
-`iris` is a CLI tool that keeps MCP server configurations in sync across Claude Code, Gemini CLI, OpenCode, and Codex. Define your servers once in `.iris.json` and run `iris sync` to propagate them everywhere.
+`iris` is a CLI tool that keeps MCP server configurations in sync across all your AI providers. Define your servers once in `.iris.json` and run `iris sync` to propagate them everywhere.
 
 ## Installation
 
@@ -33,7 +33,7 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 ```json
 {
   "version": 1,
-  "providers": ["claude", "gemini", "opencode", "codex"],
+  "providers": ["claude", "gemini", "opencode", "codex", "cursor", "windsurf"],
   "servers": {
     "filesystem": {
       "transport": "stdio",
@@ -51,12 +51,23 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 
 ## Supported providers
 
-| Provider | Config file | Scope |
+| Provider | Project config | Global config |
 |---|---|---|
-| Claude Code | `.mcp.json` | Project |
-| Gemini CLI | `~/.config/gemini/settings.json` | Global |
-| OpenCode | `opencode.json` | Project |
-| Codex | `~/.codex/config.toml` | Global |
+| Claude Code (`claude`) | `.mcp.json` | `~/.mcp.json` |
+| Claude Desktop (`claude-desktop`) | — | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) |
+| Gemini CLI (`gemini`) | — | `~/.config/gemini/settings.json` |
+| OpenCode (`opencode`) | `opencode.json` | `~/.config/opencode/opencode.json` |
+| OpenAI Codex (`codex`) | — | `~/.codex/config.toml` |
+| Cursor (`cursor`) | `.cursor/mcp.json` | `~/.cursor/mcp.json` |
+| Windsurf (`windsurf`) | — | `~/.codeium/windsurf/mcp_config.json` |
+| VS Code Copilot (`vscode-copilot`) | `.vscode/mcp.json` | — |
+| Zed (`zed`) | — | `~/.config/zed/settings.json` |
+| Qwen Code (`qwen`) | — | `~/.qwen/settings.json` |
+| Warp (`warp`) | — | `~/.warp/mcp.json` |
+| Kimi Code (`kimi`) | — | `~/.kimi/mcp.json` |
+| Mistral Vibe (`mistral-vibe`) | — | `~/.vibe/config.toml` |
+
+Providers not yet implemented (config references available in [`docs/providers/`](docs/providers/)): Continue, Cline, Kilo Code, JetBrains AI, Augment Code, Amp.
 
 ## Development
 
