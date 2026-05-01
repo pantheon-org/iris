@@ -1,40 +1,57 @@
 {
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/adr-session-start.sh",
-            "statusMessage": "Checking ADR status..."
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/adr-bash-watch.sh",
-            "statusMessage": "Checking ADR for new branch..."
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/adr-stop-check.sh",
-            "statusMessage": "Checking ADR completeness..."
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"SessionStart": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": ".claude/hooks/adr-session-start.sh",
+						"statusMessage": "Checking ADR status..."
+					}
+				]
+			}
+		],
+		"PreToolUse": [
+			{
+				"matcher": "Write|Edit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": ".claude/hooks/check-intel-leak.sh",
+						"statusMessage": "Checking for intelligence leaks..."
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": ".claude/hooks/adr-bash-watch.sh",
+						"statusMessage": "Checking ADR for new branch..."
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"matcher": "",
+				"hooks": [
+					{
+						"type": "command",
+						"command": ".claude/hooks/adr-stop-check.sh",
+						"statusMessage": "Checking ADR completeness..."
+					},
+					{
+						"type": "command",
+						"command": ".claude/hooks/doc-review.sh",
+						"statusMessage": "Checking if docs need updating..."
+					}
+				]
+			}
+		]
+	}
 }
