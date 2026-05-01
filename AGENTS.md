@@ -10,7 +10,7 @@ Go rewrite of gustavodiasdev/mcpx-cli — CLI to sync MCP server configs across 
 
 ## Package layout
 
-```
+```text
 cmd/iris/main.go          # cobra root + subcommand wiring only
 internal/
   ierrors/                # sentinel errors (ErrServerNotFound, ErrMalformedConfig, etc.)
