@@ -4,13 +4,12 @@
 
 ## Config file
 
-Cline is a VS Code extension. MCP server configuration is stored in VS Code's extension global storage, not in a user-accessible fixed path. The file is typically at:
+| Scope   | Path                                                                                                          |
+|---------|---------------------------------------------------------------------------------------------------------------|
+| Project | —                                                                                                             |
+| Global  | `~/.vscode/extensions/saoudrizwan.claude-dev-<version>/globalStorage/settings/cline_mcp_settings.json`       |
 
-```text
-~/.vscode/extensions/saoudrizwan.claude-dev-<version>/globalStorage/settings/cline_mcp_settings.json
-```
-
-The version suffix makes the path non-deterministic across updates. Cline also supports managing MCP servers through its in-app UI.
+The `<version>` suffix makes the global path non-deterministic across updates. Cline also supports managing MCP servers through its in-app UI.
 
 ## Format
 

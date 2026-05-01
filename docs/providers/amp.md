@@ -4,9 +4,10 @@
 
 ## Config file
 
-| Scope  | Path                      |
-|--------|---------------------------|
-| Global | `~/.config/amp/mcp.json`  |
+| Scope   | Path                      |
+|---------|---------------------------|
+| Project | —                         |
+| Global  | `~/.config/amp/mcp.json`  |
 
 Project-level config is not supported.
 

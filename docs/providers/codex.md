@@ -4,9 +4,10 @@
 
 ## Config file
 
-| Scope  | Path                    |
-|--------|-------------------------|
-| Global | `~/.codex/config.toml`  |
+| Scope   | Path                    |
+|---------|-------------------------|
+| Project | —                       |
+| Global  | `~/.codex/config.toml`  |
 
 Project-level config is not supported.
 
@@ -27,4 +28,5 @@ Root key: `mcp_servers` (TOML array of tables). Unlike other providers, each ser
 
 ## References
 
-- [Codex CLI configuration](https://github.com/openai/codex#configuration)
+- [Codex CLI GitHub](https://github.com/openai/codex)
+- [Codex CLI configuration reference](https://github.com/openai/codex#configuration)

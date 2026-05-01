@@ -4,11 +4,12 @@
 
 ## Config file
 
-Augment Code is a VS Code (and JetBrains) extension. MCP server configuration is managed through the extension's settings panel and stored in VS Code extension global storage at a version-dependent path:
+| Scope   | Path                                                                              |
+|---------|-----------------------------------------------------------------------------------|
+| Project | —                                                                                 |
+| Global  | `~/.vscode/extensions/augment.vscode-augment-<version>/globalStorage/`           |
 
-```text
-~/.vscode/extensions/augment.vscode-augment-<version>/globalStorage/
-```
+The `<version>` suffix makes the global path non-deterministic across updates.
 
 ## Format
 

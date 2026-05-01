@@ -4,13 +4,12 @@
 
 ## Config file
 
-Kilo Code is a VS Code extension (fork of Cline). MCP configuration is stored in VS Code's extension global storage at a version-dependent path, similar to Cline:
+| Scope   | Path                                                                                                            |
+|---------|-----------------------------------------------------------------------------------------------------------------|
+| Project | —                                                                                                               |
+| Global  | `~/.vscode/extensions/kilocode.kilo-code-<version>/globalStorage/settings/kilo_mcp_settings.json`              |
 
-```text
-~/.vscode/extensions/kilocode.kilo-code-<version>/globalStorage/settings/kilo_mcp_settings.json
-```
-
-Kilo Code also supports managing MCP servers through its in-app UI.
+The `<version>` suffix makes the global path non-deterministic across updates. Kilo Code also supports managing MCP servers through its in-app UI.
 
 ## Format
 

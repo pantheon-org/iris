@@ -4,9 +4,10 @@
 
 ## Config file
 
-| Scope  | Path              |
-|--------|-------------------|
-| Global | `~/.warp/mcp.json` |
+| Scope   | Path               |
+|---------|--------------------|
+| Project | —                  |
+| Global  | `~/.warp/mcp.json` |
 
 Project-level config is not supported.
 

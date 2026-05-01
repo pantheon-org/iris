@@ -4,9 +4,10 @@
 
 ## Config file
 
-| Scope  | Path                    |
-|--------|-------------------------|
-| Global | `~/.qwen/settings.json` |
+| Scope   | Path                    |
+|---------|-------------------------|
+| Project | —                       |
+| Global  | `~/.qwen/settings.json` |
 
 Project-level config is not supported.
 

@@ -4,9 +4,10 @@
 
 ## Config file
 
-| Scope  | Path                                     |
-|--------|------------------------------------------|
-| Global | `~/.codeium/windsurf/mcp_config.json`    |
+| Scope   | Path                                   |
+|---------|----------------------------------------|
+| Project | —                                      |
+| Global  | `~/.codeium/windsurf/mcp_config.json`  |
 
 Project-level config is not supported.
 

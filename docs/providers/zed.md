@@ -4,11 +4,12 @@
 
 ## Config file
 
-| Scope  | Path                            |
-|--------|---------------------------------|
-| Global | `~/.config/zed/settings.json`   |
+| Scope   | Path                           |
+|---------|--------------------------------|
+| Project | —                              |
+| Global  | `~/.config/zed/settings.json`  |
 
-Project-level config is not supported for MCP servers directly; servers are defined in the global settings file.
+Project-level config is not supported; MCP servers are defined in the global settings file.
 
 ## Format
 

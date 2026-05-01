@@ -4,7 +4,12 @@
 
 ## Config file
 
-JetBrains AI Assistant MCP configuration is managed through the IDE's settings UI. The underlying storage path is IDE-specific and platform-specific:
+| Scope   | Path                                                                        |
+|---------|-----------------------------------------------------------------------------|
+| Project | —                                                                           |
+| Global  | IDE settings directory (OS and IDE version dependent — see below)           |
+
+Global paths vary by OS and IDE:
 
 | OS    | Approximate path                                                    |
 |-------|---------------------------------------------------------------------|

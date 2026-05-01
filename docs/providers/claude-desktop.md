@@ -4,13 +4,18 @@
 
 ## Config file
 
+| Scope   | Path                                      |
+|---------|-------------------------------------------|
+| Project | —                                         |
+| Global  | OS-dependent (see below)                  |
+
+Global paths by OS:
+
 | OS      | Path                                                                      |
 |---------|---------------------------------------------------------------------------|
 | macOS   | `~/Library/Application Support/Claude/claude_desktop_config.json`         |
 | Windows | `%APPDATA%\Claude\claude_desktop_config.json`                             |
 | Linux   | `~/.config/Claude/claude_desktop_config.json`                             |
-
-Global only — no per-project config.
 
 ## Format
 
@@ -31,3 +36,4 @@ Root key: `mcpServers` (same format as Claude Code).
 ## References
 
 - [Claude Desktop MCP quickstart](https://modelcontextprotocol.io/quickstart/user)
+- [Anthropic Claude Desktop configuration docs](https://docs.anthropic.com/en/docs/claude-code/mcp)

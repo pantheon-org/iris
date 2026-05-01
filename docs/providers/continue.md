@@ -4,11 +4,12 @@
 
 ## Config file
 
-| Scope  | Path                       |
-|--------|----------------------------|
-| Global | `~/.continue/config.yaml`  |
+| Scope   | Path                       |
+|---------|----------------------------|
+| Project | —                          |
+| Global  | `~/.continue/config.yaml`  |
 
-Older versions used `~/.continue/config.json`. Continue 3.x uses YAML.
+Project-level config is not supported. Older versions used `~/.continue/config.json`. Continue 3.x uses YAML.
 
 ## Format (config.yaml)
 

@@ -4,11 +4,12 @@
 
 ## Config file
 
-| Scope   | Path                |
-|---------|---------------------|
-| Project | `.vscode/mcp.json`  |
+| Scope   | Path                                        |
+|---------|---------------------------------------------|
+| Project | `.vscode/mcp.json`                          |
+| Global  | VS Code user `settings.json` → `mcp.servers` |
 
-Global/user-scoped MCP servers can also be configured via VS Code user `settings.json` under `mcp.servers`, but iris targets the project-level file.
+iris targets the project-level file. The global form embeds server definitions inside VS Code's main user settings file rather than a dedicated MCP config.
 
 ## Format
 

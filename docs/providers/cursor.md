@@ -31,3 +31,4 @@ Root key: `mcpServers` (standard MCP JSON format).
 ## References
 
 - [Cursor MCP documentation](https://docs.cursor.com/context/model-context-protocol)
+- [Cursor MCP configuration reference](https://docs.cursor.com/context/model-context-protocol#configuration)

@@ -4,9 +4,10 @@
 
 ## Config file
 
-| Scope  | Path                              |
-|--------|-----------------------------------|
-| Global | `~/.config/gemini/settings.json`  |
+| Scope   | Path                              |
+|---------|-----------------------------------|
+| Project | —                                 |
+| Global  | `~/.config/gemini/settings.json`  |
 
 Project-level config is not supported.
 

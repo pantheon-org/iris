@@ -4,9 +4,10 @@
 
 ## Config file
 
-| Scope  | Path               |
-|--------|--------------------|
-| Global | `~/.kimi/mcp.json` |
+| Scope   | Path               |
+|---------|--------------------|
+| Project | —                  |
+| Global  | `~/.kimi/mcp.json` |
 
 Project-level config is not supported. Use `--mcp-config-file <path>` at runtime to load an alternate file.
 
