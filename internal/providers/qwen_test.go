@@ -16,8 +16,30 @@ func TestQwenProvider_Config(t *testing.T) {
 	if cfg.Name != "qwen" {
 		t.Fatalf("expected name %q, got %q", "qwen", cfg.Name)
 	}
-	if cfg.SupportsProjectConfig {
-		t.Fatal("expected SupportsProjectConfig=false")
+	if !cfg.SupportsProjectConfig {
+		t.Fatal("expected SupportsProjectConfig=true")
+	}
+}
+
+func TestQwenProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {
+	p := providers.NewQwenProvider()
+	got := p.ConfigFilePath("/any/project")
+	want := filepath.Join("/any/project", ".qwen", "settings.json")
+	if got != want {
+		t.Errorf("ConfigFilePath = %q, want %q", got, want)
+	}
+}
+
+func TestQwenProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.T) {
+	p := providers.NewQwenProvider()
+	got := p.ConfigFilePath("")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := filepath.Join(home, ".qwen", "settings.json")
+	if got != want {
+		t.Errorf("ConfigFilePath = %q, want %q", got, want)
 	}
 }
 
