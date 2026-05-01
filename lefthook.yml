@@ -13,6 +13,7 @@ pre-commit:
     mdlint:
       glob: "**/*.md"
       exclude:
+        - ".claude/**"
         - ".context/**"
         - "CHANGELOG.md"
       run: mdlint check {staged_files}
