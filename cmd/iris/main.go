@@ -117,7 +117,30 @@ func main() {
 		&cobra.Command{
 			Use:   "sync",
 			Short: "Re-generate all active provider config files",
-			RunE:  func(cmd *cobra.Command, args []string) error { return nil },
+			RunE: func(cmd *cobra.Command, args []string) error {
+				projectRoot, err := filepath.Abs(".")
+				if err != nil {
+					return fmt.Errorf("resolve project root: %w", err)
+				}
+				store, err := loadConfig(configFlag)
+				if err != nil {
+					return err
+				}
+				cfg, err := store.Load()
+				if err != nil {
+					return fmt.Errorf("load config: %w", err)
+				}
+				reg := providers.NewRegistry()
+				reg.Register(providers.NewClaudeProvider())
+				reg.Register(providers.NewGeminiProvider())
+				reg.Register(providers.NewOpenCodeProvider())
+				reg.Register(providers.NewCodexProvider())
+				if err := cli.RunSync(projectRoot, cfg, reg, os.Stdout); err != nil {
+					fmt.Fprintln(os.Stderr, err)
+					os.Exit(1)
+				}
+				return nil
+			},
 		},
 		&cobra.Command{
 			Use:   "status",
