@@ -1,6 +1,7 @@
 # mdlint.toml
 
 exclude = [
+  ".claude",
   ".context",
   ".github",
   "testdata",
