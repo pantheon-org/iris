@@ -133,20 +133,39 @@ func TestDetect_GeminiProjectConfig_AbsentNotDetected(t *testing.T) {
 	}
 }
 
-func TestDetect_CodexGlobalFile_NeverDetected(t *testing.T) {
+func TestDetect_CodexProjectConfig_Detected(t *testing.T) {
 	root := t.TempDir()
-	codexTmp := t.TempDir()
 
 	reg := providers.NewRegistry()
-	codexPath := filepath.Join(codexTmp, "codex-config.toml")
-	if err := os.WriteFile(codexPath, []byte(""), 0o644); err != nil {
+	reg.Register(providers.NewCodexProvider())
+
+	codexDir := filepath.Join(root, ".codex")
+	if err := os.MkdirAll(codexDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	reg.Register(providers.NewCodexProviderWithPath(codexPath))
+	if err := os.WriteFile(filepath.Join(codexDir, "config.toml"), []byte(""), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	got := detector.Detect(root, reg)
+
+	if len(got) != 1 {
+		t.Fatalf("expected 1 provider, got %d", len(got))
+	}
+	if got[0].Config().Name != "codex" {
+		t.Errorf("expected codex, got %q", got[0].Config().Name)
+	}
+}
+
+func TestDetect_CodexProjectConfig_AbsentNotDetected(t *testing.T) {
+	root := t.TempDir()
+
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewCodexProvider())
 
 	got := detector.Detect(root, reg)
 
 	if len(got) != 0 {
-		t.Errorf("expected 0 providers (codex is global-only), got %d", len(got))
+		t.Errorf("expected 0 providers, got %d", len(got))
 	}
 }
