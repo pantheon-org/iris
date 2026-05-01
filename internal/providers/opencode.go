@@ -17,13 +17,12 @@ func NewOpenCodeProvider() *OpenCodeProvider {
 }
 
 func (p *OpenCodeProvider) Config() ProviderConfig {
-	home, _ := os.UserHomeDir()
 	return ProviderConfig{
 		Name:                  "opencode",
 		DisplayName:           "OpenCode",
 		ConfigPath:            "opencode.json",
 		SupportsProjectConfig: true,
-		GlobalConfigPath:      filepath.Join(home, ".config", "opencode", "opencode.json"),
+		GlobalConfigPath:      homePath(".config", "opencode", "opencode.json"),
 	}
 }
 

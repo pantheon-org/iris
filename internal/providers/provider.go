@@ -2,10 +2,28 @@ package providers
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/types"
 )
+
+// homeDir returns the current user's home directory using os.UserHomeDir,
+// which is OS-agnostic (Linux, macOS, Windows). Falls back to "." on error
+// so callers always get a usable path rather than a silent empty-string root.
+func homeDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "."
+	}
+	return home
+}
+
+// homePath joins the user's home directory with the given path elements.
+func homePath(elem ...string) string {
+	return filepath.Join(append([]string{homeDir()}, elem...)...)
+}
 
 type ProviderConfig struct {
 	Name                  string
