@@ -2,10 +2,12 @@ package wizard
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/config"
+	"github.com/pantheon-org/iris/internal/detector"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/types"
 )
@@ -15,8 +17,31 @@ type pendingServer struct {
 	server types.MCPServer
 }
 
-func RunInit(r Runner, store *config.Store, registry *providers.Registry) error {
+func RunInit(r Runner, projectRoot string, store *config.Store, registry *providers.Registry) error {
 	var pending []pendingServer
+
+	// Detect installed harnesses and offer to import their existing MCP servers.
+	for _, p := range detector.Detect(projectRoot, registry) {
+		importIt, err := r.PromptConfirm(fmt.Sprintf("Detected %s — import its servers?", p.Config().DisplayName))
+		if err != nil {
+			return fmt.Errorf("prompt import %s: %w", p.Config().Name, err)
+		}
+		if !importIt {
+			continue
+		}
+		filePath := p.ConfigFilePath(projectRoot)
+		content, err := readFile(filePath)
+		if err != nil {
+			return fmt.Errorf("read %s config: %w", p.Config().Name, err)
+		}
+		servers, err := p.Parse(content)
+		if err != nil {
+			return fmt.Errorf("parse %s config: %w", p.Config().Name, err)
+		}
+		for name, srv := range servers {
+			pending = append(pending, pendingServer{name: name, server: srv})
+		}
+	}
 
 	for {
 		more, err := r.PromptConfirm("Add a server? (yes to continue, no to finish)")
@@ -86,6 +111,13 @@ func RunInit(r Runner, store *config.Store, registry *providers.Registry) error 
 		}
 	}
 
-	_ = registry
 	return nil
+}
+
+func readFile(path string) (string, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", fmt.Errorf("read file %s: %w", path, err)
+	}
+	return string(data), nil
 }
