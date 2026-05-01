@@ -57,6 +57,7 @@ func main() {
 	root.AddCommand(
 		func() *cobra.Command {
 			var interactive bool
+			var providerNames []string
 			cmd := &cobra.Command{
 				Use:   "init",
 				Short: "Scaffold .iris.json in the current project",
@@ -66,13 +67,21 @@ func main() {
 						return err
 					}
 					if interactive {
+						reg := buildRegistry()
+						if len(providerNames) > 0 {
+							reg, err = reg.Filter(providerNames)
+							if err != nil {
+								return fmt.Errorf("filter providers: %w", err)
+							}
+						}
 						projectRoot := filepath.Dir(store.Path())
-						return wizard.RunInit(wizard.NewBubbleteaRunner(), projectRoot, store, buildRegistry())
+						return wizard.RunInit(wizard.NewBubbleteaRunner(), projectRoot, store, reg)
 					}
 					return cli.RunInitNonInteractive(store, os.Stdout)
 				},
 			}
 			cmd.Flags().BoolVarP(&interactive, "interactive", "I", false, "run interactive wizard")
+			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, "limit to provider(s) by name (repeatable)")
 			return cmd
 		}(),
 		func() *cobra.Command {
@@ -149,29 +158,41 @@ func main() {
 				return cli.RunList(cfg, os.Stdout)
 			},
 		},
-		&cobra.Command{
-			Use:   "sync",
-			Short: "Re-generate all active provider config files",
-			RunE: func(cmd *cobra.Command, args []string) error {
-				projectRoot, err := filepath.Abs(".")
-				if err != nil {
-					return fmt.Errorf("resolve project root: %w", err)
-				}
-				store, err := loadConfig(configFlag)
-				if err != nil {
-					return err
-				}
-				cfg, err := store.Load()
-				if err != nil {
-					return fmt.Errorf("load config: %w", err)
-				}
-				if err := cli.RunSync(projectRoot, cfg, buildRegistry(), os.Stdout); err != nil {
-					fmt.Fprintln(os.Stderr, err)
-					os.Exit(1)
-				}
-				return nil
-			},
-		},
+		func() *cobra.Command {
+			var providerNames []string
+			cmd := &cobra.Command{
+				Use:   "sync",
+				Short: "Re-generate all active provider config files",
+				RunE: func(cmd *cobra.Command, args []string) error {
+					projectRoot, err := filepath.Abs(".")
+					if err != nil {
+						return fmt.Errorf("resolve project root: %w", err)
+					}
+					store, err := loadConfig(configFlag)
+					if err != nil {
+						return err
+					}
+					cfg, err := store.Load()
+					if err != nil {
+						return fmt.Errorf("load config: %w", err)
+					}
+					reg := buildRegistry()
+					if len(providerNames) > 0 {
+						reg, err = reg.Filter(providerNames)
+						if err != nil {
+							return fmt.Errorf("filter providers: %w", err)
+						}
+					}
+					if err := cli.RunSync(projectRoot, cfg, reg, os.Stdout); err != nil {
+						fmt.Fprintln(os.Stderr, err)
+						os.Exit(1)
+					}
+					return nil
+				},
+			}
+			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, "limit to provider(s) by name (repeatable)")
+			return cmd
+		}(),
 		&cobra.Command{
 			Use:   "status",
 			Short: "Show per-provider sync state",

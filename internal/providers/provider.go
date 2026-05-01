@@ -76,3 +76,17 @@ func (r *Registry) Names() []string {
 	}
 	return names
 }
+
+// Filter returns a new Registry containing only the named providers.
+// Returns an error wrapping ErrProviderNotFound if any name is absent.
+func (r *Registry) Filter(names []string) (*Registry, error) {
+	filtered := NewRegistry()
+	for _, name := range names {
+		p, err := r.Get(name)
+		if err != nil {
+			return nil, err
+		}
+		filtered.Register(p)
+	}
+	return filtered, nil
+}
