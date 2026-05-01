@@ -1,10 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
-      - "release-please--branches--*"
   pull_request:
 
 jobs:
