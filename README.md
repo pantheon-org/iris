@@ -62,7 +62,7 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 | Windsurf (`windsurf`) | — | `~/.codeium/windsurf/mcp_config.json` |
 | VS Code Copilot (`vscode-copilot`) | `.vscode/mcp.json` | — |
 | Zed (`zed`) | — | `~/.config/zed/settings.json` |
-| Qwen Code (`qwen`) | — | `~/.qwen/settings.json` |
+| Qwen Code (`qwen`) | `.qwen/settings.json` | `~/.qwen/settings.json` |
 | Warp (`warp`) | — | `~/.warp/mcp.json` |
 | Kimi Code (`kimi`) | — | `~/.kimi/mcp.json` |
 | Mistral Vibe (`mistral-vibe`) | — | `~/.vibe/config.toml` |
