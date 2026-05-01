@@ -9,11 +9,6 @@ linters:
     - exhaustive
     - wrapcheck
     - misspell
-
-formatters:
-  enable:
-    - gofmt
-
   settings:
     errcheck:
       exclude-functions:
@@ -22,3 +17,7 @@ formatters:
         - fmt.Fprintf
     exhaustive:
       default-signifies-exhaustive: true
+
+formatters:
+  enable:
+    - gofmt
