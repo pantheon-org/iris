@@ -1,8 +1,8 @@
 Manage Architecture Decision Records (ADRs) for this project following the Claude ADR System Guide.
 
-The ADR system lives entirely under `.claude/`:
+The ADR system is split between `.context/decisions/` (project knowledge) and `.claude/` (tooling):
 
-- `.claude/adr-index.toml` — master index (metadata only, no content)
+- `.context/decisions/adr-index.toml` — master index (metadata only, no content)
 - `.context/decisions/branches/<type>/<slug>.md` — active branch ADRs
 - `.context/decisions/merged/YYYY-MM/<slug>.md` — archived post-merge ADRs
 
@@ -15,7 +15,7 @@ The argument passed to this command determines the action: `$ARGUMENTS`
 Create the ADR directory structure and a skeleton `adr-index.toml` if they don't already exist.
 
 1. Create: `.context/decisions/branches/feat/`, `.context/decisions/branches/chore/`, `.context/decisions/branches/docs/`, `.context/decisions/branches/fix/`, `.context/decisions/merged/`
-2. Create `.claude/adr-index.toml` with this skeleton (skip if file already exists):
+2. Create `.context/decisions/adr-index.toml` with this skeleton (skip if file already exists):
 
 ```toml
 [meta]
@@ -98,7 +98,7 @@ Create an ADR for the current branch.
 <!-- Fill in post-merge: results, metrics, lessons learned -->
 ```
 
-1. Add an entry to `[active.<type>]` in `.claude/adr-index.toml`. Preserve existing entries:
+1. Add an entry to `[active.<type>]` in `.context/decisions/adr-index.toml`. Preserve existing entries:
 
 ```toml
 "<slug>" = { file = "<type>/<slug>.md", created = "<today>", author = "Claude", tags = [], description = "" }
@@ -121,7 +121,7 @@ Update the current branch's ADR.
 
 ## list
 
-List all ADRs from `.claude/adr-index.toml`.
+List all ADRs from `.context/decisions/adr-index.toml`.
 
 Parse the TOML and print a table with columns: `TYPE`, `SLUG`, `CREATED`, `STATUS`, `DESCRIPTION`.
 Show active ADRs first, then merged ones (labelled).
@@ -136,7 +136,7 @@ Archive the current branch's ADR after it merges.
 1. Detect branch → slug + type. Accept an explicit branch name as argument override.
 2. Determine merge date (today's date).
 3. Move `.context/decisions/branches/<type>/<slug>.md` → `.context/decisions/merged/YYYY-MM/<slug>.md` (create the month dir if needed).
-4. Update `.claude/adr-index.toml`:
+4. Update `.context/decisions/adr-index.toml`:
    - Remove from `[active.<type>]`
    - Add to `[merged]`: `"<slug>" = { file = "merged/YYYY-MM/<slug>.md", merged = "<YYYY-MM-DD>", pr = <number if known> }`
 5. Confirm the move.
