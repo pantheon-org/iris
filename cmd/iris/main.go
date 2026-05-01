@@ -52,7 +52,7 @@ func main() {
 		Version: version.Version,
 	}
 
-	root.PersistentFlags().StringVar(&configFlag, "config", config.DefaultConfigFile, "path to .iris.json config file")
+	root.PersistentFlags().StringVarP(&configFlag, "config", "C", config.DefaultConfigFile, "path to .iris.json config file")
 
 	root.AddCommand(
 		func() *cobra.Command {
@@ -110,11 +110,11 @@ func main() {
 					return cli.RunAdd(cfg, store, args[0], srv)
 				},
 			}
-			cmd.Flags().StringVar(&command, "command", "", "command to run (required for stdio)")
-			cmd.Flags().StringArrayVar(&cmdArgs, "args", nil, "arguments for the command")
-			cmd.Flags().StringArrayVar(&envPairs, "env", nil, "environment variables in key=value format")
-			cmd.Flags().StringVar(&transport, "transport", string(types.TransportStdio), "transport type (stdio, sse)")
-			cmd.Flags().StringVar(&url, "url", "", "URL for http/sse transport")
+			cmd.Flags().StringVarP(&command, "command", "c", "", "command to run (required for stdio)")
+			cmd.Flags().StringArrayVarP(&cmdArgs, "args", "a", nil, "arguments for the command")
+			cmd.Flags().StringArrayVarP(&envPairs, "env", "e", nil, "environment variables in key=value format")
+			cmd.Flags().StringVarP(&transport, "transport", "t", string(types.TransportStdio), "transport type (stdio, sse)")
+			cmd.Flags().StringVarP(&url, "url", "u", "", "URL for http/sse transport")
 			return cmd
 		}(),
 		&cobra.Command{
