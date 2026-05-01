@@ -13,6 +13,7 @@ import (
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/types"
 	"github.com/pantheon-org/iris/internal/version"
+	"github.com/pantheon-org/iris/internal/wizard"
 )
 
 func loadConfig(configFlag string) (*config.Store, error) {
@@ -35,11 +36,30 @@ func main() {
 	root.PersistentFlags().StringVar(&configFlag, "config", config.DefaultConfigFile, "path to .iris.json config file")
 
 	root.AddCommand(
-		&cobra.Command{
-			Use:   "init",
-			Short: "Scaffold .iris.json in the current project",
-			RunE:  func(cmd *cobra.Command, args []string) error { return nil },
-		},
+		func() *cobra.Command {
+			var interactive bool
+			cmd := &cobra.Command{
+				Use:   "init",
+				Short: "Scaffold .iris.json in the current project",
+				RunE: func(cmd *cobra.Command, args []string) error {
+					store, err := loadConfig(configFlag)
+					if err != nil {
+						return err
+					}
+					if interactive {
+						reg := providers.NewRegistry()
+						reg.Register(providers.NewClaudeProvider())
+						reg.Register(providers.NewGeminiProvider())
+						reg.Register(providers.NewOpenCodeProvider())
+						reg.Register(providers.NewCodexProvider())
+						return wizard.RunInit(wizard.NewBubbleteaRunner(), store, reg)
+					}
+					return cli.RunInitNonInteractive(store, os.Stdout)
+				},
+			}
+			cmd.Flags().BoolVarP(&interactive, "interactive", "I", false, "run interactive wizard")
+			return cmd
+		}(),
 		func() *cobra.Command {
 			var (
 				command   string
