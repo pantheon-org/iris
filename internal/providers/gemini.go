@@ -1,5 +1,7 @@
 package providers
 
+import "path/filepath"
+
 type GeminiProvider struct {
 	baseJSONProvider
 }
@@ -13,18 +15,32 @@ func newGeminiProviderWithPath(path string) *GeminiProvider {
 	p.config = ProviderConfig{
 		Name:                  "gemini",
 		DisplayName:           "Gemini",
-		ConfigPath:            "~/.config/gemini/settings.json",
-		SupportsProjectConfig: false,
+		ConfigPath:            "~/.gemini/settings.json",
+		SupportsProjectConfig: true,
+		GlobalConfigPath:      path,
+	}
+	p.resolvedPath = func(projectRoot string) string {
+		if projectRoot != "" {
+			return filepath.Join(projectRoot, ".gemini", "settings.json")
+		}
+		return path
+	}
+	return p
+}
+
+// NewGeminiProviderWithPath creates a GeminiProvider pinned to a fixed config path.
+// Intended for use in tests.
+func NewGeminiProviderWithPath(path string) *GeminiProvider {
+	p := &GeminiProvider{}
+	p.config = ProviderConfig{
+		Name:                  "gemini",
+		DisplayName:           "Gemini",
+		ConfigPath:            "~/.gemini/settings.json",
+		SupportsProjectConfig: true,
 		GlobalConfigPath:      path,
 	}
 	p.resolvedPath = func(_ string) string {
 		return path
 	}
 	return p
-}
-
-// NewGeminiProviderWithPath creates a GeminiProvider using a custom config path.
-// Intended for use in tests.
-func NewGeminiProviderWithPath(path string) *GeminiProvider {
-	return newGeminiProviderWithPath(path)
 }
