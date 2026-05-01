@@ -67,7 +67,6 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 | Kimi Code (`kimi`) | — | `~/.kimi/mcp.json` |
 | Mistral Vibe (`mistral-vibe`) | — | `~/.vibe/config.toml` |
 
-Providers not yet implemented (config references available in [`docs/providers/`](docs/providers/)): Continue, Cline, Kilo Code, JetBrains AI, Augment Code, Amp.
 
 ## Development
 
