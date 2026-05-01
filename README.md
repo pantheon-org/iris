@@ -20,7 +20,7 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 |---|---|
 | `iris init` | Scaffold `.iris.json` in the current project |
 | `iris init -I` | Interactive wizard to scaffold config |
-| `iris add <name> --command <cmd> [--args ...] [--env KEY=VAL ...] [--transport stdio\|sse]` | Add or update a server |
+| `iris add <name> --command <cmd> [--args ...] [--env KEY=VAL ...] [--transport stdio\|sse] [--url <url>]` | Add or update a server |
 | `iris remove <name>` | Remove a server |
 | `iris list` | List all configured servers |
 | `iris sync` | Sync all provider config files |
