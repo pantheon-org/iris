@@ -66,7 +66,8 @@ func main() {
 						return err
 					}
 					if interactive {
-						return wizard.RunInit(wizard.NewBubbleteaRunner(), store, buildRegistry())
+						projectRoot := filepath.Dir(store.Path())
+						return wizard.RunInit(wizard.NewBubbleteaRunner(), projectRoot, store, buildRegistry())
 					}
 					return cli.RunInitNonInteractive(store, os.Stdout)
 				},
