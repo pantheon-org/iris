@@ -1,0 +1,68 @@
+package providers_test
+
+import (
+	"os"
+	"path/filepath"
+	"testing"
+
+	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/types"
+)
+
+func TestKimiProvider_Config(t *testing.T) {
+	tmp := t.TempDir()
+	p := providers.NewKimiProviderWithPath(filepath.Join(tmp, "mcp.json"))
+	cfg := p.Config()
+	if cfg.Name != "kimi" {
+		t.Fatalf("expected name %q, got %q", "kimi", cfg.Name)
+	}
+	if cfg.SupportsProjectConfig {
+		t.Fatal("expected SupportsProjectConfig=false")
+	}
+}
+
+func TestKimiProvider_GenerateParse_roundtrip(t *testing.T) {
+	tmp := t.TempDir()
+	p := providers.NewKimiProviderWithPath(filepath.Join(tmp, "mcp.json"))
+
+	servers := map[string]types.MCPServer{
+		"context7": {
+			Transport: types.TransportSSE,
+			URL:       "https://mcp.context7.com/mcp",
+			Headers:   map[string]string{"CONTEXT7_API_KEY": "key"},
+		},
+		"chrome": {
+			Transport: types.TransportStdio,
+			Command:   "npx",
+			Args:      []string{"chrome-devtools-mcp@latest"},
+		},
+	}
+	out, err := p.Generate(servers, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	parsed, err := p.Parse(out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if parsed["chrome"].Command != "npx" {
+		t.Fatalf("expected command %q, got %q", "npx", parsed["chrome"].Command)
+	}
+}
+
+func TestKimiProvider_Exists(t *testing.T) {
+	tmp := t.TempDir()
+	path := filepath.Join(tmp, "mcp.json")
+	p := providers.NewKimiProviderWithPath(path)
+
+	if p.Exists(tmp) {
+		t.Fatal("should not exist before file is created")
+	}
+	if err := os.WriteFile(path, []byte(`{"mcpServers":{}}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if !p.Exists(tmp) {
+		t.Fatal("should exist after file is created")
+	}
+}
