@@ -1,0 +1,26 @@
+{
+  "mcp": {
+    "fetch": {
+      "command": [
+        "uvx",
+        "mcp-server-fetch"
+      ],
+      "type": "local",
+      "enabled": false,
+      "environment": {
+        "PROXY": "http://proxy:8080"
+      }
+    },
+    "filesystem": {
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/tmp"
+      ],
+      "type": "local",
+      "enabled": true,
+      "environment": {}
+    }
+  }
+}
