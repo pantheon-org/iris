@@ -23,23 +23,32 @@ func TestGeminiProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	if cfg.DisplayName != "Gemini" {
 		t.Errorf("DisplayName = %q, want %q", cfg.DisplayName, "Gemini")
 	}
-	if cfg.SupportsProjectConfig {
-		t.Error("SupportsProjectConfig = true, want false")
+	if !cfg.SupportsProjectConfig {
+		t.Error("SupportsProjectConfig = false, want true")
 	}
-	if !strings.Contains(cfg.GlobalConfigPath, filepath.Join(".config", "gemini", "settings.json")) {
-		t.Errorf("GlobalConfigPath = %q, want path containing .config/gemini/settings.json", cfg.GlobalConfigPath)
+	if !strings.Contains(cfg.GlobalConfigPath, filepath.Join(".gemini", "settings.json")) {
+		t.Errorf("GlobalConfigPath = %q, want path containing .gemini/settings.json", cfg.GlobalConfigPath)
 	}
 }
 
-func TestGeminiProvider_ConfigFilePath_ReturnsGlobalPath(t *testing.T) {
+func TestGeminiProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {
 	p := providers.NewGeminiProvider()
 	got := p.ConfigFilePath("/any/project")
+	want := filepath.Join("/any/project", ".gemini", "settings.json")
+	if got != want {
+		t.Errorf("ConfigFilePath = %q, want %q", got, want)
+	}
+}
+
+func TestGeminiProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.T) {
+	p := providers.NewGeminiProvider()
+	got := p.ConfigFilePath("")
 
 	home, err := os.UserHomeDir()
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := filepath.Join(home, ".config", "gemini", "settings.json")
+	want := filepath.Join(home, ".gemini", "settings.json")
 	if got != want {
 		t.Errorf("ConfigFilePath = %q, want %q", got, want)
 	}
