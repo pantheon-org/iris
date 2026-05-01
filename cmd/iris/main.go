@@ -10,6 +10,7 @@ import (
 
 	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/config"
+	"github.com/pantheon-org/iris/internal/i18n"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/types"
 	"github.com/pantheon-org/iris/internal/version"
@@ -43,16 +44,33 @@ func buildRegistry() *providers.Registry {
 	return reg
 }
 
+// parseLangArg scans os.Args for --lang value or --lang=value before cobra runs,
+// so that command Short descriptions are already translated when cobra builds help.
+func parseLangArg(args []string) string {
+	for i, a := range args {
+		if a == "--lang" && i+1 < len(args) {
+			return args[i+1]
+		}
+		if strings.HasPrefix(a, "--lang=") {
+			return strings.TrimPrefix(a, "--lang=")
+		}
+	}
+	return ""
+}
+
 func main() {
+	i18n.Init(parseLangArg(os.Args[1:]))
+
 	var configFlag string
 
 	root := &cobra.Command{
 		Use:     "iris",
-		Short:   "Manage MCP server configs across AI providers",
+		Short:   i18n.T("cmd.root"),
 		Version: version.Version,
 	}
 
-	root.PersistentFlags().StringVarP(&configFlag, "config", "C", config.DefaultConfigFile, "path to .iris.json config file")
+	root.PersistentFlags().StringVarP(&configFlag, "config", "C", config.DefaultConfigFile, i18n.T("flag.config"))
+	root.PersistentFlags().String("lang", "", i18n.T("flag.lang"))
 
 	root.AddCommand(
 		func() *cobra.Command {
@@ -60,7 +78,7 @@ func main() {
 			var providerNames []string
 			cmd := &cobra.Command{
 				Use:   "init",
-				Short: "Scaffold .iris.json in the current project",
+				Short: i18n.T("cmd.init"),
 				RunE: func(cmd *cobra.Command, args []string) error {
 					store, err := loadConfig(configFlag)
 					if err != nil {
@@ -80,8 +98,8 @@ func main() {
 					return cli.RunInitNonInteractive(store, os.Stdout)
 				},
 			}
-			cmd.Flags().BoolVarP(&interactive, "interactive", "I", false, "run interactive wizard")
-			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, "limit to provider(s) by name (repeatable)")
+			cmd.Flags().BoolVarP(&interactive, "interactive", "I", false, i18n.T("flag.interactive"))
+			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, i18n.T("flag.provider"))
 			return cmd
 		}(),
 		func() *cobra.Command {
@@ -94,7 +112,7 @@ func main() {
 			)
 			cmd := &cobra.Command{
 				Use:   "add [name]",
-				Short: "Add or update a server entry",
+				Short: i18n.T("cmd.add"),
 				Args:  cobra.ExactArgs(1),
 				RunE: func(cmd *cobra.Command, args []string) error {
 					store, err := loadConfig(configFlag)
@@ -129,7 +147,7 @@ func main() {
 		}(),
 		&cobra.Command{
 			Use:   "remove [name]",
-			Short: "Remove a server entry",
+			Short: i18n.T("cmd.remove"),
 			Args:  cobra.ExactArgs(1),
 			RunE: func(cmd *cobra.Command, args []string) error {
 				store, err := loadConfig(configFlag)
@@ -145,7 +163,7 @@ func main() {
 		},
 		&cobra.Command{
 			Use:   "list",
-			Short: "Pretty-print all servers",
+			Short: i18n.T("cmd.list"),
 			RunE: func(cmd *cobra.Command, args []string) error {
 				store, err := loadConfig(configFlag)
 				if err != nil {
@@ -162,7 +180,7 @@ func main() {
 			var providerNames []string
 			cmd := &cobra.Command{
 				Use:   "sync",
-				Short: "Re-generate all active provider config files",
+				Short: i18n.T("cmd.sync"),
 				RunE: func(cmd *cobra.Command, args []string) error {
 					projectRoot, err := filepath.Abs(".")
 					if err != nil {
@@ -190,12 +208,12 @@ func main() {
 					return nil
 				},
 			}
-			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, "limit to provider(s) by name (repeatable)")
+			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, i18n.T("flag.provider"))
 			return cmd
 		}(),
 		&cobra.Command{
 			Use:   "status",
-			Short: "Show per-provider sync state",
+			Short: i18n.T("cmd.status"),
 			RunE: func(cmd *cobra.Command, args []string) error {
 				projectRoot, err := filepath.Abs(".")
 				if err != nil {

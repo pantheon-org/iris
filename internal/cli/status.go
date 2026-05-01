@@ -6,6 +6,7 @@ import (
 	"os"
 	"sort"
 
+	"github.com/pantheon-org/iris/internal/i18n"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/types"
 )
@@ -24,14 +25,14 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *providers.Re
 
 		data, err := os.ReadFile(path)
 		if err != nil {
-			fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, "missing", displayPath)
+			fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, i18n.T("status.missing"), displayPath)
 			continue
 		}
 
 		existing := string(data)
 		generated, err := p.Generate(cfg.Servers, existing)
 		if err != nil {
-			fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, "error", displayPath)
+			fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, i18n.T("status.error"), displayPath)
 			continue
 		}
 
