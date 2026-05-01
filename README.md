@@ -1,34 +1,69 @@
 # iris
 
-> Manage MCP server configs across AI providers.
+> Sync MCP server configs across all your AI providers.
 
-A CLI tool that syncs MCP server configurations across Claude Code, Gemini CLI, OpenCode, and Codex.
-Define your servers once and iris keeps all providers in sync.
+`iris` is a CLI tool that keeps MCP server configurations in sync across Claude Code, Gemini CLI, OpenCode, and Codex. Define your servers once in `.iris.json` and run `iris sync` to propagate them everywhere.
 
-## Install
+## Installation
 
-### Homebrew
+Build from source:
 
 ```sh
-brew install pantheon-org/tap/iris
+mise run build   # produces dist/iris
 ```
 
-### Go
+Then add `dist/iris` to your `$PATH`, or run it directly.
 
-```sh
-go install github.com/pantheon-org/iris/cmd/iris@latest
+## Commands
+
+| Command | Description |
+|---|---|
+| `iris init` | Scaffold `.iris.json` in the current project |
+| `iris init -I` | Interactive wizard to scaffold config |
+| `iris add <name> --command <cmd> [--args ...] [--env KEY=VAL ...] [--transport stdio\|sse]` | Add or update a server |
+| `iris remove <name>` | Remove a server |
+| `iris list` | List all configured servers |
+| `iris sync` | Sync all provider config files |
+| `iris status` | Show per-provider sync status |
+
+## Canonical config format
+
+`.iris.json` is the single source of truth for your MCP server definitions:
+
+```json
+{
+  "version": 1,
+  "providers": ["claude", "gemini", "opencode", "codex"],
+  "servers": {
+    "filesystem": {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
+    },
+    "fetch": {
+      "transport": "stdio",
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
+    }
+  }
+}
 ```
 
-### Binary
+## Supported providers
 
-Download from [Releases](https://github.com/pantheon-org/iris/releases).
+| Provider | Config file | Scope |
+|---|---|---|
+| Claude Code | `.mcp.json` | Project |
+| Gemini CLI | `~/.config/gemini/settings.json` | Global |
+| OpenCode | `opencode.json` | Project |
+| Codex | `~/.codex/config.toml` | Global |
 
-## Quickstart
+## Development
 
 ```sh
-iris sync          # sync MCP servers to all detected providers
-iris list          # list configured MCP servers
-iris add <name>    # add a new MCP server
+mise run build   # build binary to dist/iris
+mise run test    # run tests with race detector
+mise run lint    # run golangci-lint
 ```
 
 ## Contributing
