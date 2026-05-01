@@ -1,0 +1,20 @@
+[settings]
+minimum_release_age = "7d"
+
+[tools]
+go = "1.24.3"
+golangci-lint = "2.11.4"
+"github:swanysimon/mdlint" = "latest"
+lefthook = "2.1.5"
+shellcheck = "latest"
+goreleaser = "latest"
+
+[tasks]
+[tasks.build]
+run = "go build -o dist/iris ./cmd/iris"
+
+[tasks.test]
+run = "go test -race ./..."
+
+[tasks.lint]
+run = "golangci-lint run ./..."
