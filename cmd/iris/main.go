@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/config"
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/types"
 	"github.com/pantheon-org/iris/internal/version"
 )
 
@@ -38,17 +40,64 @@ func main() {
 			Short: "Scaffold .iris.json in the current project",
 			RunE:  func(cmd *cobra.Command, args []string) error { return nil },
 		},
-		&cobra.Command{
-			Use:   "add [name]",
-			Short: "Add or update a server entry",
-			Args:  cobra.ExactArgs(1),
-			RunE:  func(cmd *cobra.Command, args []string) error { return nil },
-		},
+		func() *cobra.Command {
+			var (
+				command   string
+				cmdArgs   []string
+				envPairs  []string
+				transport string
+				url       string
+			)
+			cmd := &cobra.Command{
+				Use:   "add [name]",
+				Short: "Add or update a server entry",
+				Args:  cobra.ExactArgs(1),
+				RunE: func(cmd *cobra.Command, args []string) error {
+					store, err := loadConfig(configFlag)
+					if err != nil {
+						return err
+					}
+					cfg, err := store.Load()
+					if err != nil {
+						return fmt.Errorf("load config: %w", err)
+					}
+					envMap := make(map[string]string, len(envPairs))
+					for _, pair := range envPairs {
+						k, v, _ := strings.Cut(pair, "=")
+						envMap[k] = v
+					}
+					srv := types.MCPServer{
+						Transport: types.Transport(transport),
+						Command:   command,
+						Args:      cmdArgs,
+						Env:       envMap,
+						URL:       url,
+					}
+					return cli.RunAdd(cfg, store, args[0], srv)
+				},
+			}
+			cmd.Flags().StringVar(&command, "command", "", "command to run (required for stdio)")
+			cmd.Flags().StringArrayVar(&cmdArgs, "args", nil, "arguments for the command")
+			cmd.Flags().StringArrayVar(&envPairs, "env", nil, "environment variables in key=value format")
+			cmd.Flags().StringVar(&transport, "transport", string(types.TransportStdio), "transport type (stdio, sse)")
+			cmd.Flags().StringVar(&url, "url", "", "URL for http/sse transport")
+			return cmd
+		}(),
 		&cobra.Command{
 			Use:   "remove [name]",
 			Short: "Remove a server entry",
 			Args:  cobra.ExactArgs(1),
-			RunE:  func(cmd *cobra.Command, args []string) error { return nil },
+			RunE: func(cmd *cobra.Command, args []string) error {
+				store, err := loadConfig(configFlag)
+				if err != nil {
+					return err
+				}
+				cfg, err := store.Load()
+				if err != nil {
+					return fmt.Errorf("load config: %w", err)
+				}
+				return cli.RunRemove(cfg, store, args[0])
+			},
 		},
 		&cobra.Command{
 			Use:   "list",
