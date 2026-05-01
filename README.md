@@ -2,7 +2,8 @@
 
 > Manage MCP server configs across AI providers.
 
-A CLI tool that syncs MCP server configurations across Claude Code, Gemini CLI, OpenCode, and Codex — so you define your servers once and iris keeps all providers in sync.
+A CLI tool that syncs MCP server configurations across Claude Code, Gemini CLI, OpenCode, and Codex.
+Define your servers once and iris keeps all providers in sync.
 
 ## Install
 

@@ -2,11 +2,26 @@
 
 ## Development setup
 
-1. Install [mise](https://mise.jdx.dev/): `curl https://mise.run | sh`
-2. Install tools: `mise install`
-3. Build: `mise run build`
-4. Test: `mise run test`
-5. Lint: `mise run lint`
+Install [mise](https://mise.jdx.dev/):
+
+```sh
+curl https://mise.run | sh
+```
+
+Then install tools and verify:
+
+```sh
+mise install
+mise run build
+mise run test
+mise run lint
+```
+
+Install git hooks:
+
+```sh
+lefthook install
+```
 
 ## Workflow
 

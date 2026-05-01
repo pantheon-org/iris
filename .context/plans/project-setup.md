@@ -16,11 +16,13 @@ iris/
 ├── .goreleaser.yaml
 ├── .gitignore
 ├── .markdownlintignore
+├── mdlint.toml                    # disable noisy rules; exclude generated dirs
 ├── release-please-config.json
 ├── .release-please-manifest.json
 ├── README.md                      # Project overview, install, quickstart
 ├── CONTRIBUTING.md                # How to contribute, dev workflow
 ├── LICENSE                        # MIT
+├── lefthook.yml                   # pre-commit hooks (gofmt, go vet, golangci-lint)
 ├── AGENTS.md                      # Single source of truth for agent instructions
 ├── CLAUDE.md -> AGENTS.md         # Symlink
 ├── GEMINI.md -> AGENTS.md         # Symlink
@@ -114,11 +116,6 @@ linters:
     - exhaustive   # catches missing cases in provider switch statements
     - wrapcheck    # enforces fmt.Errorf("%w") wrapping (aligns with ierrors strategy)
     - misspell
-
-formatters:
-  enable:
-    - gofmt        # gofmt is a formatter, not a linter — must be under formatters
-
   settings:
     errcheck:
       exclude-functions:
@@ -127,7 +124,13 @@ formatters:
         - fmt.Fprintf
     exhaustive:
       default-signifies-exhaustive: true
+
+formatters:
+  enable:
+    - gofmt        # gofmt is a formatter, not a linter — must be under formatters
 ```
+
+> **Gotcha**: `settings` belongs under `linters`, not `formatters`. Placing it under `formatters.settings` causes `golangci-lint config verify` to fail with an `additionalProperties` schema error in CI even though `golangci-lint run` passes locally (local version may be more lenient).
 
 ---
 
@@ -148,6 +151,46 @@ coverage.html
 ```
 
 Ignore generated audit and plan outputs so `mdlint` only checks authored docs.
+
+---
+
+### 5b — `mdlint.toml`
+
+Mirrored from the reference repo. Disables rules that fire as false positives on valid markdown (long URLs, pipes in backtick spans, nested lists) and excludes generated/tool directories.
+
+```toml
+# mdlint.toml
+
+exclude = [
+  ".context",
+  ".github",
+  "testdata",
+  "CHANGELOG.md",
+]
+
+# MD013 — long prose lines in docs exceed any reasonable limit
+[rules.MD013]
+enabled = false
+
+# MD032 — nested bullet lists under numbered items are valid markdown
+[rules.MD032]
+enabled = false
+
+# MD051 — backtick-wrapped headings produce anchors mdlint cannot resolve
+[rules.MD051]
+enabled = false
+
+# MD055 — pipe characters inside backtick spans are not table delimiters
+[rules.MD055]
+enabled = false
+
+# MD058 — mdlint incorrectly flags tables inside fenced code blocks
+[rules.MD058]
+enabled = false
+```
+
+> **Note**: With `mdlint.toml` in place, `.markdownlintignore` is still useful for
+> per-file exclusions that don't fit the global `exclude` list.
 
 ---
 
@@ -460,7 +503,51 @@ Go rewrite of gustavodiasdev/mcpx-cli — CLI to sync MCP server configs across 
 
 ---
 
-### 12 — `README.md`
+### 12 — `lefthook.yml`
+
+Mirrored from the reference repo (`skill-quality-auditor`). Pre-commit runs in parallel; pre-push runs sequentially to catch test/build regressions before the remote sees the branch.
+
+```yaml
+pre-commit:
+  parallel: true
+  commands:
+    go-fmt:
+      glob: "**/*.go"
+      run: gofmt -l {staged_files} | grep . && exit 1 || exit 0
+    go-vet:
+      glob: "**/*.go"
+      run: go vet ./...
+    golangci-lint:
+      glob: "**/*.go"
+      run: golangci-lint run ./...
+    mdlint:
+      glob: "**/*.md"
+      exclude:
+        - ".context/**"
+        - "CHANGELOG.md"
+      run: mdlint check {staged_files}
+    shellcheck:
+      glob: "scripts/**/*.sh"
+      run: shellcheck {staged_files}
+
+pre-push:
+  parallel: false
+  commands:
+    go-test:
+      glob: "**/*.go"
+      run: go test -race ./...
+    go-build:
+      glob: "**/*.go"
+      run: go build -o dist/iris ./cmd/iris
+```
+
+After creating the file, run `lefthook install` once to register the hooks with git.
+
+> `.mise.toml` already includes `lefthook = "2.1.5"` — `mise install` covers the binary.
+
+---
+
+### 14 — `README.md`
 
 Minimal but useful — cover what the tool does, how to install, and a quickstart:
 
@@ -508,7 +595,7 @@ MIT — see [LICENSE](LICENSE).
 
 ---
 
-### 13 — `CONTRIBUTING.md`
+### 15 — `CONTRIBUTING.md`
 
 ```markdown
 # Contributing to iris
@@ -548,7 +635,7 @@ Squash-merge is enforced; branches are deleted after merge.
 
 ---
 
-### 14 — `LICENSE`
+### 16 — `LICENSE`
 
 MIT license — year `2025`, holder `pantheon-org`:
 
@@ -598,7 +685,7 @@ Fixtures are committed alongside the tests. Tests load them with `os.ReadFile("t
 
 ---
 
-### 13 — `.github/pull_request_template.md`
+### 18 — `.github/pull_request_template.md`
 
 ```markdown
 ## Summary
@@ -662,17 +749,18 @@ Required CI checks match the job names in `.github/workflows/ci.yml`: `lint`, `t
 
 1. Create `go.mod` + `internal/version/version.go` + skeleton `cmd/iris/main.go` → `go mod tidy`
 2. Add `.mise.toml` → `mise install`
-3. Add `.golangci.yml`, `.gitignore`, `.markdownlintignore`
+3. Add `.golangci.yml`, `.gitignore`, `.markdownlintignore`, `mdlint.toml`
 4. Add `.goreleaser.yaml`
 5. Add `release-please-config.json` + `.release-please-manifest.json`
-6. Add `README.md`, `CONTRIBUTING.md`, `LICENSE`
-7. Add `.github/` workflows, `CODEOWNERS`, PR template, and issue templates
-8. Create `AGENTS.md`; create symlinks `CLAUDE.md → AGENTS.md` and `GEMINI.md → AGENTS.md` with `ln -s`; use `git add -f` to stage all three (blocked by `~/.gitignore`)
+6. Add `lefthook.yml` → run `lefthook install`
+7. Add `README.md`, `CONTRIBUTING.md`, `LICENSE`
+8. Add `.github/` workflows, `CODEOWNERS`, PR template, and issue templates
+9. Create `AGENTS.md`; create symlinks `CLAUDE.md → AGENTS.md` and `GEMINI.md → AGENTS.md` with `ln -s`; use `git add -f` to stage all three (blocked by `~/.gitignore`)
 9. Verify locally: `mise run build`, `mise run test`, `mise run lint`, `mise exec -- goreleaser check`
-10. For new repos with no `main` branch: create an orphan `main` with an empty commit and push it before opening a PR
-11. Run `mise run gh:gen` before any `gh` CLI calls — pantheon-org enforces token lifetime ≤ 366 days; use `dotenvx run -- gh <cmd>` to inject the token
-12. Commit as `chore: project setup` on a feature branch → open PR with `dotenvx run -- gh pr create`
-13. After PR merges to `main`: record the merge commit SHA in `.release-please-manifest.json` as `bootstrap_sha`
+11. For new repos with no `main` branch: create an orphan `main` with an empty commit and push it before opening a PR
+12. Run `mise run gh:gen` before any `gh` CLI calls — pantheon-org enforces token lifetime ≤ 366 days; use `dotenvx run -- gh <cmd>` to inject the token
+13. Commit as `chore: project setup` on a feature branch → open PR with `dotenvx run -- gh pr create`
+14. After PR merges to `main`: record the merge commit SHA in `.release-please-manifest.json` as `bootstrap_sha`
 
 ---
 
