@@ -99,6 +99,18 @@ func TestRegistry_Filter_UnknownName_WrapsErrProviderNotFound(t *testing.T) {
 	assert.True(t, errors.Is(err, ierrors.ErrProviderNotFound))
 }
 
+func TestRegistry_Filter_UnknownName_ErrorContainsProviderName(t *testing.T) {
+	r := registry.NewRegistry()
+	r.Register(&mockProvider{name: "claude"})
+
+	_, err := r.Filter([]string{"claude", "unknown-provider"})
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "unknown-provider",
+		"error message should contain the missing provider name for easier debugging")
+	assert.True(t, errors.Is(err, ierrors.ErrProviderNotFound),
+		"error should still unwrap to ErrProviderNotFound via errors.Is")
+}
+
 func TestRegistry_Filter_EmptySlice_ReturnsEmptyRegistry(t *testing.T) {
 	r := registry.NewRegistry()
 	r.Register(&mockProvider{name: "claude"})
