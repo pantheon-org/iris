@@ -8,9 +8,6 @@ import (
 )
 
 func RunAdd(cfg *types.IrisConfig, store *config.Store, name string, server types.MCPServer) error {
-	if cfg.Servers == nil {
-		cfg.Servers = make(map[string]types.MCPServer)
-	}
 	cfg.Servers[name] = server
 	if err := store.Save(cfg); err != nil {
 		return fmt.Errorf("add %s: %w", name, err)

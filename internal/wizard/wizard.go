@@ -101,7 +101,7 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 
 	cfg, err := store.Load()
 	if err != nil || cfg == nil {
-		cfg = &types.IrisConfig{Version: 1}
+		cfg = types.NewIrisConfig()
 	}
 
 	for _, p := range pending {
@@ -114,9 +114,6 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 	}
 
 	if len(pending) == 0 {
-		if cfg.Servers == nil {
-			cfg.Servers = make(map[string]types.MCPServer)
-		}
 		if err := store.Save(cfg); err != nil {
 			return fmt.Errorf("save config: %w", err)
 		}
