@@ -163,6 +163,25 @@ func TestRunInit_duplicateName_overwritten(t *testing.T) {
 	assert.Equal(t, "uvx", cfg.Servers["my-srv"].Command)
 }
 
+func TestRunInit_unreadableExistingConfig_returnsError(t *testing.T) {
+	dir := t.TempDir()
+	cfgPath := filepath.Join(dir, ".iris.json")
+
+	// Write a config file that exists but is unreadable (no read permission).
+	require.NoError(t, os.WriteFile(cfgPath, []byte(`{"version":1,"servers":{}}`), 0o000))
+	t.Cleanup(func() { _ = os.Chmod(cfgPath, 0o600) })
+
+	store, err := config.NewStore(cfgPath)
+	require.NoError(t, err)
+
+	r := wizard.NewScriptedRunner([]string{
+		"no", // Add a server?
+	})
+
+	err = wizard.RunInit(r, dir, store, newRegistry())
+	require.Error(t, err)
+}
+
 func TestRunInit_sseServer_promptsForURLAndPersistsRemoteConfig(t *testing.T) {
 	store := newStore(t)
 	r := wizard.NewScriptedRunner([]string{
