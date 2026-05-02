@@ -142,6 +142,19 @@ func TestStore_SaveLoad_roundTrip_toml(t *testing.T) {
 	assert.Equal(t, original, got)
 }
 
+func TestStore_Load_noServersKey_serversMapIsNonNil(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "minimal.json")
+	require.NoError(t, os.WriteFile(path, []byte(`{"version":1,"providers":[]}`), 0o644))
+
+	s, err := config.NewStore(path)
+	require.NoError(t, err)
+
+	cfg, err := s.Load()
+	require.NoError(t, err)
+	assert.NotNil(t, cfg.Servers, "Servers must be non-nil even when key is absent in config file")
+}
+
 func TestStore_Load_malformedContent_returnsMalformedConfigError(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "bad.json")
