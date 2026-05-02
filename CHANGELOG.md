@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026.5.7](https://github.com/pantheon-org/iris/compare/v2026.5.6...v2026.5.7) (2026-05-02)
+
+
+### Features
+
+* enhance MCP server configuration with additional fields and preserve remote server attributes ([#61](https://github.com/pantheon-org/iris/issues/61)) ([403ccf4](https://github.com/pantheon-org/iris/commit/403ccf492da96eb2169a688d804fb203dc7985c4))
+* **wizard:** add URL prompt for SSE transport in server configuration ([#63](https://github.com/pantheon-org/iris/issues/63)) ([51341cd](https://github.com/pantheon-org/iris/commit/51341cd9fe41c02b10d85cace277f98937fe9b3e))
+
+
+### Bug Fixes
+
+* **cli:** improve error handling in RunStatus for missing files ([#64](https://github.com/pantheon-org/iris/issues/64)) ([0a4f503](https://github.com/pantheon-org/iris/commit/0a4f503603608b59aed5a8a5119a505490aeecd1))
+* resolve misleading file paths in status and sync commands ([#65](https://github.com/pantheon-org/iris/issues/65)) ([79a1137](https://github.com/pantheon-org/iris/commit/79a11379886bab3c9f02c0546be827fbdd8214c0))
+
 ## [2026.5.6](https://github.com/pantheon-org/iris/compare/v2026.5.5...v2026.5.6) (2026-05-01)
 
 
