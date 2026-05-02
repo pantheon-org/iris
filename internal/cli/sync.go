@@ -6,11 +6,11 @@ import (
 	"sort"
 
 	"github.com/pantheon-org/iris/internal/merger"
-	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-func RunSync(projectRoot string, cfg *types.IrisConfig, registry *providers.Registry, w io.Writer) error {
+func RunSync(projectRoot string, cfg *types.IrisConfig, registry *registry.Registry, w io.Writer) error {
 	results := merger.SyncAllProviders(projectRoot, registry, cfg.Servers)
 
 	sort.Slice(results, func(i, j int) bool {

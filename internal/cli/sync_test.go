@@ -11,12 +11,13 @@ import (
 
 	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-func buildSyncRegistry(t *testing.T, tmpDir string) *providers.Registry {
+func buildSyncRegistry(t *testing.T, tmpDir string) *registry.Registry {
 	t.Helper()
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmpDir, "gemini-settings.json")))
 	reg.Register(providers.NewOpenCodeProvider())
@@ -62,7 +63,7 @@ func TestRunSync_unchanged_printsUnchangedStatus(t *testing.T) {
 
 func TestRunSync_updated_printsUpdatedStatus(t *testing.T) {
 	dir := t.TempDir()
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 
 	cfg := syncConfig()
@@ -98,7 +99,7 @@ func TestRunSync_providerError_returnsError(t *testing.T) {
 
 	lockedFile := filepath.Join(lockedDir, "codex.toml")
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
 
@@ -137,7 +138,7 @@ func TestRunSync_outputSortedAlphabetically(t *testing.T) {
 
 func TestRunSync_displaysResolvedProjectPaths(t *testing.T) {
 	dir := t.TempDir()
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewGeminiProvider())
 	reg.Register(providers.NewOpenaiCodexProvider())
 
@@ -163,7 +164,7 @@ func TestRunSync_displaysPinnedProviderPathOnError(t *testing.T) {
 
 	lockedFile := filepath.Join(lockedDir, "codex.toml")
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
 
 	var buf bytes.Buffer
