@@ -62,10 +62,9 @@ func TestCodexProvider_Generate_EmptyExistingContent_ProducesCorrectTOML(t *test
 	got, err := p.Generate(servers, "")
 	require.NoError(t, err)
 
-	assert.Contains(t, got, `name = "my-server"`)
+	assert.Contains(t, got, `[mcp_servers.my-server]`)
 	assert.Contains(t, got, `command = "npx"`)
-	assert.Contains(t, got, `type = "stdio"`)
-	assert.Contains(t, got, `[[mcp_servers]]`)
+	assert.Contains(t, got, `args = ["-y", "@modelcontextprotocol/server-filesystem"]`)
 }
 
 func TestCodexProvider_Generate_PreservesNonMcpServersKeys(t *testing.T) {
@@ -74,10 +73,8 @@ func TestCodexProvider_Generate_PreservesNonMcpServersKeys(t *testing.T) {
 	existing := `version = 1
 theme = "dark"
 
-[[mcp_servers]]
-  name = "old-server"
-  command = "old"
-  type = "stdio"
+[mcp_servers.old-server]
+command = "old"
 `
 
 	servers := map[string]types.MCPServer{
@@ -93,8 +90,8 @@ theme = "dark"
 
 	assert.Contains(t, got, "version = 1")
 	assert.Contains(t, got, `theme = "dark"`)
-	assert.Contains(t, got, `name = "new-server"`)
-	assert.NotContains(t, got, `name = "old-server"`)
+	assert.Contains(t, got, `[mcp_servers.new-server]`)
+	assert.NotContains(t, got, `[mcp_servers.old-server]`)
 }
 
 func TestCodexProvider_Generate_WithEnv_IncludesEnvMap(t *testing.T) {
@@ -110,6 +107,8 @@ func TestCodexProvider_Generate_WithEnv_IncludesEnvMap(t *testing.T) {
 	got, err := p.Generate(servers, "")
 	require.NoError(t, err)
 
+	assert.Contains(t, got, `[mcp_servers.env-server]`)
+	assert.Contains(t, got, `[mcp_servers.env-server.env]`)
 	assert.Contains(t, got, "FOO")
 	assert.Contains(t, got, "bar")
 }
@@ -123,22 +122,26 @@ func TestCodexProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	servers, err := p.Parse(string(content))
 	require.NoError(t, err)
 
-	require.Len(t, servers, 2)
+	require.Len(t, servers, 3)
 
-	fs, ok := servers["filesystem"]
-	require.True(t, ok, "expected key 'filesystem'")
-	assert.Equal(t, "npx", fs.Command)
-	assert.Equal(t, []string{"-y", "@modelcontextprotocol/server-filesystem"}, fs.Args)
-	assert.Equal(t, types.TransportStdio, fs.Transport)
+	context7, ok := servers["context7"]
+	require.True(t, ok, "expected key 'context7'")
+	assert.Equal(t, "npx", context7.Command)
+	assert.Equal(t, []string{"-y", "@upstash/context7-mcp"}, context7.Args)
+	assert.Equal(t, "MY_ENV_VALUE", context7.Env["MY_ENV_VAR"])
+	assert.Equal(t, types.TransportStdio, context7.Transport)
 
-	ev, ok := servers["everything"]
-	require.True(t, ok, "expected key 'everything'")
-	assert.Equal(t, "DEBUG", func() string {
-		for k := range ev.Env {
-			return k
-		}
-		return ""
-	}())
+	figma, ok := servers["figma"]
+	require.True(t, ok, "expected key 'figma'")
+	assert.Equal(t, "https://mcp.figma.com/mcp", figma.URL)
+	assert.Equal(t, "us-east-1", figma.Headers["X-Figma-Region"])
+	assert.Equal(t, types.TransportSSE, figma.Transport)
+
+	chrome, ok := servers["chrome_devtools"]
+	require.True(t, ok, "expected key 'chrome_devtools'")
+	require.NotNil(t, chrome.Enabled)
+	assert.True(t, *chrome.Enabled)
+	assert.Equal(t, "http://localhost:3000/mcp", chrome.URL)
 }
 
 func TestCodexProvider_Parse_MalformedTOML_WrapsErrMalformedConfig(t *testing.T) {
@@ -155,13 +158,8 @@ func TestCodexProvider_Generate_FixtureMatch(t *testing.T) {
 	existing, err := os.ReadFile("testdata/openai_codex_input.toml")
 	require.NoError(t, err)
 
-	servers := map[string]types.MCPServer{
-		"new-server": {
-			Transport: types.TransportStdio,
-			Command:   "node",
-			Args:      []string{"server.js"},
-		},
-	}
+	servers, err := p.Parse(string(existing))
+	require.NoError(t, err)
 
 	got, err := p.Generate(servers, string(existing))
 	require.NoError(t, err)

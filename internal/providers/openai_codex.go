@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 
@@ -53,18 +55,13 @@ func (p *OpenaiCodexProvider) Exists(projectRoot string) bool {
 }
 
 type codexMCPServer struct {
-	Name    string            `toml:"name"`
-	Command string            `toml:"command"`
-	Args    []string          `toml:"args,omitempty"`
-	Env     map[string]string `toml:"env,omitempty"`
-	Type    string            `toml:"type"`
-}
-
-// codexConfig is used only for parsing existing TOML to extract non-mcp_servers keys.
-// We use map[string]interface{} for the "other" keys approach via a raw decode.
-type codexFileRaw struct {
-	MCPServers []codexMCPServer       `toml:"mcp_servers"`
-	Other      map[string]interface{} `toml:"-"`
+	Command     string            `toml:"command,omitempty"`
+	Args        []string          `toml:"args,omitempty"`
+	Env         map[string]string `toml:"env,omitempty"`
+	URL         string            `toml:"url,omitempty"`
+	HTTPHeaders map[string]string `toml:"http_headers,omitempty"`
+	Cwd         string            `toml:"cwd,omitempty"`
+	Enabled     *bool             `toml:"enabled,omitempty"`
 }
 
 func (p *OpenaiCodexProvider) Generate(servers map[string]types.MCPServer, existingContent string) (string, error) {
@@ -76,6 +73,14 @@ func (p *OpenaiCodexProvider) Generate(servers map[string]types.MCPServer, exist
 	var orderedTopLevel []topLevelEntry
 
 	if existingContent != "" {
+		existingServers, err := p.Parse(existingContent)
+		if err != nil {
+			return "", err
+		}
+		if reflect.DeepEqual(existingServers, servers) {
+			return existingContent, nil
+		}
+
 		var rawMap map[string]interface{}
 		meta, err := toml.Decode(existingContent, &rawMap)
 		if err != nil {
@@ -90,28 +95,12 @@ func (p *OpenaiCodexProvider) Generate(servers map[string]types.MCPServer, exist
 		}
 	}
 
-	// Build ordered mcp_servers slice (sorted by name for determinism).
+	// Build ordered mcp_servers block names (sorted for determinism).
 	names := make([]string, 0, len(servers))
 	for name := range servers {
 		names = append(names, name)
 	}
 	sort.Strings(names)
-
-	entries := make([]codexMCPServer, 0, len(names))
-	for _, name := range names {
-		srv := servers[name]
-		t := string(srv.Transport)
-		if t == "" {
-			t = string(types.TransportStdio)
-		}
-		entries = append(entries, codexMCPServer{
-			Name:    name,
-			Command: srv.Command,
-			Args:    srv.Args,
-			Env:     srv.Env,
-			Type:    t,
-		})
-	}
 
 	var buf bytes.Buffer
 
@@ -123,13 +112,47 @@ func (p *OpenaiCodexProvider) Generate(servers map[string]types.MCPServer, exist
 		}
 	}
 
-	// Append mcp_servers array table entries using the struct encoder for consistent indentation.
-	for _, entry := range entries {
-		buf.WriteString("\n[[mcp_servers]]\n")
-		enc := toml.NewEncoder(&buf)
-		enc.Indent = "  "
-		if err := enc.Encode(entry); err != nil {
-			return "", fmt.Errorf("encode mcp_servers entry: %w", err)
+	// Append mcp_servers tables in Codex's documented keyed-table format.
+	for _, name := range names {
+		srv := servers[name]
+		fmt.Fprintf(&buf, "\n[mcp_servers.%s]\n", tomlTableKey(name))
+		if srv.URL != "" {
+			fmt.Fprintf(&buf, "url = %q\n", srv.URL)
+		} else {
+			fmt.Fprintf(&buf, "command = %q\n", srv.Command)
+			if len(srv.Args) > 0 {
+				buf.WriteString("args = [")
+				for i, arg := range srv.Args {
+					if i > 0 {
+						buf.WriteString(", ")
+					}
+					fmt.Fprintf(&buf, "%q", arg)
+				}
+				buf.WriteString("]\n")
+			}
+			if srv.Cwd != "" {
+				fmt.Fprintf(&buf, "cwd = %q\n", srv.Cwd)
+			}
+		}
+		if len(srv.Headers) > 0 {
+			buf.WriteString("http_headers = { ")
+			headerKeys := sortedKeys(srv.Headers)
+			for i, key := range headerKeys {
+				if i > 0 {
+					buf.WriteString(", ")
+				}
+				fmt.Fprintf(&buf, "%q = %q", key, srv.Headers[key])
+			}
+			buf.WriteString(" }\n")
+		}
+		if srv.Enabled != nil {
+			fmt.Fprintf(&buf, "enabled = %t\n", *srv.Enabled)
+		}
+		if len(srv.Env) > 0 {
+			fmt.Fprintf(&buf, "\n[mcp_servers.%s.env]\n", tomlTableKey(name))
+			for _, key := range sortedKeys(srv.Env) {
+				fmt.Fprintf(&buf, "%s = %q\n", tomlMapKey(key), srv.Env[key])
+			}
 		}
 	}
 
@@ -138,20 +161,64 @@ func (p *OpenaiCodexProvider) Generate(servers map[string]types.MCPServer, exist
 
 func (p *OpenaiCodexProvider) Parse(content string) (map[string]types.MCPServer, error) {
 	var file struct {
-		MCPServers []codexMCPServer `toml:"mcp_servers"`
+		MCPServers map[string]codexMCPServer `toml:"mcp_servers"`
 	}
 	if _, err := toml.Decode(content, &file); err != nil {
 		return nil, fmt.Errorf("%w: %w", ierrors.ErrMalformedConfig, err)
 	}
 
 	result := make(map[string]types.MCPServer, len(file.MCPServers))
-	for _, entry := range file.MCPServers {
-		result[entry.Name] = types.MCPServer{
+	for name, entry := range file.MCPServers {
+		transport := types.TransportStdio
+		if entry.URL != "" {
+			transport = types.TransportSSE
+		}
+		result[name] = types.MCPServer{
 			Command:   entry.Command,
 			Args:      entry.Args,
 			Env:       entry.Env,
-			Transport: types.Transport(entry.Type),
+			URL:       entry.URL,
+			Headers:   entry.HTTPHeaders,
+			Cwd:       entry.Cwd,
+			Enabled:   entry.Enabled,
+			Transport: transport,
 		}
 	}
 	return result, nil
+}
+
+func tomlTableKey(key string) string {
+	if isBareTOMLKey(key) {
+		return key
+	}
+	return fmt.Sprintf("%q", key)
+}
+
+func tomlMapKey(key string) string {
+	if isBareTOMLKey(key) {
+		return key
+	}
+	return fmt.Sprintf("%q", key)
+}
+
+func isBareTOMLKey(key string) bool {
+	if key == "" {
+		return false
+	}
+	for _, r := range key {
+		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-' {
+			continue
+		}
+		return false
+	}
+	return !strings.Contains(key, ".")
+}
+
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }
