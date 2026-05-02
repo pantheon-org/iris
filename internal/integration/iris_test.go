@@ -23,7 +23,7 @@ func buildRegistry(t *testing.T, root string) *registry.Registry {
 	codexPath := filepath.Join(root, "codex-config.toml")
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(geminiPath))
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(codexPath))

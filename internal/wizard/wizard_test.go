@@ -98,7 +98,7 @@ func TestRunInit_importDetectedProvider_importsServers(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(mcpJSON), 0o600))
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 
 	r := wizard.NewScriptedRunner([]string{
 		"yes", // Detected Claude Code — import its servers?
@@ -123,7 +123,7 @@ func TestRunInit_importDetectedProvider_declineImport(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(mcpJSON), 0o600))
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 
 	r := wizard.NewScriptedRunner([]string{
 		"no", // Detected Claude Code — import its servers? — declined
