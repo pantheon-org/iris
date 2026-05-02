@@ -15,7 +15,7 @@ func newTestRegistry(t *testing.T) *registry.Registry {
 	tmp := t.TempDir()
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmp, "gemini-settings.json")))
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmp, "codex-config.toml")))

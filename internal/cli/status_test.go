@@ -19,7 +19,7 @@ import (
 func buildTestRegistry(t *testing.T, tmpDir string) *registry.Registry {
 	t.Helper()
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmpDir, "gemini-settings.json")))
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmpDir, "codex.toml")))
@@ -52,7 +52,7 @@ func TestRunStatus_allMissing_showsMissing(t *testing.T) {
 func TestRunStatus_filePresent_synced(t *testing.T) {
 	dir := t.TempDir()
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 
 	cfg := minimalConfig()
 
@@ -73,7 +73,7 @@ func TestRunStatus_filePresent_synced(t *testing.T) {
 func TestRunStatus_filePresent_desync(t *testing.T) {
 	dir := t.TempDir()
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 
 	cfg := minimalConfig()
 
@@ -91,7 +91,7 @@ func TestRunStatus_filePresent_desync(t *testing.T) {
 func TestRunStatus_readFailure_showsError(t *testing.T) {
 	dir := t.TempDir()
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 
 	cfg := minimalConfig()
 

@@ -22,7 +22,7 @@ var testServers = map[string]types.MCPServer{
 
 func TestSyncProvider_fileAbsent_createsFile(t *testing.T) {
 	dir := t.TempDir()
-	p := providers.NewClaudeProvider()
+	p := providers.NewClaudeCodeProvider()
 
 	result := merger.SyncProvider(dir, p, testServers)
 
@@ -72,7 +72,7 @@ func TestSyncProvider_filePresent_contentUnchanged_returnsUnchanged(t *testing.T
 
 func TestSyncProvider_filePresent_contentChanged_returnsUpdated(t *testing.T) {
 	dir := t.TempDir()
-	p := providers.NewClaudeProvider()
+	p := providers.NewClaudeCodeProvider()
 
 	firstResult := merger.SyncProvider(dir, p, testServers)
 	if firstResult.Status != merger.SyncStatusCreated {
@@ -99,7 +99,7 @@ func TestSyncProvider_filePresent_contentChanged_returnsUpdated(t *testing.T) {
 
 func TestSyncProvider_generateError_returnsError(t *testing.T) {
 	dir := t.TempDir()
-	p := providers.NewClaudeProvider()
+	p := providers.NewClaudeCodeProvider()
 
 	badConfigPath := filepath.Join(dir, ".mcp.json")
 	if err := os.WriteFile(badConfigPath, []byte("not valid json {{{{"), 0644); err != nil {
@@ -119,7 +119,7 @@ func TestSyncProvider_generateError_returnsError(t *testing.T) {
 func TestSyncAllProviders_multipleProviders_allResultsReturned(t *testing.T) {
 	dir := t.TempDir()
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 
 	results := merger.SyncAllProviders(dir, reg, testServers)
@@ -138,7 +138,7 @@ func TestSyncAllProviders_oneErrors_errorCapturedInResult(t *testing.T) {
 	}
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 
 	results := merger.SyncAllProviders(dir, reg, testServers)
@@ -175,7 +175,7 @@ func TestSyncAllProviders_oneErrors_doesNotReturnError(t *testing.T) {
 	}
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 
 	results := merger.SyncAllProviders(dir, reg, testServers)
 
