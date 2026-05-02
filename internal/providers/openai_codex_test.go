@@ -15,7 +15,7 @@ import (
 )
 
 func TestCodexProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
-	p := providers.NewCodexProvider()
+	p := providers.NewOpenaiCodexProvider()
 	cfg := p.Config()
 
 	assert.Equal(t, "codex", cfg.Name)
@@ -28,14 +28,14 @@ func TestCodexProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 }
 
 func TestCodexProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {
-	p := providers.NewCodexProvider()
+	p := providers.NewOpenaiCodexProvider()
 	got := p.ConfigFilePath("/any/project")
 	want := filepath.Join("/any/project", ".codex", "config.toml")
 	assert.Equal(t, want, got)
 }
 
 func TestCodexProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.T) {
-	p := providers.NewCodexProvider()
+	p := providers.NewOpenaiCodexProvider()
 
 	home, err := os.UserHomeDir()
 	require.NoError(t, err)
@@ -45,12 +45,12 @@ func TestCodexProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing
 
 func TestCodexProvider_Exists_ReturnsFalseWhenFileAbsent(t *testing.T) {
 	tmp := t.TempDir()
-	p := providers.NewCodexProviderWithPath(filepath.Join(tmp, "config.toml"))
+	p := providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmp, "config.toml"))
 	assert.False(t, p.Exists(""))
 }
 
 func TestCodexProvider_Generate_EmptyExistingContent_ProducesCorrectTOML(t *testing.T) {
-	p := providers.NewCodexProvider()
+	p := providers.NewOpenaiCodexProvider()
 	servers := map[string]types.MCPServer{
 		"my-server": {
 			Transport: types.TransportStdio,
@@ -69,7 +69,7 @@ func TestCodexProvider_Generate_EmptyExistingContent_ProducesCorrectTOML(t *test
 }
 
 func TestCodexProvider_Generate_PreservesNonMcpServersKeys(t *testing.T) {
-	p := providers.NewCodexProvider()
+	p := providers.NewOpenaiCodexProvider()
 
 	existing := `version = 1
 theme = "dark"
@@ -98,7 +98,7 @@ theme = "dark"
 }
 
 func TestCodexProvider_Generate_WithEnv_IncludesEnvMap(t *testing.T) {
-	p := providers.NewCodexProvider()
+	p := providers.NewOpenaiCodexProvider()
 	servers := map[string]types.MCPServer{
 		"env-server": {
 			Transport: types.TransportStdio,
@@ -115,9 +115,9 @@ func TestCodexProvider_Generate_WithEnv_IncludesEnvMap(t *testing.T) {
 }
 
 func TestCodexProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
-	p := providers.NewCodexProvider()
+	p := providers.NewOpenaiCodexProvider()
 
-	content, err := os.ReadFile("testdata/codex_input.toml")
+	content, err := os.ReadFile("testdata/openai_codex_input.toml")
 	require.NoError(t, err)
 
 	servers, err := p.Parse(string(content))
@@ -142,7 +142,7 @@ func TestCodexProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 }
 
 func TestCodexProvider_Parse_MalformedTOML_WrapsErrMalformedConfig(t *testing.T) {
-	p := providers.NewCodexProvider()
+	p := providers.NewOpenaiCodexProvider()
 
 	_, err := p.Parse("[[mcp_servers\nname = bad toml ][")
 	require.Error(t, err)
@@ -150,9 +150,9 @@ func TestCodexProvider_Parse_MalformedTOML_WrapsErrMalformedConfig(t *testing.T)
 }
 
 func TestCodexProvider_Generate_FixtureMatch(t *testing.T) {
-	p := providers.NewCodexProvider()
+	p := providers.NewOpenaiCodexProvider()
 
-	existing, err := os.ReadFile("testdata/codex_input.toml")
+	existing, err := os.ReadFile("testdata/openai_codex_input.toml")
 	require.NoError(t, err)
 
 	servers := map[string]types.MCPServer{
@@ -166,7 +166,7 @@ func TestCodexProvider_Generate_FixtureMatch(t *testing.T) {
 	got, err := p.Generate(servers, string(existing))
 	require.NoError(t, err)
 
-	expected, err := os.ReadFile("testdata/codex_expected.toml")
+	expected, err := os.ReadFile("testdata/openai_codex_expected.toml")
 	require.NoError(t, err)
 
 	assert.Equal(t, string(expected), got)

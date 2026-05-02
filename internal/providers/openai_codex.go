@@ -13,24 +13,24 @@ import (
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-type CodexProvider struct {
+type OpenaiCodexProvider struct {
 	configPath string
 	pinned     bool // when true, ConfigFilePath always returns configPath regardless of projectRoot
 }
 
-func codexGlobalPath() string { return homePath(".codex", "config.toml") }
+func codexGlobalPath() string { return userHomePath(".codex", "config.toml") }
 
-func NewCodexProvider() *CodexProvider {
-	return &CodexProvider{configPath: codexGlobalPath()}
+func NewOpenaiCodexProvider() *OpenaiCodexProvider {
+	return &OpenaiCodexProvider{configPath: codexGlobalPath()}
 }
 
-// NewCodexProviderWithPath creates a CodexProvider pinned to a fixed config path.
+// NewOpenaiCodexProviderWithPath creates a OpenaiCodexProvider pinned to a fixed config path.
 // Intended for use in tests.
-func NewCodexProviderWithPath(path string) *CodexProvider {
-	return &CodexProvider{configPath: path, pinned: true}
+func NewOpenaiCodexProviderWithPath(path string) *OpenaiCodexProvider {
+	return &OpenaiCodexProvider{configPath: path, pinned: true}
 }
 
-func (p *CodexProvider) Config() ProviderConfig {
+func (p *OpenaiCodexProvider) Config() ProviderConfig {
 	return ProviderConfig{
 		Name:                  "codex",
 		DisplayName:           "OpenAI Codex",
@@ -39,14 +39,14 @@ func (p *CodexProvider) Config() ProviderConfig {
 	}
 }
 
-func (p *CodexProvider) ConfigFilePath(projectRoot string) string {
+func (p *OpenaiCodexProvider) ConfigFilePath(projectRoot string) string {
 	if !p.pinned && projectRoot != "" {
 		return filepath.Join(projectRoot, ".codex", "config.toml")
 	}
 	return p.configPath
 }
 
-func (p *CodexProvider) Exists(projectRoot string) bool {
+func (p *OpenaiCodexProvider) Exists(projectRoot string) bool {
 	_, err := os.Stat(p.ConfigFilePath(projectRoot))
 	return err == nil
 }
@@ -66,7 +66,7 @@ type codexFileRaw struct {
 	Other      map[string]interface{} `toml:"-"`
 }
 
-func (p *CodexProvider) Generate(servers map[string]types.MCPServer, existingContent string) (string, error) {
+func (p *OpenaiCodexProvider) Generate(servers map[string]types.MCPServer, existingContent string) (string, error) {
 	// Collect top-level non-mcp_servers keys preserving original order via toml.MetaData.
 	type topLevelEntry struct {
 		key string
@@ -135,7 +135,7 @@ func (p *CodexProvider) Generate(servers map[string]types.MCPServer, existingCon
 	return buf.String(), nil
 }
 
-func (p *CodexProvider) Parse(content string) (map[string]types.MCPServer, error) {
+func (p *OpenaiCodexProvider) Parse(content string) (map[string]types.MCPServer, error) {
 	var file struct {
 		MCPServers []codexMCPServer `toml:"mcp_servers"`
 	}
