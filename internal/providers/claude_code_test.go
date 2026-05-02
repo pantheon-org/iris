@@ -86,7 +86,7 @@ func TestClaudeCodeProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *tes
 func TestClaudeCodeProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *testing.T) {
 	p := providers.NewClaudeCodeProvider()
 
-	input, err := os.ReadFile("testdata/claude_input.json")
+	input, err := os.ReadFile("testdata/claude_code_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func TestClaudeCodeProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *
 func TestClaudeCodeProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	p := providers.NewClaudeCodeProvider()
 
-	content, err := os.ReadFile("testdata/claude_input.json")
+	content, err := os.ReadFile("testdata/claude_code_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
