@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
@@ -243,5 +244,34 @@ func TestOpenCodeProvider_Parse_MalformedJSON_ReturnsWrappedError(t *testing.T) 
 	}
 	if !errors.Is(err, ierrors.ErrMalformedConfig) {
 		t.Errorf("Parse: error does not wrap ErrMalformedConfig; got: %v", err)
+	}
+}
+
+func TestOpenCodeProvider_GenerateParse_PreservesRemoteServerFields(t *testing.T) {
+	p := providers.NewOpenCodeProvider()
+	enabled := true
+	servers := map[string]types.MCPServer{
+		"remote": {
+			Transport: types.TransportSSE,
+			URL:       "https://example.com/mcp",
+			Headers:   map[string]string{"Authorization": "Bearer token"},
+			Cwd:       "/tmp/opencode",
+			Enabled:   &enabled,
+			Env:       map[string]string{"DEBUG": "1"},
+		},
+	}
+
+	out, err := p.Generate(servers, "")
+	if err != nil {
+		t.Fatalf("Generate: unexpected error: %v", err)
+	}
+
+	parsed, err := p.Parse(out)
+	if err != nil {
+		t.Fatalf("Parse: unexpected error: %v", err)
+	}
+
+	if !reflect.DeepEqual(parsed, servers) {
+		t.Fatalf("roundtrip mismatch:\n got: %#v\nwant: %#v", parsed, servers)
 	}
 }
