@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -25,7 +26,11 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *providers.Re
 
 		data, err := os.ReadFile(path)
 		if err != nil {
-			fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, i18n.T("status.missing"), displayPath)
+			status := i18n.T("status.error")
+			if errors.Is(err, os.ErrNotExist) {
+				status = i18n.T("status.missing")
+			}
+			fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, status, displayPath)
 			continue
 		}
 
