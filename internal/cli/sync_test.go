@@ -135,6 +135,44 @@ func TestRunSync_outputSortedAlphabetically(t *testing.T) {
 	assert.True(t, geminiIdx < opencodeIdx, "gemini should appear before opencode")
 }
 
+func TestRunSync_displaysResolvedProjectPaths(t *testing.T) {
+	dir := t.TempDir()
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewGeminiProvider())
+	reg.Register(providers.NewOpenaiCodexProvider())
+
+	var buf bytes.Buffer
+	err := cli.RunSync(dir, syncConfig(), reg, &buf)
+
+	require.NoError(t, err)
+	out := buf.String()
+	assert.Contains(t, out, filepath.Join(dir, ".gemini", "settings.json"))
+	assert.Contains(t, out, filepath.Join(dir, ".codex", "config.toml"))
+	assert.NotContains(t, out, "~/.gemini/settings.json")
+}
+
+func TestRunSync_displaysPinnedProviderPathOnError(t *testing.T) {
+	if os.Getuid() == 0 {
+		t.Skip("chmod 0555 has no effect as root")
+	}
+
+	dir := t.TempDir()
+	lockedDir := filepath.Join(dir, "locked")
+	require.NoError(t, os.MkdirAll(lockedDir, 0o555))
+	t.Cleanup(func() { _ = os.Chmod(lockedDir, 0o755) })
+
+	lockedFile := filepath.Join(lockedDir, "codex.toml")
+
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
+
+	var buf bytes.Buffer
+	err := cli.RunSync(dir, syncConfig(), reg, &buf)
+
+	require.Error(t, err)
+	assert.Contains(t, buf.String(), lockedFile)
+}
+
 func indexOf(s, substr string) int {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {

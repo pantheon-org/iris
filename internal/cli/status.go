@@ -22,7 +22,7 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *providers.Re
 	for _, p := range all {
 		name := p.Config().Name
 		path := p.ConfigFilePath(projectRoot)
-		displayPath := p.Config().ConfigPath
+		displayPath := path
 
 		data, err := os.ReadFile(path)
 		if err != nil {

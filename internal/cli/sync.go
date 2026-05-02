@@ -22,7 +22,7 @@ func RunSync(projectRoot string, cfg *types.IrisConfig, registry *providers.Regi
 		p, err := registry.Get(r.ProviderName)
 		displayPath := r.ProviderName
 		if err == nil {
-			displayPath = p.Config().ConfigPath
+			displayPath = p.ConfigFilePath(projectRoot)
 		}
 
 		if r.Err != nil {

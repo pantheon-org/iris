@@ -103,3 +103,19 @@ func TestRunStatus_readFailure_showsError(t *testing.T) {
 	assert.Contains(t, buf.String(), "error")
 	assert.NotContains(t, buf.String(), "missing")
 }
+
+func TestRunStatus_displaysResolvedProjectPaths(t *testing.T) {
+	dir := t.TempDir()
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewGeminiProvider())
+	reg.Register(providers.NewOpenaiCodexProvider())
+
+	var buf bytes.Buffer
+	err := cli.RunStatus(dir, minimalConfig(), reg, &buf)
+
+	require.NoError(t, err)
+	out := buf.String()
+	assert.Contains(t, out, filepath.Join(dir, ".gemini", "settings.json"))
+	assert.Contains(t, out, filepath.Join(dir, ".codex", "config.toml"))
+	assert.NotContains(t, out, "~/.gemini/settings.json")
+}
