@@ -256,7 +256,7 @@ func TestSyncAllProviders_emptyRegistry_returnsEmptySlice(t *testing.T) {
 func TestSyncAllProviders_singleProvider_allSucceed(t *testing.T) {
 	runSyncAllProvidersTC(t, syncAllProvidersTC{
 		name:         "single provider succeeds",
-		providers:    func() []providers.Provider { return []providers.Provider{providers.NewClaudeProvider()} },
+		providers:    func() []providers.Provider { return []providers.Provider{providers.NewClaudeCodeProvider()} },
 		wantLen:      1,
 		wantErrCount: 0,
 		wantOkCount:  1,
@@ -272,7 +272,7 @@ func TestSyncAllProviders_singleProvider_fails(t *testing.T) {
 				t.Fatalf("setup: %v", err)
 			}
 		},
-		providers:    func() []providers.Provider { return []providers.Provider{providers.NewClaudeProvider()} },
+		providers:    func() []providers.Provider { return []providers.Provider{providers.NewClaudeCodeProvider()} },
 		wantLen:      1,
 		wantErrCount: 1,
 		wantOkCount:  0,
@@ -284,7 +284,7 @@ func TestSyncAllProviders_multipleProviders_allSucceed(t *testing.T) {
 		name: "three providers all succeed",
 		providers: func() []providers.Provider {
 			return []providers.Provider{
-				providers.NewClaudeProvider(),
+				providers.NewClaudeCodeProvider(),
 				providers.NewOpenCodeProvider(),
 				providers.NewCursorProvider(),
 			}
@@ -306,7 +306,7 @@ func TestSyncAllProviders_oneProviderFails_remainingProvidersRun(t *testing.T) {
 		},
 		providers: func() []providers.Provider {
 			return []providers.Provider{
-				providers.NewClaudeProvider(),
+				providers.NewClaudeCodeProvider(),
 				providers.NewOpenCodeProvider(),
 			}
 		},
@@ -327,7 +327,7 @@ func TestSyncAllProviders_lastProviderFails_allResultsPresent(t *testing.T) {
 		},
 		providers: func() []providers.Provider {
 			return []providers.Provider{
-				providers.NewClaudeProvider(),
+				providers.NewClaudeCodeProvider(),
 				providers.NewOpenCodeProvider(),
 			}
 		},
@@ -350,7 +350,7 @@ func TestSyncAllProviders_allProvidersFail_allResultsHaveErrors(t *testing.T) {
 		},
 		providers: func() []providers.Provider {
 			return []providers.Provider{
-				providers.NewClaudeProvider(),
+				providers.NewClaudeCodeProvider(),
 				providers.NewOpenCodeProvider(),
 			}
 		},
@@ -376,7 +376,7 @@ func TestSyncAllProviders_errorsAreContainedInResults_noPanic(t *testing.T) {
 	}
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewCursorProvider())
 
