@@ -15,6 +15,10 @@ type mcpServerJSON struct {
 	Args    []string          `json:"args,omitempty"`
 	Env     map[string]string `json:"env,omitempty"`
 	Type    string            `json:"type,omitempty"`
+	URL     string            `json:"url,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
+	Cwd     string            `json:"cwd,omitempty"`
+	Enabled *bool             `json:"enabled,omitempty"`
 }
 
 type baseJSONProvider struct {
@@ -46,11 +50,22 @@ func (b *baseJSONProvider) Generate(servers map[string]types.MCPServer, existing
 
 	mcpServers := make(map[string]mcpServerJSON, len(servers))
 	for name, srv := range servers {
+		serverType := string(srv.Transport)
+		if serverType == "" {
+			serverType = string(types.TransportStdio)
+		}
+		if srv.URL != "" {
+			serverType = string(types.TransportSSE)
+		}
 		mcpServers[name] = mcpServerJSON{
 			Command: srv.Command,
 			Args:    srv.Args,
 			Env:     srv.Env,
-			Type:    string(types.TransportStdio),
+			Type:    serverType,
+			URL:     srv.URL,
+			Headers: srv.Headers,
+			Cwd:     srv.Cwd,
+			Enabled: srv.Enabled,
 		}
 	}
 
@@ -77,11 +92,22 @@ func (b *baseJSONProvider) Parse(content string) (map[string]types.MCPServer, er
 
 	result := make(map[string]types.MCPServer, len(doc.MCPServers))
 	for name, s := range doc.MCPServers {
+		transport := types.TransportStdio
+		if s.Type != "" {
+			transport = types.Transport(s.Type)
+		}
+		if s.URL != "" {
+			transport = types.TransportSSE
+		}
 		result[name] = types.MCPServer{
 			Command:   s.Command,
 			Args:      s.Args,
 			Env:       s.Env,
-			Transport: types.Transport(s.Type),
+			URL:       s.URL,
+			Headers:   s.Headers,
+			Cwd:       s.Cwd,
+			Enabled:   s.Enabled,
+			Transport: transport,
 		}
 	}
 	return result, nil

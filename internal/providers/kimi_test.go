@@ -49,6 +49,15 @@ func TestKimiProvider_GenerateParse_roundtrip(t *testing.T) {
 	if parsed["chrome"].Command != "npx" {
 		t.Fatalf("expected command %q, got %q", "npx", parsed["chrome"].Command)
 	}
+	if parsed["context7"].Transport != types.TransportSSE {
+		t.Fatalf("expected transport %q, got %q", types.TransportSSE, parsed["context7"].Transport)
+	}
+	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
+		t.Fatalf("expected URL to roundtrip, got %q", parsed["context7"].URL)
+	}
+	if parsed["context7"].Headers["CONTEXT7_API_KEY"] != "key" {
+		t.Fatalf("expected headers to roundtrip, got %v", parsed["context7"].Headers)
+	}
 }
 
 func TestKimiProvider_Exists(t *testing.T) {

@@ -37,10 +37,13 @@ func (p *OpenCodeProvider) Exists(projectRoot string) bool {
 }
 
 type opencodeMCPEntry struct {
-	Command     []string          `json:"command"`
-	Type        string            `json:"type"`
+	Command     []string          `json:"command,omitempty"`
+	Type        string            `json:"type,omitempty"`
 	Enabled     bool              `json:"enabled"`
-	Environment map[string]string `json:"environment"`
+	Environment map[string]string `json:"environment,omitempty"`
+	URL         string            `json:"url,omitempty"`
+	Headers     map[string]string `json:"headers,omitempty"`
+	Cwd         string            `json:"cwd,omitempty"`
 }
 
 func (p *OpenCodeProvider) Generate(servers map[string]types.MCPServer, existingContent string) (string, error) {
@@ -70,11 +73,19 @@ func (p *OpenCodeProvider) Generate(servers map[string]types.MCPServer, existing
 			env = map[string]string{}
 		}
 
+		entryType := "local"
+		if srv.Transport == types.TransportSSE || srv.URL != "" {
+			entryType = "remote"
+		}
+
 		mcp[name] = opencodeMCPEntry{
 			Command:     cmd,
-			Type:        "local",
+			Type:        entryType,
 			Enabled:     enabled,
 			Environment: env,
+			URL:         srv.URL,
+			Headers:     srv.Headers,
+			Cwd:         srv.Cwd,
 		}
 	}
 
@@ -108,12 +119,21 @@ func (p *OpenCodeProvider) Parse(content string) (map[string]types.MCPServer, er
 			args = entry.Command[1:]
 		}
 
+		transport := types.TransportStdio
+		if entry.Type == "remote" || entry.URL != "" {
+			transport = types.TransportSSE
+		}
+
 		enabled := entry.Enabled
 		servers[name] = types.MCPServer{
-			Command: cmd,
-			Args:    args,
-			Env:     entry.Environment,
-			Enabled: &enabled,
+			Command:   cmd,
+			Args:      args,
+			Env:       entry.Environment,
+			URL:       entry.URL,
+			Headers:   entry.Headers,
+			Cwd:       entry.Cwd,
+			Enabled:   &enabled,
+			Transport: transport,
 		}
 	}
 	return servers, nil

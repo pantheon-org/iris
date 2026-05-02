@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
@@ -149,5 +150,33 @@ func TestClaudeProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *testing
 	}
 	if !errors.Is(err, ierrors.ErrMalformedConfig) {
 		t.Errorf("error = %v, want wrapping ErrMalformedConfig", err)
+	}
+}
+
+func TestClaudeProvider_GenerateParse_PreservesRemoteServerFields(t *testing.T) {
+	p := providers.NewClaudeProvider()
+	enabled := false
+	servers := map[string]types.MCPServer{
+		"remote": {
+			Transport: types.TransportSSE,
+			URL:       "https://example.com/mcp",
+			Headers:   map[string]string{"Authorization": "Bearer token"},
+			Cwd:       "/tmp/work",
+			Enabled:   &enabled,
+		},
+	}
+
+	out, err := p.Generate(servers, "")
+	if err != nil {
+		t.Fatalf("Generate error: %v", err)
+	}
+
+	parsed, err := p.Parse(out)
+	if err != nil {
+		t.Fatalf("Parse error: %v", err)
+	}
+
+	if !reflect.DeepEqual(parsed, servers) {
+		t.Fatalf("roundtrip mismatch:\n got: %#v\nwant: %#v", parsed, servers)
 	}
 }
