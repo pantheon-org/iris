@@ -46,7 +46,7 @@ func TestValidateProjectRoot_EmptyString_ReturnsNil(t *testing.T) {
 }
 
 func TestClaudeProvider_SafeConfigFilePath_TraversalRoot_ReturnsError(t *testing.T) {
-	p := providers.NewClaudeProvider()
+	p := providers.NewClaudeCodeProvider()
 	_, err := p.SafeConfigFilePath("/legit/project/../../etc")
 	if err == nil {
 		t.Fatal("expected error for path traversal, got nil")
@@ -57,7 +57,7 @@ func TestClaudeProvider_SafeConfigFilePath_TraversalRoot_ReturnsError(t *testing
 }
 
 func TestClaudeProvider_SafeConfigFilePath_CleanRoot_ReturnsPath(t *testing.T) {
-	p := providers.NewClaudeProvider()
+	p := providers.NewClaudeCodeProvider()
 	got, err := p.SafeConfigFilePath("/some/project")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
