@@ -12,12 +12,13 @@ import (
 
 	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-func buildTestRegistry(t *testing.T, tmpDir string) *providers.Registry {
+func buildTestRegistry(t *testing.T, tmpDir string) *registry.Registry {
 	t.Helper()
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmpDir, "gemini-settings.json")))
 	reg.Register(providers.NewOpenCodeProvider())
@@ -50,7 +51,7 @@ func TestRunStatus_allMissing_showsMissing(t *testing.T) {
 
 func TestRunStatus_filePresent_synced(t *testing.T) {
 	dir := t.TempDir()
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 
 	cfg := minimalConfig()
@@ -71,7 +72,7 @@ func TestRunStatus_filePresent_synced(t *testing.T) {
 
 func TestRunStatus_filePresent_desync(t *testing.T) {
 	dir := t.TempDir()
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 
 	cfg := minimalConfig()
@@ -89,7 +90,7 @@ func TestRunStatus_filePresent_desync(t *testing.T) {
 
 func TestRunStatus_readFailure_showsError(t *testing.T) {
 	dir := t.TempDir()
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 
 	cfg := minimalConfig()
@@ -102,4 +103,20 @@ func TestRunStatus_readFailure_showsError(t *testing.T) {
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "error")
 	assert.NotContains(t, buf.String(), "missing")
+}
+
+func TestRunStatus_displaysResolvedProjectPaths(t *testing.T) {
+	dir := t.TempDir()
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewGeminiProvider())
+	reg.Register(providers.NewOpenaiCodexProvider())
+
+	var buf bytes.Buffer
+	err := cli.RunStatus(dir, minimalConfig(), reg, &buf)
+
+	require.NoError(t, err)
+	out := buf.String()
+	assert.Contains(t, out, filepath.Join(dir, ".gemini", "settings.json"))
+	assert.Contains(t, out, filepath.Join(dir, ".codex", "config.toml"))
+	assert.NotContains(t, out, "~/.gemini/settings.json")
 }

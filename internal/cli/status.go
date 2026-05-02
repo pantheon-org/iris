@@ -8,11 +8,11 @@ import (
 	"sort"
 
 	"github.com/pantheon-org/iris/internal/i18n"
-	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *providers.Registry, w io.Writer) error {
+func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Registry, w io.Writer) error {
 	all := registry.All()
 	sort.Slice(all, func(i, j int) bool {
 		return all[i].Config().Name < all[j].Config().Name
@@ -22,7 +22,7 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *providers.Re
 	for _, p := range all {
 		name := p.Config().Name
 		path := p.ConfigFilePath(projectRoot)
-		displayPath := p.Config().ConfigPath
+		displayPath := path
 
 		data, err := os.ReadFile(path)
 		if err != nil {

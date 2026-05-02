@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -63,7 +64,7 @@ func SyncProvider(projectRoot string, p providers.Provider, servers map[string]t
 	return SyncResult{ProviderName: name, Status: SyncStatusUpdated}
 }
 
-func SyncAllProviders(projectRoot string, registry *providers.Registry, servers map[string]types.MCPServer) []SyncResult {
+func SyncAllProviders(projectRoot string, registry *registry.Registry, servers map[string]types.MCPServer) []SyncResult {
 	all := registry.All()
 	results := make([]SyncResult, 0, len(all))
 	for _, p := range all {
