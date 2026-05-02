@@ -24,20 +24,27 @@ var (
 )
 
 func init() {
-	fallback = load("en")
+	m, err := Load("en")
+	if err != nil {
+		panic(fmt.Sprintf("i18n: failed to load English fallback: %v", err))
+	}
+	fallback = m
 	active = fallback
 }
 
-func load(code string) map[string]string {
+// Load reads and parses the locale file for code. It returns an error if the
+// file cannot be read or is not valid JSON, allowing callers to distinguish
+// "missing file" from "corrupted file".
+func Load(code string) (map[string]string, error) {
 	data, err := localesFS.ReadFile("locales/" + code + ".json")
 	if err != nil {
-		return map[string]string{}
+		return nil, fmt.Errorf("i18n: read locale %q: %w", code, err)
 	}
 	var m map[string]string
 	if err := json.Unmarshal(data, &m); err != nil {
-		return map[string]string{}
+		return nil, fmt.Errorf("i18n: parse locale %q: %w", code, err)
 	}
-	return m
+	return m, nil
 }
 
 // Init detects the OS locale and applies lang if non-empty.
@@ -48,15 +55,23 @@ func Init(lang string) {
 	SetLang(lang)
 }
 
-// SetLang switches the active locale. Unknown codes silently fall back to English.
+// SetLang switches the active locale. Unknown codes silently keep the current
+// active locale unchanged. Use SetLangErr for error-aware callers.
 func SetLang(code string) {
-	m := load(code)
-	if len(m) == 0 {
-		m = fallback
+	_ = SetLangErr(code)
+}
+
+// SetLangErr switches the active locale and returns an error if the locale
+// file cannot be loaded. On error the active locale is left unchanged.
+func SetLangErr(code string) error {
+	m, err := Load(code)
+	if err != nil {
+		return err
 	}
 	mu.Lock()
 	active = m
 	mu.Unlock()
+	return nil
 }
 
 // DetectLocale reads LC_ALL, LANG, or LANGUAGE from the environment and maps
@@ -72,27 +87,26 @@ func DetectLocale() string {
 	return "en"
 }
 
-// normalize converts an OS locale string (e.g. "pt_BR.UTF-8") to a supported code.
+// normalize converts an OS locale string (e.g. "pt_BR.UTF-8") to a supported
+// code. Single-pass: tracks both an exact match and a base-language fallback;
+// returns the exact match immediately when found, otherwise the base match.
 func normalize(raw string) string {
 	if i := strings.IndexByte(raw, '.'); i != -1 {
 		raw = raw[:i]
 	}
 	code := strings.ReplaceAll(raw, "_", "-")
+	base := strings.SplitN(code, "-", 2)[0]
 
+	var baseMatch string
 	for _, s := range supported {
 		if strings.EqualFold(code, s) {
-			return s
+			return s // exact hit — no need to continue
+		}
+		if baseMatch == "" && strings.EqualFold(base, s) {
+			baseMatch = s
 		}
 	}
-
-	// Fall back to the base language tag (e.g. "en-US" → "en").
-	base := strings.SplitN(code, "-", 2)[0]
-	for _, s := range supported {
-		if strings.EqualFold(base, s) {
-			return s
-		}
-	}
-	return ""
+	return baseMatch
 }
 
 // T returns the translated string for key. Falls back to English, then the key itself.
