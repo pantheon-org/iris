@@ -12,13 +12,12 @@
 ## Format
 
 ```toml
-[[mcp_servers]]
-name    = "server-name"
+[mcp_servers.server-name]
 command = "npx"
 args    = ["-y", "@modelcontextprotocol/server-filesystem", "/tmp"]
 type    = "stdio"
 
-[mcp_servers.env]
+[mcp_servers.server-name.env]
 KEY = "value"
 ```
 
@@ -28,3 +27,4 @@ Root key: `mcp_servers` (TOML array of tables). Unlike other providers, each ser
 
 - [Codex CLI GitHub](https://github.com/openai/codex)
 - [Codex CLI configuration reference](https://github.com/openai/codex#configuration)
+- [OpenAI Codex MCP](https://developers.openai.com/codex/mcp)
