@@ -1,5 +1,13 @@
 # Changelog
 
+## [2026.5.6](https://github.com/pantheon-org/iris/compare/v2026.5.5...v2026.5.6) (2026-05-01)
+
+
+### Features
+
+* **i18n:** allow lang to be set in .iris.json config ([#59](https://github.com/pantheon-org/iris/issues/59)) ([01eec69](https://github.com/pantheon-org/iris/commit/01eec6981abfd6b1a00fb7d42fb2c8f16dac404f))
+* **i18n:** internationalise CLI with 14 languages via embedded JSON locales ([#57](https://github.com/pantheon-org/iris/issues/57)) ([cb9c46e](https://github.com/pantheon-org/iris/commit/cb9c46e5dd080338618c15c1e2cb7f478f67a029))
+
 ## [2026.5.5](https://github.com/pantheon-org/iris/compare/v2026.5.4...v2026.5.5) (2026-05-01)
 
 
