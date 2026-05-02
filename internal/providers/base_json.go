@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
+	"github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -86,4 +87,4 @@ func (b *baseJSONProvider) Parse(content string) (map[string]types.MCPServer, er
 	return result, nil
 }
 
-func geminiConfigPath() string { return homePath(".gemini", "settings.json") }
+func geminiConfigPath() string { return io.UserHomePath(".gemini", "settings.json") }

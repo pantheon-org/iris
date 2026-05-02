@@ -21,7 +21,7 @@ func buildTestRegistry(t *testing.T, tmpDir string) *providers.Registry {
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmpDir, "gemini-settings.json")))
 	reg.Register(providers.NewOpenCodeProvider())
-	reg.Register(providers.NewCodexProviderWithPath(filepath.Join(tmpDir, "codex.toml")))
+	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmpDir, "codex.toml")))
 	return reg
 }
 

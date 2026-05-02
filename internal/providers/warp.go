@@ -1,5 +1,7 @@
 package providers
 
+import "github.com/pantheon-org/iris/internal/io"
+
 type WarpProvider struct {
 	baseJSONProvider
 }
@@ -29,4 +31,4 @@ func NewWarpProviderWithPath(path string) *WarpProvider {
 	return newWarpProviderWithPath(path)
 }
 
-func warpConfigPath() string { return homePath(".warp", "mcp.json") }
+func warpConfigPath() string { return io.UserHomePath(".warp", "mcp.json") }

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
+	"github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -22,7 +23,7 @@ func (p *OpenCodeProvider) Config() ProviderConfig {
 		DisplayName:           "OpenCode",
 		ConfigPath:            "opencode.json",
 		SupportsProjectConfig: true,
-		GlobalConfigPath:      homePath(".config", "opencode", "opencode.json"),
+		GlobalConfigPath:      io.UserConfigPath("opencode", "opencode.json"),
 	}
 }
 

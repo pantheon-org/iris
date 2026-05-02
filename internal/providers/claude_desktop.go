@@ -1,9 +1,9 @@
 package providers
 
 import (
-	"os"
 	"path/filepath"
-	"runtime"
+
+	"github.com/pantheon-org/iris/internal/io"
 )
 
 type ClaudeDesktopProvider struct {
@@ -36,20 +36,5 @@ func NewClaudeDesktopProviderWithPath(path string) *ClaudeDesktopProvider {
 }
 
 func claudeDesktopConfigPath() string {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		home = "."
-	}
-	switch runtime.GOOS {
-	case "windows":
-		appData := os.Getenv("APPDATA")
-		if appData == "" {
-			appData = filepath.Join(home, "AppData", "Roaming")
-		}
-		return filepath.Join(appData, "Claude", "claude_desktop_config.json")
-	case "darwin":
-		return filepath.Join(home, "Library", "Application Support", "Claude", "claude_desktop_config.json")
-	default:
-		return filepath.Join(home, ".config", "Claude", "claude_desktop_config.json")
-	}
+	return filepath.Join(io.UserConfigDir(), "Claude", "claude_desktop_config.json")
 }

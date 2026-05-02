@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
+	"github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -114,4 +115,4 @@ func (p *ZedProvider) Parse(content string) (map[string]types.MCPServer, error) 
 	return result, nil
 }
 
-func zedConfigPath() string { return homePath(".config", "zed", "settings.json") }
+func zedConfigPath() string { return io.UserConfigPath("zed", "settings.json") }
