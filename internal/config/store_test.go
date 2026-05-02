@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -142,6 +143,19 @@ func TestStore_SaveLoad_roundTrip_toml(t *testing.T) {
 	assert.Equal(t, original, got)
 }
 
+func TestStore_Load_noServersKey_serversMapIsNonNil(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "minimal.json")
+	require.NoError(t, os.WriteFile(path, []byte(`{"version":1,"providers":[]}`), 0o644))
+
+	s, err := config.NewStore(path)
+	require.NoError(t, err)
+
+	cfg, err := s.Load()
+	require.NoError(t, err)
+	assert.NotNil(t, cfg.Servers, "Servers must be non-nil even when key is absent in config file")
+}
+
 func TestStore_Load_malformedContent_returnsMalformedConfigError(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "bad.json")
@@ -170,4 +184,36 @@ func TestStore_Load_permissionDenied_returnsConfigPermissionError(t *testing.T) 
 	_, err = s.Load()
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ierrors.ErrConfigPermission))
+}
+
+// TestStore_Save_concurrent_noRace verifies that concurrent calls to Save do not
+// race on the underlying file. Run with: go test -race ./internal/config/...
+func TestStore_Save_concurrent_noRace(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "concurrent.json")
+
+	s, err := config.NewStore(path)
+	require.NoError(t, err)
+
+	const goroutines = 20
+	var wg sync.WaitGroup
+	wg.Add(goroutines)
+
+	errs := make([]error, goroutines)
+	for i := range goroutines {
+		go func(idx int) {
+			defer wg.Done()
+			errs[idx] = s.Save(irisFixture())
+		}(i)
+	}
+	wg.Wait()
+
+	for i, e := range errs {
+		assert.NoError(t, e, "goroutine %d returned error", i)
+	}
+
+	// Final file must be valid and round-trip correctly.
+	got, err := s.Load()
+	require.NoError(t, err)
+	assert.Equal(t, irisFixture(), got)
 }
