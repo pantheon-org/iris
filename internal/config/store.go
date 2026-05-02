@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/types"
@@ -13,6 +14,7 @@ import (
 const DefaultConfigFile = ".iris.json"
 
 type Store struct {
+	mu    sync.Mutex
 	path  string
 	codec Codec
 }
@@ -46,7 +48,10 @@ func (s *Store) Load() (*types.IrisConfig, error) {
 	return &cfg, nil
 }
 
-func (s *Store) Save(cfg *types.IrisConfig) error {
+func (s *Store) Save(cfg *types.IrisConfig) (retErr error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	data, err := s.codec.Marshal(cfg)
 	if err != nil {
 		return fmt.Errorf("marshal config: %w", err)
@@ -62,18 +67,27 @@ func (s *Store) Save(cfg *types.IrisConfig) error {
 	}
 	tmpName := tmp.Name()
 
+	// Guarantee temp-file removal on any failure path.
+	defer func() {
+		if retErr != nil {
+			if removeErr := os.Remove(tmpName); removeErr != nil && !errors.Is(removeErr, os.ErrNotExist) {
+				retErr = fmt.Errorf("%w; also failed to remove temp file %s: %v", retErr, tmpName, removeErr)
+			}
+		}
+	}()
+
 	if _, err := tmp.Write(data); err != nil {
-		_ = tmp.Close()
-		_ = os.Remove(tmpName)
+		// Close before the deferred Remove runs.
+		if closeErr := tmp.Close(); closeErr != nil {
+			return fmt.Errorf("write temp file: %w; close: %v", err, closeErr)
+		}
 		return fmt.Errorf("write temp file: %w", err)
 	}
 	if err := tmp.Close(); err != nil {
-		_ = os.Remove(tmpName)
 		return fmt.Errorf("close temp file: %w", err)
 	}
 
 	if err := os.Rename(tmpName, s.path); err != nil {
-		_ = os.Remove(tmpName)
 		if errors.Is(err, os.ErrPermission) {
 			return fmt.Errorf("rename to %s: %w", s.path, ierrors.ErrConfigPermission)
 		}
