@@ -19,6 +19,7 @@
   "wizard.import_prompt": "%s algılandı — sunucularını içe aktar?",
   "wizard.add_server": "Sunucu eklensin mi? (devam için yes, çıkmak için no)",
   "wizard.server_name": "Sunucu adı",
+  "wizard.url": "URL",
   "wizard.command": "Komut",
   "wizard.args": "Argümanlar (boşlukla ayrılmış, hiçbiri için boş bırakın)",
   "wizard.transport": "Aktarım"

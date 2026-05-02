@@ -19,6 +19,7 @@
   "wizard.import_prompt": "%s 감지됨 — 서버를 가져오겠습니까?",
   "wizard.add_server": "서버를 추가하겠습니까? (계속하려면 yes, 끝내려면 no)",
   "wizard.server_name": "서버 이름",
+  "wizard.url": "URL",
   "wizard.command": "명령",
   "wizard.args": "인수 (공백으로 구분, 없으면 비워두세요)",
   "wizard.transport": "전송"

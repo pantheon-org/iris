@@ -19,6 +19,7 @@
   "wizard.import_prompt": "Rilevato %s — importare i suoi server?",
   "wizard.add_server": "Aggiungere un server? (sì per continuare, no per terminare)",
   "wizard.server_name": "Nome del server",
+  "wizard.url": "URL",
   "wizard.command": "Comando",
   "wizard.args": "Argomenti (separati da spazi, lasciare vuoto per nessuno)",
   "wizard.transport": "Trasporto"
