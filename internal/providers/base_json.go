@@ -34,6 +34,16 @@ func (b *baseJSONProvider) ConfigFilePath(projectRoot string) string {
 	return b.resolvedPath(projectRoot)
 }
 
+// SafeConfigFilePath validates projectRoot for path traversal before returning
+// the config file path. Returns ErrPathTraversal if projectRoot contains ".."
+// components.
+func (b *baseJSONProvider) SafeConfigFilePath(projectRoot string) (string, error) {
+	if err := ValidateProjectRoot(projectRoot); err != nil {
+		return "", err
+	}
+	return b.resolvedPath(projectRoot), nil
+}
+
 func (b *baseJSONProvider) Exists(projectRoot string) bool {
 	_, err := os.Stat(b.ConfigFilePath(projectRoot))
 	return err == nil
