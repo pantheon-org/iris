@@ -2,3 +2,4 @@ dist/
 coverage.out
 coverage.html
 .context/plans/
+.cache/

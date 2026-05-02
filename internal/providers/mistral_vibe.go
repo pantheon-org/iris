@@ -10,13 +10,14 @@ import (
 	"github.com/BurntSushi/toml"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
+	"github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
 // Mistral Vibe stores MCP servers in ~/.vibe/config.toml under [[mcp_servers]].
 // The format mirrors Codex: a TOML array of tables with an explicit name field.
 
-func mistralVibeConfigPath() string { return homePath(".vibe", "config.toml") }
+func mistralVibeConfigPath() string { return io.UserHomePath(".vibe", "config.toml") }
 
 func NewMistralVibeProvider() *MistralVibeProvider {
 	return &MistralVibeProvider{configPath: mistralVibeConfigPath()}

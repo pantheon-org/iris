@@ -25,7 +25,7 @@ func buildRegistry(t *testing.T, root string) *providers.Registry {
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(geminiPath))
 	reg.Register(providers.NewOpenCodeProvider())
-	reg.Register(providers.NewCodexProviderWithPath(codexPath))
+	reg.Register(providers.NewOpenaiCodexProviderWithPath(codexPath))
 	return reg
 }
 
@@ -120,19 +120,13 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 		t.Fatalf("read codex config: %v", err)
 	}
 	var codexDoc struct {
-		MCPServers []struct {
-			Name string `toml:"name"`
-		} `toml:"mcp_servers"`
+		MCPServers map[string]map[string]any `toml:"mcp_servers"`
 	}
 	if _, err := toml.Decode(string(codexData), &codexDoc); err != nil {
 		t.Fatalf("parse codex config: %v", err)
 	}
-	codexNames := make(map[string]bool, len(codexDoc.MCPServers))
-	for _, entry := range codexDoc.MCPServers {
-		codexNames[entry.Name] = true
-	}
 	for _, name := range []string{"filesystem", "fetch"} {
-		if !codexNames[name] {
+		if _, ok := codexDoc.MCPServers[name]; !ok {
 			t.Errorf("codex config: missing server %q", name)
 		}
 	}

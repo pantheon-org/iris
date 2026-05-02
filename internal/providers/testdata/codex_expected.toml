@@ -1,8 +1,0 @@
-version = 1
-theme = "dark"
-
-[[mcp_servers]]
-name = "new-server"
-command = "node"
-args = ["server.js"]
-type = "stdio"

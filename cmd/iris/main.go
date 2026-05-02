@@ -31,7 +31,7 @@ func buildRegistry() *providers.Registry {
 	reg.Register(providers.NewClaudeDesktopProvider())
 	reg.Register(providers.NewGeminiProvider())
 	reg.Register(providers.NewOpenCodeProvider())
-	reg.Register(providers.NewCodexProvider())
+	reg.Register(providers.NewOpenaiCodexProvider())
 	reg.Register(providers.NewCursorProvider())
 	reg.Register(providers.NewWindsurfProvider())
 	reg.Register(providers.NewVSCodeCopilotProvider())

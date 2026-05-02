@@ -17,7 +17,7 @@ func newTestRegistry(t *testing.T) *providers.Registry {
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmp, "gemini-settings.json")))
-	reg.Register(providers.NewCodexProviderWithPath(filepath.Join(tmp, "codex-config.toml")))
+	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmp, "codex-config.toml")))
 	return reg
 }
 
@@ -137,7 +137,7 @@ func TestDetect_CodexProjectConfig_Detected(t *testing.T) {
 	root := t.TempDir()
 
 	reg := providers.NewRegistry()
-	reg.Register(providers.NewCodexProvider())
+	reg.Register(providers.NewOpenaiCodexProvider())
 
 	codexDir := filepath.Join(root, ".codex")
 	if err := os.MkdirAll(codexDir, 0o755); err != nil {
@@ -161,7 +161,7 @@ func TestDetect_CodexProjectConfig_AbsentNotDetected(t *testing.T) {
 	root := t.TempDir()
 
 	reg := providers.NewRegistry()
-	reg.Register(providers.NewCodexProvider())
+	reg.Register(providers.NewOpenaiCodexProvider())
 
 	got := detector.Detect(root, reg)
 

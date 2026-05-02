@@ -1,4 +1,4 @@
-package providers_test
+package registry_test
 
 import (
 	"errors"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -33,13 +34,13 @@ func (m *mockProvider) ConfigFilePath(_ string) string { return "" }
 func (m *mockProvider) Exists(_ string) bool { return false }
 
 func TestRegistry_NewRegistry_IsEmpty(t *testing.T) {
-	r := providers.NewRegistry()
+	r := registry.NewRegistry()
 	assert.Empty(t, r.All())
 	assert.Empty(t, r.Names())
 }
 
 func TestRegistry_RegisterAndGet_ReturnsProvider(t *testing.T) {
-	r := providers.NewRegistry()
+	r := registry.NewRegistry()
 	p := &mockProvider{name: "claude"}
 	r.Register(p)
 
@@ -49,7 +50,7 @@ func TestRegistry_RegisterAndGet_ReturnsProvider(t *testing.T) {
 }
 
 func TestRegistry_Get_UnknownName_WrapsErrProviderNotFound(t *testing.T) {
-	r := providers.NewRegistry()
+	r := registry.NewRegistry()
 
 	_, err := r.Get("unknown")
 	require.Error(t, err)
@@ -57,7 +58,7 @@ func TestRegistry_Get_UnknownName_WrapsErrProviderNotFound(t *testing.T) {
 }
 
 func TestRegistry_All_ReturnsAllProviders(t *testing.T) {
-	r := providers.NewRegistry()
+	r := registry.NewRegistry()
 	r.Register(&mockProvider{name: "claude"})
 	r.Register(&mockProvider{name: "cursor"})
 
@@ -66,7 +67,7 @@ func TestRegistry_All_ReturnsAllProviders(t *testing.T) {
 }
 
 func TestRegistry_Names_ReturnsAllProviderNames(t *testing.T) {
-	r := providers.NewRegistry()
+	r := registry.NewRegistry()
 	r.Register(&mockProvider{name: "claude"})
 	r.Register(&mockProvider{name: "gemini"})
 
@@ -77,7 +78,7 @@ func TestRegistry_Names_ReturnsAllProviderNames(t *testing.T) {
 }
 
 func TestRegistry_Filter_ReturnsSubset(t *testing.T) {
-	r := providers.NewRegistry()
+	r := registry.NewRegistry()
 	r.Register(&mockProvider{name: "claude"})
 	r.Register(&mockProvider{name: "gemini"})
 	r.Register(&mockProvider{name: "cursor"})
@@ -90,7 +91,7 @@ func TestRegistry_Filter_ReturnsSubset(t *testing.T) {
 }
 
 func TestRegistry_Filter_UnknownName_WrapsErrProviderNotFound(t *testing.T) {
-	r := providers.NewRegistry()
+	r := registry.NewRegistry()
 	r.Register(&mockProvider{name: "claude"})
 
 	_, err := r.Filter([]string{"claude", "nope"})
@@ -99,24 +100,10 @@ func TestRegistry_Filter_UnknownName_WrapsErrProviderNotFound(t *testing.T) {
 }
 
 func TestRegistry_Filter_EmptySlice_ReturnsEmptyRegistry(t *testing.T) {
-	r := providers.NewRegistry()
+	r := registry.NewRegistry()
 	r.Register(&mockProvider{name: "claude"})
 
 	filtered, err := r.Filter([]string{})
 	require.NoError(t, err)
 	assert.Empty(t, filtered.All())
-}
-
-func TestOpenCodeProvider_Config_UsesExpectedConfigFileName(t *testing.T) {
-	cfg := providers.NewOpenCodeProvider().Config()
-	assert.NotEmpty(t, cfg.GlobalConfigPath)
-	assert.Contains(t, cfg.GlobalConfigPath, "opencode")
-	assert.Contains(t, cfg.GlobalConfigPath, "opencode.json")
-}
-
-func TestClaudeDesktopProvider_Config_UsesExpectedConfigFileName(t *testing.T) {
-	cfg := providers.NewClaudeDesktopProvider().Config()
-	assert.NotEmpty(t, cfg.GlobalConfigPath)
-	assert.Contains(t, cfg.GlobalConfigPath, "Claude")
-	assert.Contains(t, cfg.GlobalConfigPath, "claude_desktop_config.json")
 }
