@@ -29,14 +29,14 @@ func TestRunInit_happyPath_twoServers(t *testing.T) {
 	r := wizard.NewScriptedRunner([]string{
 		"yes",      // Add a server?
 		"server-a", // Server name
+		"stdio",    // Transport
 		"npx",      // Command
 		"-y foo",   // Args
-		"stdio",    // Transport
 		"yes",      // Add a server?
 		"server-b", // Server name
+		"stdio",    // Transport
 		"uvx",      // Command
 		"",         // Args (none)
-		"stdio",    // Transport
 		"no",       // Add a server?
 	})
 
@@ -72,9 +72,9 @@ func TestRunInit_cancelMidFlow_partialSave(t *testing.T) {
 	r := wizard.NewScriptedRunner([]string{
 		"yes",      // Add a server?
 		"server-a", // Server name
+		"stdio",    // Transport
 		"npx",      // Command
 		"",         // Args (none)
-		"stdio",    // Transport
 		"no",       // Add a server?
 	})
 
@@ -142,14 +142,14 @@ func TestRunInit_duplicateName_overwritten(t *testing.T) {
 	r := wizard.NewScriptedRunner([]string{
 		"yes",    // Add a server?
 		"my-srv", // Server name
+		"stdio",  // Transport
 		"npx",    // Command
 		"",       // Args
-		"stdio",  // Transport
 		"yes",    // Add a server?
 		"my-srv", // Same name
+		"stdio",  // Transport
 		"uvx",    // Different command
 		"",       // Args
-		"stdio",  // Transport
 		"no",     // Add a server?
 	})
 
@@ -160,4 +160,28 @@ func TestRunInit_duplicateName_overwritten(t *testing.T) {
 	require.NoError(t, err)
 	assert.Len(t, cfg.Servers, 1)
 	assert.Equal(t, "uvx", cfg.Servers["my-srv"].Command)
+}
+
+func TestRunInit_sseServer_promptsForURLAndPersistsRemoteConfig(t *testing.T) {
+	store := newStore(t)
+	r := wizard.NewScriptedRunner([]string{
+		"yes",                 // Add a server?
+		"remote-srv",          // Server name
+		"sse",                 // Transport
+		"https://example/mcp", // URL
+		"no",                  // Add a server?
+	})
+
+	err := wizard.RunInit(r, "", store, newRegistry())
+	require.NoError(t, err)
+
+	cfg, err := store.Load()
+	require.NoError(t, err)
+
+	srv, ok := cfg.Servers["remote-srv"]
+	require.True(t, ok)
+	assert.Equal(t, "https://example/mcp", srv.URL)
+	assert.Equal(t, "sse", string(srv.Transport))
+	assert.Empty(t, srv.Command)
+	assert.Empty(t, srv.Args)
 }

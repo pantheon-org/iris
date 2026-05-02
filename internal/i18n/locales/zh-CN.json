@@ -19,6 +19,7 @@
   "wizard.import_prompt": "检测到 %s — 导入其服务器？",
   "wizard.add_server": "添加服务器？（yes 继续，no 结束）",
   "wizard.server_name": "服务器名称",
+  "wizard.url": "URL",
   "wizard.command": "命令",
   "wizard.args": "参数（空格分隔，留空表示无）",
   "wizard.transport": "传输协议"
