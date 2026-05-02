@@ -19,6 +19,7 @@
   "wizard.import_prompt": "%s gedetecteerd — servers importeren?",
   "wizard.add_server": "Een server toevoegen? (ja om door te gaan, nee om te stoppen)",
   "wizard.server_name": "Servernaam",
+  "wizard.url": "URL",
   "wizard.command": "Opdracht",
   "wizard.args": "Argumenten (spatie-gescheiden, leeg laten voor geen)",
   "wizard.transport": "Transport"
