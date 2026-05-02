@@ -28,7 +28,7 @@ func loadConfig(configFlag string) (*config.Store, error) {
 
 func buildRegistry() *registry.Registry {
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewClaudeDesktopProvider())
 	reg.Register(providers.NewGeminiProvider())
 	reg.Register(providers.NewOpenCodeProvider())

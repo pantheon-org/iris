@@ -13,8 +13,8 @@ import (
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-func TestClaudeProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
-	p := providers.NewClaudeProvider()
+func TestClaudeCodeProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
 	cfg := p.Config()
 
 	if cfg.Name != "claude" {
@@ -31,8 +31,8 @@ func TestClaudeProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	}
 }
 
-func TestClaudeProvider_ConfigFilePath_ReturnsProjectRelativePath(t *testing.T) {
-	p := providers.NewClaudeProvider()
+func TestClaudeCodeProvider_ConfigFilePath_ReturnsProjectRelativePath(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
 	got := p.ConfigFilePath("/some/project")
 	want := "/some/project/.mcp.json"
 	if got != want {
@@ -40,16 +40,16 @@ func TestClaudeProvider_ConfigFilePath_ReturnsProjectRelativePath(t *testing.T) 
 	}
 }
 
-func TestClaudeProvider_Exists_ReturnsFalseWhenAbsent(t *testing.T) {
-	p := providers.NewClaudeProvider()
+func TestClaudeCodeProvider_Exists_ReturnsFalseWhenAbsent(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
 	tmp := t.TempDir()
 	if p.Exists(tmp) {
 		t.Error("Exists = true, want false for missing file")
 	}
 }
 
-func TestClaudeProvider_Exists_ReturnsTrueWhenPresent(t *testing.T) {
-	p := providers.NewClaudeProvider()
+func TestClaudeCodeProvider_Exists_ReturnsTrueWhenPresent(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
 	tmp := t.TempDir()
 	if err := os.WriteFile(filepath.Join(tmp, ".mcp.json"), []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
@@ -59,8 +59,8 @@ func TestClaudeProvider_Exists_ReturnsTrueWhenPresent(t *testing.T) {
 	}
 }
 
-func TestClaudeProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *testing.T) {
-	p := providers.NewClaudeProvider()
+func TestClaudeCodeProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
 	servers := map[string]types.MCPServer{
 		"my-server": {
 			Command:   "npx",
@@ -83,10 +83,10 @@ func TestClaudeProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *testing
 	}
 }
 
-func TestClaudeProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *testing.T) {
-	p := providers.NewClaudeProvider()
+func TestClaudeCodeProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
 
-	input, err := os.ReadFile("testdata/claude_input.json")
+	input, err := os.ReadFile("testdata/claude_code_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -117,10 +117,10 @@ func TestClaudeProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *test
 	}
 }
 
-func TestClaudeProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
-	p := providers.NewClaudeProvider()
+func TestClaudeCodeProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
 
-	content, err := os.ReadFile("testdata/claude_input.json")
+	content, err := os.ReadFile("testdata/claude_code_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,8 +142,8 @@ func TestClaudeProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	}
 }
 
-func TestClaudeProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *testing.T) {
-	p := providers.NewClaudeProvider()
+func TestClaudeCodeProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
 	_, err := p.Parse("{not valid json")
 	if err == nil {
 		t.Fatal("expected error, got nil")
@@ -153,8 +153,8 @@ func TestClaudeProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *testing
 	}
 }
 
-func TestClaudeProvider_GenerateParse_PreservesRemoteServerFields(t *testing.T) {
-	p := providers.NewClaudeProvider()
+func TestClaudeCodeProvider_GenerateParse_PreservesRemoteServerFields(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
 	enabled := false
 	servers := map[string]types.MCPServer{
 		"remote": {
