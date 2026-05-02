@@ -24,3 +24,11 @@ type IrisConfig struct {
 	Providers []string             `json:"providers" yaml:"providers" toml:"providers"`
 	Servers   map[string]MCPServer `json:"servers" yaml:"servers" toml:"servers"`
 }
+
+// NewIrisConfig returns an IrisConfig with version 1 and a non-nil Servers map.
+func NewIrisConfig() *IrisConfig {
+	return &IrisConfig{
+		Version: 1,
+		Servers: make(map[string]MCPServer),
+	}
+}
