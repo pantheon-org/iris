@@ -18,7 +18,7 @@ import (
 func buildSyncRegistry(t *testing.T, tmpDir string) *registry.Registry {
 	t.Helper()
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmpDir, "gemini-settings.json")))
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmpDir, "codex.toml")))
@@ -64,7 +64,7 @@ func TestRunSync_unchanged_printsUnchangedStatus(t *testing.T) {
 func TestRunSync_updated_printsUpdatedStatus(t *testing.T) {
 	dir := t.TempDir()
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 
 	cfg := syncConfig()
 	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}))
@@ -100,7 +100,7 @@ func TestRunSync_providerError_returnsError(t *testing.T) {
 	lockedFile := filepath.Join(lockedDir, "codex.toml")
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
 
 	cfg := &types.IrisConfig{

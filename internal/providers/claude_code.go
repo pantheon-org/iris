@@ -2,12 +2,12 @@ package providers
 
 import "path/filepath"
 
-type ClaudeProvider struct {
+type ClaudeCodeProvider struct {
 	baseJSONProvider
 }
 
-func NewClaudeProvider() *ClaudeProvider {
-	p := &ClaudeProvider{}
+func NewClaudeCodeProvider() *ClaudeCodeProvider {
+	p := &ClaudeCodeProvider{}
 	p.config = ProviderConfig{
 		Name:                  "claude",
 		DisplayName:           "Claude",
