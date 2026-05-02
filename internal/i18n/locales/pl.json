@@ -19,6 +19,7 @@
   "wizard.import_prompt": "Wykryto %s — zaimportować serwery?",
   "wizard.add_server": "Dodać serwer? (tak aby kontynuować, nie aby zakończyć)",
   "wizard.server_name": "Nazwa serwera",
+  "wizard.url": "URL",
   "wizard.command": "Polecenie",
   "wizard.args": "Argumenty (oddzielone spacją, puste dla braku)",
   "wizard.transport": "Transport"

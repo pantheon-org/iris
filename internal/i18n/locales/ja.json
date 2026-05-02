@@ -19,6 +19,7 @@
   "wizard.import_prompt": "%s を検出 — サーバーをインポートしますか？",
   "wizard.add_server": "サーバーを追加しますか？（続けるにはyes、終了するにはno）",
   "wizard.server_name": "サーバー名",
+  "wizard.url": "URL",
   "wizard.command": "コマンド",
   "wizard.args": "引数（スペース区切り、なければ空白のまま）",
   "wizard.transport": "トランスポート"

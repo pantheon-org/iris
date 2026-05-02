@@ -19,6 +19,7 @@
   "wizard.import_prompt": "偵測到 %s — 匯入其伺服器？",
   "wizard.add_server": "新增伺服器？（yes 繼續，no 結束）",
   "wizard.server_name": "伺服器名稱",
+  "wizard.url": "URL",
   "wizard.command": "命令",
   "wizard.args": "引數（空格分隔，留空表示無）",
   "wizard.transport": "傳輸協定"
