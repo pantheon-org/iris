@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/pantheon-org/iris/internal/io"
 )
 
 func TestUserHomePath_UsesUserHomeDir(t *testing.T) {
@@ -12,7 +14,7 @@ func TestUserHomePath_UsesUserHomeDir(t *testing.T) {
 		t.Fatalf("UserHomeDir: %v", err)
 	}
 
-	got := UserHomePath("test", "config.json")
+	got := io.UserHomePath("test", "config.json")
 	want := filepath.Join(home, "test", "config.json")
 	if got != want {
 		t.Fatalf("UserHomePath() = %q, want %q", got, want)
@@ -25,7 +27,7 @@ func TestUserConfigPath_UsesUserConfigDir(t *testing.T) {
 		t.Fatalf("UserConfigDir: %v", err)
 	}
 
-	got := UserConfigPath("test", "config.json")
+	got := io.UserConfigPath("test", "config.json")
 	want := filepath.Join(configDir, "test", "config.json")
 	if got != want {
 		t.Fatalf("UserConfigPath() = %q, want %q", got, want)

@@ -25,7 +25,7 @@ func buildRegistry(t *testing.T, root string) *providers.Registry {
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(geminiPath))
 	reg.Register(providers.NewOpenCodeProvider())
-	reg.Register(providers.NewCodexProviderWithPath(codexPath))
+	reg.Register(providers.NewOpenaiCodexProviderWithPath(codexPath))
 	return reg
 }
 
