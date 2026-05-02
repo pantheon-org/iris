@@ -10,6 +10,7 @@ import (
 	"github.com/BurntSushi/toml"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
+	"github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -18,7 +19,7 @@ type OpenaiCodexProvider struct {
 	pinned     bool // when true, ConfigFilePath always returns configPath regardless of projectRoot
 }
 
-func codexGlobalPath() string { return userHomePath(".codex", "config.toml") }
+func codexGlobalPath() string { return io.UserHomePath(".codex", "config.toml") }
 
 func NewOpenaiCodexProvider() *OpenaiCodexProvider {
 	return &OpenaiCodexProvider{configPath: codexGlobalPath()}

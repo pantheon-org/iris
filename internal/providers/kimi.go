@@ -1,5 +1,7 @@
 package providers
 
+import "github.com/pantheon-org/iris/internal/io"
+
 type KimiProvider struct {
 	baseJSONProvider
 }
@@ -29,4 +31,4 @@ func NewKimiProviderWithPath(path string) *KimiProvider {
 	return newKimiProviderWithPath(path)
 }
 
-func kimiConfigPath() string { return homePath(".kimi", "mcp.json") }
+func kimiConfigPath() string { return io.UserHomePath(".kimi", "mcp.json") }

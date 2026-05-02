@@ -2,6 +2,8 @@ package providers
 
 import (
 	"path/filepath"
+
+	"github.com/pantheon-org/iris/internal/io"
 )
 
 type QwenProvider struct {
@@ -47,4 +49,4 @@ func NewQwenProviderWithPath(path string) *QwenProvider {
 	return p
 }
 
-func qwenConfigPath() string { return homePath(".qwen", "settings.json") }
+func qwenConfigPath() string { return io.UserHomePath(".qwen", "settings.json") }
