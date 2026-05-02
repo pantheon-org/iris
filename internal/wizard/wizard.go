@@ -9,7 +9,7 @@ import (
 	"github.com/pantheon-org/iris/internal/config"
 	"github.com/pantheon-org/iris/internal/detector"
 	"github.com/pantheon-org/iris/internal/i18n"
-	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -18,7 +18,7 @@ type pendingServer struct {
 	server types.MCPServer
 }
 
-func RunInit(r Runner, projectRoot string, store *config.Store, registry *providers.Registry) error {
+func RunInit(r Runner, projectRoot string, store *config.Store, registry *registry.Registry) error {
 	var pending []pendingServer
 
 	// Detect installed harnesses and offer to import their existing MCP servers.

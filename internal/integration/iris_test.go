@@ -13,15 +13,16 @@ import (
 	"github.com/pantheon-org/iris/internal/config"
 	"github.com/pantheon-org/iris/internal/merger"
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-func buildRegistry(t *testing.T, root string) *providers.Registry {
+func buildRegistry(t *testing.T, root string) *registry.Registry {
 	t.Helper()
 	geminiPath := filepath.Join(root, "gemini-settings.json")
 	codexPath := filepath.Join(root, "codex-config.toml")
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(geminiPath))
 	reg.Register(providers.NewOpenCodeProvider())

@@ -7,13 +7,14 @@ import (
 
 	"github.com/pantheon-org/iris/internal/detector"
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 )
 
-func newTestRegistry(t *testing.T) *providers.Registry {
+func newTestRegistry(t *testing.T) *registry.Registry {
 	t.Helper()
 	tmp := t.TempDir()
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmp, "gemini-settings.json")))
@@ -99,7 +100,7 @@ func TestDetect_BothProjectFilesPresent_BothDetected(t *testing.T) {
 func TestDetect_GeminiProjectConfig_Detected(t *testing.T) {
 	root := t.TempDir()
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewGeminiProvider())
 
 	geminiDir := filepath.Join(root, ".gemini")
@@ -123,7 +124,7 @@ func TestDetect_GeminiProjectConfig_Detected(t *testing.T) {
 func TestDetect_GeminiProjectConfig_AbsentNotDetected(t *testing.T) {
 	root := t.TempDir()
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewGeminiProvider())
 
 	got := detector.Detect(root, reg)
@@ -136,7 +137,7 @@ func TestDetect_GeminiProjectConfig_AbsentNotDetected(t *testing.T) {
 func TestDetect_CodexProjectConfig_Detected(t *testing.T) {
 	root := t.TempDir()
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewOpenaiCodexProvider())
 
 	codexDir := filepath.Join(root, ".codex")
@@ -160,7 +161,7 @@ func TestDetect_CodexProjectConfig_Detected(t *testing.T) {
 func TestDetect_CodexProjectConfig_AbsentNotDetected(t *testing.T) {
 	root := t.TempDir()
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewOpenaiCodexProvider())
 
 	got := detector.Detect(root, reg)
@@ -173,7 +174,7 @@ func TestDetect_CodexProjectConfig_AbsentNotDetected(t *testing.T) {
 func TestDetect_QwenProjectConfig_Detected(t *testing.T) {
 	root := t.TempDir()
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewQwenProvider())
 
 	qwenDir := filepath.Join(root, ".qwen")
@@ -197,7 +198,7 @@ func TestDetect_QwenProjectConfig_Detected(t *testing.T) {
 func TestDetect_QwenProjectConfig_AbsentNotDetected(t *testing.T) {
 	root := t.TempDir()
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewQwenProvider())
 
 	got := detector.Detect(root, reg)
@@ -210,7 +211,7 @@ func TestDetect_QwenProjectConfig_AbsentNotDetected(t *testing.T) {
 func TestDetect_MistralVibeProjectConfig_Detected(t *testing.T) {
 	root := t.TempDir()
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewMistralVibeProvider())
 
 	vibeDir := filepath.Join(root, ".vibe")
@@ -234,7 +235,7 @@ func TestDetect_MistralVibeProjectConfig_Detected(t *testing.T) {
 func TestDetect_MistralVibeProjectConfig_AbsentNotDetected(t *testing.T) {
 	root := t.TempDir()
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewMistralVibeProvider())
 
 	got := detector.Detect(root, reg)

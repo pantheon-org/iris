@@ -8,6 +8,7 @@ import (
 
 	"github.com/pantheon-org/iris/internal/merger"
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -117,11 +118,11 @@ func TestSyncProvider_generateError_returnsError(t *testing.T) {
 
 func TestSyncAllProviders_multipleProviders_allResultsReturned(t *testing.T) {
 	dir := t.TempDir()
-	registry := providers.NewRegistry()
-	registry.Register(providers.NewClaudeProvider())
-	registry.Register(providers.NewOpenCodeProvider())
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewOpenCodeProvider())
 
-	results := merger.SyncAllProviders(dir, registry, testServers)
+	results := merger.SyncAllProviders(dir, reg, testServers)
 
 	if len(results) != 2 {
 		t.Fatalf("expected 2 results, got %d", len(results))
@@ -136,11 +137,11 @@ func TestSyncAllProviders_oneErrors_errorCapturedInResult(t *testing.T) {
 		t.Fatalf("failed to write bad config: %v", err)
 	}
 
-	registry := providers.NewRegistry()
-	registry.Register(providers.NewClaudeProvider())
-	registry.Register(providers.NewOpenCodeProvider())
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewOpenCodeProvider())
 
-	results := merger.SyncAllProviders(dir, registry, testServers)
+	results := merger.SyncAllProviders(dir, reg, testServers)
 
 	if len(results) != 2 {
 		t.Fatalf("expected 2 results, got %d", len(results))
@@ -173,10 +174,10 @@ func TestSyncAllProviders_oneErrors_doesNotReturnError(t *testing.T) {
 		t.Fatalf("failed to write bad config: %v", err)
 	}
 
-	registry := providers.NewRegistry()
-	registry.Register(providers.NewClaudeProvider())
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewClaudeProvider())
 
-	results := merger.SyncAllProviders(dir, registry, testServers)
+	results := merger.SyncAllProviders(dir, reg, testServers)
 
 	found := false
 	for _, r := range results {

@@ -12,6 +12,7 @@ import (
 	"github.com/pantheon-org/iris/internal/config"
 	"github.com/pantheon-org/iris/internal/i18n"
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
 	"github.com/pantheon-org/iris/internal/version"
 	"github.com/pantheon-org/iris/internal/wizard"
@@ -25,8 +26,8 @@ func loadConfig(configFlag string) (*config.Store, error) {
 	return store, nil
 }
 
-func buildRegistry() *providers.Registry {
-	reg := providers.NewRegistry()
+func buildRegistry() *registry.Registry {
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 	reg.Register(providers.NewClaudeDesktopProvider())
 	reg.Register(providers.NewGeminiProvider())

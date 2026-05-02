@@ -10,6 +10,7 @@ import (
 
 	"github.com/pantheon-org/iris/internal/config"
 	"github.com/pantheon-org/iris/internal/providers"
+	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/wizard"
 )
 
@@ -20,8 +21,8 @@ func newStore(t *testing.T) *config.Store {
 	return store
 }
 
-func newRegistry() *providers.Registry {
-	return providers.NewRegistry()
+func newRegistry() *registry.Registry {
+	return registry.NewRegistry()
 }
 
 func TestRunInit_happyPath_twoServers(t *testing.T) {
@@ -96,7 +97,7 @@ func TestRunInit_importDetectedProvider_importsServers(t *testing.T) {
 	mcpJSON := `{"mcpServers":{"imported-srv":{"command":"npx","args":["-y","thing"],"type":"stdio"}}}`
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(mcpJSON), 0o600))
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 
 	r := wizard.NewScriptedRunner([]string{
@@ -121,7 +122,7 @@ func TestRunInit_importDetectedProvider_declineImport(t *testing.T) {
 	mcpJSON := `{"mcpServers":{"imported-srv":{"command":"npx","args":[],"type":"stdio"}}}`
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(mcpJSON), 0o600))
 
-	reg := providers.NewRegistry()
+	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeProvider())
 
 	r := wizard.NewScriptedRunner([]string{
