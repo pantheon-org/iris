@@ -86,3 +86,20 @@ func TestRunStatus_filePresent_desync(t *testing.T) {
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "desync")
 }
+
+func TestRunStatus_readFailure_showsError(t *testing.T) {
+	dir := t.TempDir()
+	reg := providers.NewRegistry()
+	reg.Register(providers.NewClaudeProvider())
+
+	cfg := minimalConfig()
+
+	require.NoError(t, os.Mkdir(filepath.Join(dir, ".mcp.json"), 0o755))
+
+	var buf bytes.Buffer
+	err := cli.RunStatus(dir, cfg, reg, &buf)
+
+	require.NoError(t, err)
+	assert.Contains(t, buf.String(), "error")
+	assert.NotContains(t, buf.String(), "missing")
+}
