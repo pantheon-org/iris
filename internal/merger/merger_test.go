@@ -189,3 +189,208 @@ func TestSyncAllProviders_oneErrors_doesNotReturnError(t *testing.T) {
 		t.Fatal("expected error captured in result, not propagated")
 	}
 }
+
+// Table-driven tests for SyncAllProviders failure modes and edge cases.
+
+type syncAllProvidersTC struct {
+	name         string
+	setup        func(dir string) // optional pre-test filesystem mutations
+	providers    func() []providers.Provider
+	wantLen      int
+	wantErrCount int
+	wantOkCount  int
+}
+
+func runSyncAllProvidersTC(t *testing.T, tc syncAllProvidersTC) {
+	t.Helper()
+	dir := t.TempDir()
+
+	if tc.setup != nil {
+		tc.setup(dir)
+	}
+
+	reg := registry.NewRegistry()
+	for _, p := range tc.providers() {
+		reg.Register(p)
+	}
+
+	results := merger.SyncAllProviders(dir, reg, testServers)
+
+	if len(results) != tc.wantLen {
+		t.Fatalf("expected %d results, got %d", tc.wantLen, len(results))
+	}
+
+	var errCount, okCount int
+	for _, r := range results {
+		if r.Status == merger.SyncStatusError {
+			if r.Err == nil {
+				t.Errorf("provider %q: SyncStatusError but Err is nil", r.ProviderName)
+			}
+			errCount++
+		} else {
+			if r.ProviderName == "" {
+				t.Errorf("non-error result has empty ProviderName")
+			}
+			okCount++
+		}
+	}
+
+	if errCount != tc.wantErrCount {
+		t.Errorf("expected %d error result(s), got %d", tc.wantErrCount, errCount)
+	}
+	if okCount != tc.wantOkCount {
+		t.Errorf("expected %d ok result(s), got %d", tc.wantOkCount, okCount)
+	}
+}
+
+func TestSyncAllProviders_emptyRegistry_returnsEmptySlice(t *testing.T) {
+	runSyncAllProvidersTC(t, syncAllProvidersTC{
+		name:         "empty registry returns empty slice",
+		providers:    func() []providers.Provider { return nil },
+		wantLen:      0,
+		wantErrCount: 0,
+		wantOkCount:  0,
+	})
+}
+
+func TestSyncAllProviders_singleProvider_allSucceed(t *testing.T) {
+	runSyncAllProvidersTC(t, syncAllProvidersTC{
+		name:         "single provider succeeds",
+		providers:    func() []providers.Provider { return []providers.Provider{providers.NewClaudeProvider()} },
+		wantLen:      1,
+		wantErrCount: 0,
+		wantOkCount:  1,
+	})
+}
+
+func TestSyncAllProviders_singleProvider_fails(t *testing.T) {
+	runSyncAllProvidersTC(t, syncAllProvidersTC{
+		name: "single provider with bad config fails",
+		setup: func(dir string) {
+			// Claude uses .mcp.json — write corrupt JSON to trigger a Generate error.
+			if err := os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte("{{{invalid}}}"), 0644); err != nil {
+				t.Fatalf("setup: %v", err)
+			}
+		},
+		providers:    func() []providers.Provider { return []providers.Provider{providers.NewClaudeProvider()} },
+		wantLen:      1,
+		wantErrCount: 1,
+		wantOkCount:  0,
+	})
+}
+
+func TestSyncAllProviders_multipleProviders_allSucceed(t *testing.T) {
+	runSyncAllProvidersTC(t, syncAllProvidersTC{
+		name: "three providers all succeed",
+		providers: func() []providers.Provider {
+			return []providers.Provider{
+				providers.NewClaudeProvider(),
+				providers.NewOpenCodeProvider(),
+				providers.NewCursorProvider(),
+			}
+		},
+		wantLen:      3,
+		wantErrCount: 0,
+		wantOkCount:  3,
+	})
+}
+
+func TestSyncAllProviders_oneProviderFails_remainingProvidersRun(t *testing.T) {
+	// Claude (.mcp.json) fails; OpenCode (opencode.json) should still succeed.
+	runSyncAllProvidersTC(t, syncAllProvidersTC{
+		name: "one provider fails, remaining providers still run",
+		setup: func(dir string) {
+			if err := os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte("{{{invalid}}}"), 0644); err != nil {
+				t.Fatalf("setup: %v", err)
+			}
+		},
+		providers: func() []providers.Provider {
+			return []providers.Provider{
+				providers.NewClaudeProvider(),
+				providers.NewOpenCodeProvider(),
+			}
+		},
+		wantLen:      2,
+		wantErrCount: 1,
+		wantOkCount:  1,
+	})
+}
+
+func TestSyncAllProviders_lastProviderFails_allResultsPresent(t *testing.T) {
+	// OpenCode (opencode.json) is pre-populated with bad JSON; Claude (.mcp.json) succeeds.
+	runSyncAllProvidersTC(t, syncAllProvidersTC{
+		name: "last provider fails, all results still present",
+		setup: func(dir string) {
+			if err := os.WriteFile(filepath.Join(dir, "opencode.json"), []byte("{{{invalid}}}"), 0644); err != nil {
+				t.Fatalf("setup: %v", err)
+			}
+		},
+		providers: func() []providers.Provider {
+			return []providers.Provider{
+				providers.NewClaudeProvider(),
+				providers.NewOpenCodeProvider(),
+			}
+		},
+		wantLen:      2,
+		wantErrCount: 1,
+		wantOkCount:  1,
+	})
+}
+
+func TestSyncAllProviders_allProvidersFail_allResultsHaveErrors(t *testing.T) {
+	runSyncAllProvidersTC(t, syncAllProvidersTC{
+		name: "all providers fail, all results have error status",
+		setup: func(dir string) {
+			if err := os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte("{{{invalid}}}"), 0644); err != nil {
+				t.Fatalf("setup .mcp.json: %v", err)
+			}
+			if err := os.WriteFile(filepath.Join(dir, "opencode.json"), []byte("{{{invalid}}}"), 0644); err != nil {
+				t.Fatalf("setup opencode.json: %v", err)
+			}
+		},
+		providers: func() []providers.Provider {
+			return []providers.Provider{
+				providers.NewClaudeProvider(),
+				providers.NewOpenCodeProvider(),
+			}
+		},
+		wantLen:      2,
+		wantErrCount: 2,
+		wantOkCount:  0,
+	})
+}
+
+func TestSyncAllProviders_errorsAreContainedInResults_noPanic(t *testing.T) {
+	// Verify SyncAllProviders never panics and always returns len(results) == len(providers),
+	// even when every provider encounters an error.
+	dir := t.TempDir()
+
+	for _, name := range []string{".mcp.json", "opencode.json", ".cursor/mcp.json"} {
+		fullPath := filepath.Join(dir, name)
+		if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
+			t.Fatalf("mkdir %s: %v", filepath.Dir(fullPath), err)
+		}
+		if err := os.WriteFile(fullPath, []byte("{{{invalid}}}"), 0644); err != nil {
+			t.Fatalf("write %s: %v", name, err)
+		}
+	}
+
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewClaudeProvider())
+	reg.Register(providers.NewOpenCodeProvider())
+	reg.Register(providers.NewCursorProvider())
+
+	results := merger.SyncAllProviders(dir, reg, testServers)
+
+	if len(results) != 3 {
+		t.Fatalf("expected 3 results, got %d", len(results))
+	}
+	for _, r := range results {
+		if r.Status != merger.SyncStatusError {
+			t.Errorf("provider %q: expected SyncStatusError, got %q", r.ProviderName, r.Status)
+		}
+		if r.Err == nil {
+			t.Errorf("provider %q: expected non-nil Err", r.ProviderName)
+		}
+	}
+}
