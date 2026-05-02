@@ -35,6 +35,13 @@ func fixture() types.IrisConfig {
 	}
 }
 
+func TestNewIrisConfig_serversMap_isNonNil(t *testing.T) {
+	cfg := types.NewIrisConfig()
+	require.NotNil(t, cfg)
+	assert.NotNil(t, cfg.Servers, "Servers must be a non-nil map")
+	assert.Equal(t, 1, cfg.Version)
+}
+
 func TestIrisConfig_JSON_roundTrip(t *testing.T) {
 	original := fixture()
 
