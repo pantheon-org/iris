@@ -69,12 +69,12 @@ func TestNewStore_tomlExtension_succeeds(t *testing.T) {
 	assert.NotNil(t, s)
 }
 
-func TestNewStore_unknownExtension_returnsMalformedConfigError(t *testing.T) {
+func TestNewStore_unknownExtension_returnsUnsupportedFormatError(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "config.xml")
 	_, err := config.NewStore(path)
 	require.Error(t, err)
-	assert.True(t, errors.Is(err, ierrors.ErrMalformedConfig))
+	assert.True(t, errors.Is(err, ierrors.ErrUnsupportedFormat))
 }
 
 func TestStore_Load_nonExistentFile_returnsError(t *testing.T) {
@@ -217,7 +217,7 @@ func TestStore_Save_concurrent_noDataRace(t *testing.T) {
 	assert.Equal(t, irisFixture(), got)
 }
 
-func TestStore_Load_versionZero_loadsSuccessfully(t *testing.T) {
+func TestStore_Load_versionZero_normalisesToVersionOne(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "v0.json")
 	require.NoError(t, os.WriteFile(path, []byte(`{"version":0}`), 0o644))
@@ -227,7 +227,7 @@ func TestStore_Load_versionZero_loadsSuccessfully(t *testing.T) {
 
 	cfg, err := s.Load()
 	require.NoError(t, err)
-	assert.Equal(t, 0, cfg.Version)
+	assert.Equal(t, 1, cfg.Version)
 }
 
 func TestStore_Load_versionOne_loadsSuccessfully(t *testing.T) {

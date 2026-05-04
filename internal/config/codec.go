@@ -83,6 +83,6 @@ func CodecForExtension(ext string) (Codec, error) {
 	case ".toml":
 		return tomlCodec{}, nil
 	default:
-		return nil, fmt.Errorf("unsupported extension %q: %w", ext, ierrors.ErrMalformedConfig)
+		return nil, fmt.Errorf("unsupported extension %q: %w", ext, ierrors.ErrUnsupportedFormat)
 	}
 }

@@ -33,6 +33,9 @@ func NewStore(path string) (*Store, error) {
 func (s *Store) Path() string { return s.path }
 
 func (s *Store) Load() (*types.IrisConfig, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	data, err := os.ReadFile(s.path)
 	if err != nil {
 		if errors.Is(err, os.ErrPermission) {
@@ -47,6 +50,9 @@ func (s *Store) Load() (*types.IrisConfig, error) {
 	}
 	if cfg.Version != 0 && cfg.Version != 1 {
 		return nil, fmt.Errorf("parse %s: version %d: %w", s.path, cfg.Version, ierrors.ErrUnsupportedVersion)
+	}
+	if cfg.Version == 0 {
+		cfg.Version = 1
 	}
 	if cfg.Servers == nil {
 		cfg.Servers = make(map[string]types.MCPServer)
