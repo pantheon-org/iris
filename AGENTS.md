@@ -35,3 +35,7 @@ internal/
 - Wrap all errors from external packages: `fmt.Errorf("context: %w", err)`.
 - Global providers (Gemini, Codex) expose `NewXxxProviderWithPath(path string)` constructors for test isolation — use them instead of mutating `HOME`.
 - For `gh` CLI commands, always prefix with `dotenvx run --` to load `GH_TOKEN`.
+
+@RTK.md
+
+@CODE_REVIEW_GRAPH.md
