@@ -103,8 +103,8 @@ func TestDetect_BothProjectFilesPresent_BothDetected(t *testing.T) {
 	for _, p := range got {
 		names[p.Config().Name] = true
 	}
-	if !names["claude"] {
-		t.Error("expected claude in results")
+	if !names["claude-code"] {
+		t.Error("expected claude-code in results")
 	}
 	if !names["opencode"] {
 		t.Error("expected opencode in results")
