@@ -13,8 +13,8 @@ func TestQwenProvider_Config(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewQwenProviderWithPath(filepath.Join(tmp, "settings.json"))
 	cfg := p.Config()
-	if cfg.Name != "qwen" {
-		t.Fatalf("expected name %q, got %q", "qwen", cfg.Name)
+	if cfg.Name != "alibaba-qwen-code" {
+		t.Fatalf("expected name %q, got %q", "alibaba-qwen-code", cfg.Name)
 	}
 	if !cfg.SupportsProjectConfig {
 		t.Fatal("expected SupportsProjectConfig=true")

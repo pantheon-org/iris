@@ -26,8 +26,8 @@ func NewVSCodeCopilotProvider() *VSCodeCopilotProvider {
 
 func (p *VSCodeCopilotProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  NameVSCodeCopilot,
-		DisplayName:           "VS Code Copilot",
+		Name:                  NameGitHubCopilot,
+		DisplayName:           "GitHub Copilot",
 		ConfigPath:            ".vscode/mcp.json",
 		SupportsProjectConfig: true,
 	}

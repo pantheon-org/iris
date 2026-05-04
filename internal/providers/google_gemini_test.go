@@ -13,15 +13,15 @@ import (
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-func TestGeminiProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
-	p := providers.NewGeminiProvider()
+func TestGoogleGeminiProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
 	cfg := p.Config()
 
-	if cfg.Name != "gemini" {
-		t.Errorf("Name = %q, want %q", cfg.Name, "gemini")
+	if cfg.Name != "google-gemini" {
+		t.Errorf("Name = %q, want %q", cfg.Name, "google-gemini")
 	}
-	if cfg.DisplayName != "Gemini" {
-		t.Errorf("DisplayName = %q, want %q", cfg.DisplayName, "Gemini")
+	if cfg.DisplayName != "Google Gemini" {
+		t.Errorf("DisplayName = %q, want %q", cfg.DisplayName, "Google Gemini")
 	}
 	if !cfg.SupportsProjectConfig {
 		t.Error("SupportsProjectConfig = false, want true")
@@ -31,8 +31,8 @@ func TestGeminiProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	}
 }
 
-func TestGeminiProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {
-	p := providers.NewGeminiProvider()
+func TestGoogleGeminiProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
 	got := p.ConfigFilePath("/any/project")
 	want := filepath.Join("/any/project", ".gemini", "settings.json")
 	if got != want {
@@ -40,8 +40,8 @@ func TestGeminiProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *tes
 	}
 }
 
-func TestGeminiProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.T) {
-	p := providers.NewGeminiProvider()
+func TestGoogleGeminiProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
 	got := p.ConfigFilePath("")
 
 	home, err := os.UserHomeDir()
@@ -54,9 +54,9 @@ func TestGeminiProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testin
 	}
 }
 
-func TestGeminiProvider_Exists_ReturnsFalseWhenAbsent(t *testing.T) {
+func TestGoogleGeminiProvider_Exists_ReturnsFalseWhenAbsent(t *testing.T) {
 	tmp := t.TempDir()
-	p := providers.NewGeminiProviderWithPath(filepath.Join(tmp, "settings.json"))
+	p := providers.NewGoogleGeminiProviderWithPath(filepath.Join(tmp, "settings.json"))
 	ok, err := p.Exists(tmp)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -66,8 +66,8 @@ func TestGeminiProvider_Exists_ReturnsFalseWhenAbsent(t *testing.T) {
 	}
 }
 
-func TestGeminiProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *testing.T) {
-	p := providers.NewGeminiProvider()
+func TestGoogleGeminiProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
 	servers := map[string]types.MCPServer{
 		"memory": {
 			Command:   "npx",
@@ -90,10 +90,10 @@ func TestGeminiProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *testing
 	}
 }
 
-func TestGeminiProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *testing.T) {
-	p := providers.NewGeminiProvider()
+func TestGoogleGeminiProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
 
-	input, err := os.ReadFile("testdata/gemini_input.json")
+	input, err := os.ReadFile("testdata/google_gemini_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,10 +124,10 @@ func TestGeminiProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *test
 	}
 }
 
-func TestGeminiProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
-	p := providers.NewGeminiProvider()
+func TestGoogleGeminiProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
 
-	content, err := os.ReadFile("testdata/gemini_input.json")
+	content, err := os.ReadFile("testdata/google_gemini_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,8 +149,8 @@ func TestGeminiProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	}
 }
 
-func TestGeminiProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *testing.T) {
-	p := providers.NewGeminiProvider()
+func TestGoogleGeminiProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
 	_, err := p.Parse("{not valid json")
 	if err == nil {
 		t.Fatal("expected error, got nil")

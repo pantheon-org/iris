@@ -13,8 +13,8 @@ func NewKimiProvider() *KimiProvider {
 func newKimiProviderWithPath(path string) *KimiProvider {
 	p := &KimiProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameKimi,
-		DisplayName:           "Kimi Code",
+		Name:                  NameMoonshotKimi,
+		DisplayName:           "Moonshot Kimi",
 		ConfigPath:            "~/.kimi/mcp.json",
 		SupportsProjectConfig: false,
 		GlobalConfigPath:      path,

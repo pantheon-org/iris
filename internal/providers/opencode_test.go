@@ -17,8 +17,8 @@ func TestOpenCodeProvider_Config_ReturnsCorrectConfig(t *testing.T) {
 	p := providers.NewOpenCodeProvider()
 	cfg := p.Config()
 
-	if cfg.Name != "opencode" {
-		t.Errorf("Name: got %q, want %q", cfg.Name, "opencode")
+	if cfg.Name != "anomalyco-opencode" {
+		t.Errorf("Name: got %q, want %q", cfg.Name, "anomalyco-opencode")
 	}
 	if cfg.ConfigPath != "opencode.json" {
 		t.Errorf("ConfigPath: got %q, want %q", cfg.ConfigPath, "opencode.json")

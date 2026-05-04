@@ -9,8 +9,8 @@ type ClaudeCodeProvider struct {
 func NewClaudeCodeProvider() *ClaudeCodeProvider {
 	p := &ClaudeCodeProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameClaude,
-		DisplayName:           "Claude",
+		Name:                  NameAnthropicClaudeCode,
+		DisplayName:           "Anthropic Claude Code",
 		ConfigPath:            ".mcp.json",
 		SupportsProjectConfig: true,
 	}

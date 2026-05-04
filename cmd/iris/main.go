@@ -30,7 +30,7 @@ func buildRegistry() *registry.Registry {
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewClaudeDesktopProvider())
-	reg.Register(providers.NewGeminiProvider())
+	reg.Register(providers.NewGoogleGeminiProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewOpenaiCodexProvider())
 	reg.Register(providers.NewCursorProvider())

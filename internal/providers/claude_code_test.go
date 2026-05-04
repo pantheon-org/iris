@@ -17,11 +17,11 @@ func TestClaudeCodeProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	p := providers.NewClaudeCodeProvider()
 	cfg := p.Config()
 
-	if cfg.Name != "claude" {
-		t.Errorf("Name = %q, want %q", cfg.Name, "claude")
+	if cfg.Name != "anthropic-claude-code" {
+		t.Errorf("Name = %q, want %q", cfg.Name, "anthropic-claude-code")
 	}
-	if cfg.DisplayName != "Claude" {
-		t.Errorf("DisplayName = %q, want %q", cfg.DisplayName, "Claude")
+	if cfg.DisplayName != "Anthropic Claude Code" {
+		t.Errorf("DisplayName = %q, want %q", cfg.DisplayName, "Anthropic Claude Code")
 	}
 	if !cfg.SupportsProjectConfig {
 		t.Error("SupportsProjectConfig = false, want true")

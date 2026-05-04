@@ -19,12 +19,12 @@ import (
 
 func buildRegistry(t *testing.T, root string) *registry.Registry {
 	t.Helper()
-	geminiPath := filepath.Join(root, "gemini-settings.json")
+	googleGeminiPath := filepath.Join(root, "gemini-settings.json")
 	codexPath := filepath.Join(root, "codex-config.toml")
 
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
-	reg.Register(providers.NewGeminiProviderWithPath(geminiPath))
+	reg.Register(providers.NewGoogleGeminiProviderWithPath(googleGeminiPath))
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(codexPath))
 	return reg
@@ -67,11 +67,11 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 	}
 
 	claudePath := filepath.Join(root, ".mcp.json")
-	geminiPath := filepath.Join(root, "gemini-settings.json")
+	googleGeminiPath := filepath.Join(root, "gemini-settings.json")
 	opencodePath := filepath.Join(root, "opencode.json")
 	codexPath := filepath.Join(root, "codex-config.toml")
 
-	for _, path := range []string{claudePath, geminiPath, opencodePath, codexPath} {
+	for _, path := range []string{claudePath, googleGeminiPath, opencodePath, codexPath} {
 		if _, err := os.Stat(path); err != nil {
 			t.Errorf("expected file %s to exist: %v", path, err)
 		}
@@ -97,7 +97,7 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 	}
 
 	assertJSONMCPServers(t, claudePath)
-	assertJSONMCPServers(t, geminiPath)
+	assertJSONMCPServers(t, googleGeminiPath)
 
 	opencodeData, err := os.ReadFile(opencodePath)
 	if err != nil {

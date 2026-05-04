@@ -19,8 +19,8 @@ func NewOpenCodeProvider() *OpenCodeProvider {
 
 func (p *OpenCodeProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  NameOpenCode,
-		DisplayName:           "OpenCode",
+		Name:                  NameAnomalycoOpenCode,
+		DisplayName:           "Anomalyco OpenCode",
 		ConfigPath:            "opencode.json",
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      io.UserConfigPath("opencode", "opencode.json"),
