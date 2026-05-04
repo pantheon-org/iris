@@ -1,6 +1,7 @@
 package io
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -8,6 +9,7 @@ import (
 func UserHomeDir() string {
 	home, err := os.UserHomeDir()
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "warning: could not determine home directory: %v; using current directory\n", err)
 		return "."
 	}
 	return home
