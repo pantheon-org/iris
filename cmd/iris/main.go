@@ -225,11 +225,7 @@ func main() {
 							return fmt.Errorf("filter providers: %w", err)
 						}
 					}
-					if err := cli.RunSync(projectRoot, cfg, reg, os.Stdout); err != nil {
-						fmt.Fprintln(os.Stderr, err)
-						os.Exit(1)
-					}
-					return nil
+					return cli.RunSync(projectRoot, cfg, reg, os.Stdout)
 				},
 			}
 			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, i18n.T("flag.provider"))
