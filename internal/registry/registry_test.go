@@ -31,7 +31,7 @@ func (m *mockProvider) Parse(_ string) (map[string]types.MCPServer, error) {
 
 func (m *mockProvider) ConfigFilePath(_ string) string { return "" }
 
-func (m *mockProvider) Exists(_ string) bool { return false }
+func (m *mockProvider) Exists(_ string) (bool, error) { return false, nil }
 
 func TestRegistry_NewRegistry_IsEmpty(t *testing.T) {
 	r := registry.NewRegistry()

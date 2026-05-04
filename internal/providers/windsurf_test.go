@@ -51,13 +51,21 @@ func TestWindsurfProvider_Exists(t *testing.T) {
 	path := filepath.Join(tmp, "mcp_config.json")
 	p := providers.NewWindsurfProviderWithPath(path)
 
-	if p.Exists(tmp) {
+	ok, err := p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
 		t.Fatal("should not exist before file is created")
 	}
 	if err := os.WriteFile(path, []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if !p.Exists(tmp) {
+	ok, err = p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
 		t.Fatal("should exist after file is created")
 	}
 }
