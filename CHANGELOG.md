@@ -1,5 +1,24 @@
 # Changelog
 
+## [2026.5.9](https://github.com/pantheon-org/iris/compare/v2026.5.8...v2026.5.9) (2026-05-04)
+
+
+### Features
+
+* **ci:** auto-update all open PR branches when main is pushed ([#83](https://github.com/pantheon-org/iris/issues/83)) ([cfb605b](https://github.com/pantheon-org/iris/commit/cfb605b8e4aa7cbc37669306c3e925eb874d7b31))
+* **providers:** add named constants for provider names ([#81](https://github.com/pantheon-org/iris/issues/81)) ([50e343b](https://github.com/pantheon-org/iris/commit/50e343b72e1430fcd92189b522ffb41d8e9643b7))
+* **types:** add MCPServer.Validate to reject invalid transport and URL values ([#72](https://github.com/pantheon-org/iris/issues/72)) ([3d1db95](https://github.com/pantheon-org/iris/commit/3d1db95c2827733765bc5eb376657081bdc04c57))
+
+
+### Bug Fixes
+
+* **config:** remove dead Providers field and validate Version on load ([#79](https://github.com/pantheon-org/iris/issues/79)) ([0a0a979](https://github.com/pantheon-org/iris/commit/0a0a979e326f16a09b2cfb909fab81dac72f8ae2))
+* **detector:** surface IO errors from Exists() instead of silently skipping providers ([#74](https://github.com/pantheon-org/iris/issues/74)) ([40a2757](https://github.com/pantheon-org/iris/commit/40a275766704063cf5e136c52160f15af45c3669))
+* **merger:** guard against symlink targets in SyncProvider ([#80](https://github.com/pantheon-org/iris/issues/80)) ([ac33b5f](https://github.com/pantheon-org/iris/commit/ac33b5f06b3b06edda6a25b150a10484ed21213e))
+* read GH_APP_ID from vars not secrets in release-please workflow ([#85](https://github.com/pantheon-org/iris/issues/85)) ([e79e0f2](https://github.com/pantheon-org/iris/commit/e79e0f2eb5e9290be0e5d51ab9e5fa5e23312227))
+* use GitHub App token in release-please workflow to trigger CI checks ([#84](https://github.com/pantheon-org/iris/issues/84)) ([c6d2611](https://github.com/pantheon-org/iris/commit/c6d2611e381b587fbfc2bcd784c7e2e3641cbba5))
+* **wizard:** propagate readFile error in RunInit instead of silent fallback ([#75](https://github.com/pantheon-org/iris/issues/75)) ([bf10637](https://github.com/pantheon-org/iris/commit/bf10637919760e2ae61029f380a89f41ff8e1e77))
+
 ## [2026.5.8](https://github.com/pantheon-org/iris/compare/v2026.5.7...v2026.5.8) (2026-05-02)
 
 
