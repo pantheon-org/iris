@@ -1,5 +1,12 @@
 dist/
 coverage.out
 coverage.html
-.context/plans/
+.agents/
 .cache/
+.claude/skills/
+.context/plans/
+.github/skills/
+.rtk/
+.vscode/
+# Added by code-review-graph
+.code-review-graph/
