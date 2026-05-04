@@ -1,11 +1,13 @@
 package providers_test
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/types"
 )
@@ -120,6 +122,18 @@ func TestMistralVibeProvider_Generate_httpTransport(t *testing.T) {
 	}
 	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
 		t.Fatalf("expected URL, got %q", parsed["context7"].URL)
+	}
+}
+
+func TestMistralVibeProvider_Parse_malformedInput_returnsError(t *testing.T) {
+	tmp := t.TempDir()
+	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))
+	_, err := p.Parse("not toml at all \x00\xff")
+	if err == nil {
+		t.Fatal("Parse: expected error for malformed input, got nil")
+	}
+	if !errors.Is(err, ierrors.ErrMalformedConfig) {
+		t.Errorf("Parse: error does not wrap ErrMalformedConfig; got: %v", err)
 	}
 }
 
