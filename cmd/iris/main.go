@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -80,7 +81,10 @@ func main() {
 			}
 			cfg, err := store.Load()
 			if err != nil {
-				return nil // config may not exist yet (e.g. during init)
+				if errors.Is(err, os.ErrNotExist) {
+					return nil // config doesn't exist yet (e.g. during init)
+				}
+				return err
 			}
 			if cfg.Lang != "" {
 				i18n.SetLang(cfg.Lang)
