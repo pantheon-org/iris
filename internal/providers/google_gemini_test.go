@@ -17,8 +17,8 @@ func TestGoogleGeminiProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) 
 	p := providers.NewGoogleGeminiProvider()
 	cfg := p.Config()
 
-	if cfg.Name != "google-gemini" {
-		t.Errorf("Name = %q, want %q", cfg.Name, "google-gemini")
+	if cfg.Name != "gemini" {
+		t.Errorf("Name = %q, want %q", cfg.Name, "gemini")
 	}
 	if cfg.DisplayName != "Google Gemini" {
 		t.Errorf("DisplayName = %q, want %q", cfg.DisplayName, "Google Gemini")
