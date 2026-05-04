@@ -13,8 +13,8 @@ func TestKimiProvider_Config(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewKimiProviderWithPath(filepath.Join(tmp, "mcp.json"))
 	cfg := p.Config()
-	if cfg.Name != "moonshot-kimi" {
-		t.Fatalf("expected name %q, got %q", "moonshot-kimi", cfg.Name)
+	if cfg.Name != "kimi" {
+		t.Fatalf("expected name %q, got %q", "kimi", cfg.Name)
 	}
 	if cfg.SupportsProjectConfig {
 		t.Fatal("expected SupportsProjectConfig=false")

@@ -16,9 +16,12 @@ internal/
   ierrors/                # sentinel errors (ErrServerNotFound, ErrMalformedConfig, etc.)
   types/                  # canonical MCPServer + IrisConfig structs
   config/                 # Codec interface (json/yaml/toml) + Store (load/save .iris.*)
-  providers/              # Provider interface + Registry + Claude/Gemini/OpenCode/Codex impls
+  providers/              # Provider interface + per-provider impls + name constants
+  registry/               # Registry — builds and filters the provider registry
   detector/               # Detect() — scans project root for present provider configs
-  merger/                 # SyncProvider / SyncAllProviders — thin orchestrator
+  sync/                   # SyncProvider / SyncAllProviders — thin orchestrator
+  i18n/                   # Internationalisation — locale loading and T() helper
+  io/                     # OS helpers (UserHomeDir, etc.)
   version/                # Version string injected at build time via ldflags
   wizard/                 # Runner interface + ScriptedRunner + BubbleteaRunner + RunInit
   cli/                    # RunList, RunStatus, RunAdd, RunRemove, RunSync, RunInitNonInteractive

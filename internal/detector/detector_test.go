@@ -54,7 +54,7 @@ func TestDetect_MCPJsonPresent_ClaudeDetected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "anthropic-claude-code" {
+	if got[0].Config().Name != "claude" {
 		t.Errorf("expected anthropic-claude-code, got %q", got[0].Config().Name)
 	}
 }
@@ -75,7 +75,7 @@ func TestDetect_OpenCodeJsonPresent_OpenCodeDetected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "anomalyco-opencode" {
+	if got[0].Config().Name != "opencode" {
 		t.Errorf("expected opencode, got %q", got[0].Config().Name)
 	}
 }
@@ -103,10 +103,10 @@ func TestDetect_BothProjectFilesPresent_BothDetected(t *testing.T) {
 	for _, p := range got {
 		names[p.Config().Name] = true
 	}
-	if !names["anthropic-claude-code"] {
+	if !names["claude"] {
 		t.Error("expected anthropic-claude-code in results")
 	}
-	if !names["anomalyco-opencode"] {
+	if !names["opencode"] {
 		t.Error("expected opencode in results")
 	}
 }
@@ -133,7 +133,7 @@ func TestDetect_GoogleGeminiProjectConfig_Detected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "google-gemini" {
+	if got[0].Config().Name != "gemini" {
 		t.Errorf("expected google-gemini, got %q", got[0].Config().Name)
 	}
 }
@@ -176,7 +176,7 @@ func TestDetect_OpenAICodexProjectConfig_Detected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "openai-codex" {
+	if got[0].Config().Name != "codex" {
 		t.Errorf("expected openai-codex, got %q", got[0].Config().Name)
 	}
 }
@@ -219,7 +219,7 @@ func TestDetect_QwenProjectConfig_Detected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "alibaba-qwen-code" {
+	if got[0].Config().Name != "qwen" {
 		t.Errorf("expected qwen, got %q", got[0].Config().Name)
 	}
 }
@@ -262,7 +262,7 @@ func TestDetect_MistralVibeProjectConfig_Detected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "mistral-ai-vibe" {
+	if got[0].Config().Name != "mistral" {
 		t.Errorf("expected mistral-vibe, got %q", got[0].Config().Name)
 	}
 }
