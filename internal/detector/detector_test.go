@@ -1,6 +1,7 @@
 package detector_test
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -8,6 +9,7 @@ import (
 	"github.com/pantheon-org/iris/internal/detector"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
+	"github.com/pantheon-org/iris/internal/types"
 )
 
 func newTestRegistry(t *testing.T) *registry.Registry {
@@ -26,7 +28,10 @@ func TestDetect_EmptyDir_NoProvidersDetected(t *testing.T) {
 	root := t.TempDir()
 	reg := newTestRegistry(t)
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 0 {
 		t.Errorf("expected 0 providers, got %d", len(got))
@@ -41,7 +46,10 @@ func TestDetect_MCPJsonPresent_ClaudeDetected(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
@@ -59,7 +67,10 @@ func TestDetect_OpenCodeJsonPresent_OpenCodeDetected(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
@@ -80,7 +91,10 @@ func TestDetect_BothProjectFilesPresent_BothDetected(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 2 {
 		t.Fatalf("expected 2 providers, got %d", len(got))
@@ -111,7 +125,10 @@ func TestDetect_GeminiProjectConfig_Detected(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
@@ -127,7 +144,10 @@ func TestDetect_GeminiProjectConfig_AbsentNotDetected(t *testing.T) {
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewGeminiProvider())
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 0 {
 		t.Errorf("expected 0 providers, got %d", len(got))
@@ -148,7 +168,10 @@ func TestDetect_CodexProjectConfig_Detected(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
@@ -164,7 +187,10 @@ func TestDetect_CodexProjectConfig_AbsentNotDetected(t *testing.T) {
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewOpenaiCodexProvider())
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 0 {
 		t.Errorf("expected 0 providers, got %d", len(got))
@@ -185,7 +211,10 @@ func TestDetect_QwenProjectConfig_Detected(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
@@ -201,7 +230,10 @@ func TestDetect_QwenProjectConfig_AbsentNotDetected(t *testing.T) {
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewQwenProvider())
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 0 {
 		t.Errorf("expected 0 providers, got %d", len(got))
@@ -222,7 +254,10 @@ func TestDetect_MistralVibeProjectConfig_Detected(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
@@ -238,9 +273,53 @@ func TestDetect_MistralVibeProjectConfig_AbsentNotDetected(t *testing.T) {
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewMistralVibeProvider())
 
-	got := detector.Detect(root, reg)
+	got, err := detector.Detect(root, reg)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
 	if len(got) != 0 {
 		t.Errorf("expected 0 providers, got %d", len(got))
+	}
+}
+
+// ioErrorProvider is a test stub whose Exists always returns an IO error.
+type ioErrorProvider struct {
+	existsErr error
+}
+
+func (p *ioErrorProvider) Config() providers.ProviderConfig {
+	return providers.ProviderConfig{
+		Name:                  "io-error-stub",
+		DisplayName:           "IO Error Stub",
+		SupportsProjectConfig: true,
+	}
+}
+
+func (p *ioErrorProvider) Exists(_ string) (bool, error) { return false, p.existsErr }
+
+func (p *ioErrorProvider) ConfigFilePath(_ string) string { return "" }
+
+func (p *ioErrorProvider) Generate(_ map[string]types.MCPServer, _ string) (string, error) {
+	return "", nil
+}
+
+func (p *ioErrorProvider) Parse(_ string) (map[string]types.MCPServer, error) { return nil, nil }
+
+func TestDetect_ExistsIOError_SurfacedToCallerNotSwallowed(t *testing.T) {
+	root := t.TempDir()
+
+	sentinel := errors.New("permission denied")
+	stub := &ioErrorProvider{existsErr: sentinel}
+
+	reg := registry.NewRegistry()
+	reg.Register(stub)
+
+	_, err := detector.Detect(root, reg)
+	if err == nil {
+		t.Fatal("expected error from Detect, got nil")
+	}
+	if !errors.Is(err, sentinel) {
+		t.Errorf("expected sentinel error in chain, got: %v", err)
 	}
 }
