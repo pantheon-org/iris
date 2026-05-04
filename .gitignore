@@ -4,7 +4,7 @@ coverage.html
 .agents/
 .cache/
 .claude/skills/
-.context/plans/
+.context/
 .github/skills/
 .rtk/
 .vscode/
