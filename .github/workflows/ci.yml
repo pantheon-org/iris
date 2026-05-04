@@ -47,6 +47,12 @@ jobs:
           version: v2.11.4
 
       - uses: jdx/mise-action@v2
+        env:
+          MISE_DISABLE_TOOLS: >-
+            github:DeusData/codebase-memory-mcp,
+            github:rtk-ai/rtk,
+            npm:@tobilu/qmd,
+            pipx:code-review-graph
 
       - name: actionlint
         run: actionlint
