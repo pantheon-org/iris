@@ -9,4 +9,5 @@ var (
 	ErrConfigPermission   = errors.New("config file permission denied")
 	ErrPathTraversal      = errors.New("path traversal detected")
 	ErrUnsupportedVersion = errors.New("unsupported config version")
+	ErrSymlinkNotAllowed  = errors.New("symlink target not allowed")
 )
