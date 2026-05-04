@@ -19,10 +19,9 @@ type MCPServer struct {
 }
 
 type IrisConfig struct {
-	Version   int                  `json:"version" yaml:"version" toml:"version"`
-	Lang      string               `json:"lang,omitempty" yaml:"lang,omitempty" toml:"lang,omitempty"`
-	Providers []string             `json:"providers" yaml:"providers" toml:"providers"`
-	Servers   map[string]MCPServer `json:"servers" yaml:"servers" toml:"servers"`
+	Version int                  `json:"version" yaml:"version" toml:"version"`
+	Lang    string               `json:"lang,omitempty" yaml:"lang,omitempty" toml:"lang,omitempty"`
+	Servers map[string]MCPServer `json:"servers" yaml:"servers" toml:"servers"`
 }
 
 // NewIrisConfig returns an IrisConfig with version 1 and a non-nil Servers map.
