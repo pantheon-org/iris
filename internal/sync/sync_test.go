@@ -6,6 +6,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
@@ -27,15 +30,10 @@ func TestSyncProvider_fileAbsent_createsFile(t *testing.T) {
 
 	result := irisync.SyncProvider(dir, p, testServers)
 
-	if result.Status != irisync.SyncStatusCreated {
-		t.Fatalf("expected SyncStatusCreated, got %q", result.Status)
-	}
-	if result.Err != nil {
-		t.Fatalf("unexpected error: %v", result.Err)
-	}
-	if _, err := os.Stat(filepath.Join(dir, ".mcp.json")); err != nil {
-		t.Fatalf("expected config file to exist: %v", err)
-	}
+	assert.Equal(t, irisync.SyncStatusCreated, result.Status)
+	require.NoError(t, result.Err)
+	_, err := os.Stat(filepath.Join(dir, ".mcp.json"))
+	assert.NoError(t, err)
 }
 
 func TestSyncProvider_filePresent_contentUnchanged_returnsUnchanged(t *testing.T) {
@@ -43,32 +41,20 @@ func TestSyncProvider_filePresent_contentUnchanged_returnsUnchanged(t *testing.T
 	p := providers.NewOpenCodeProvider()
 
 	firstResult := irisync.SyncProvider(dir, p, testServers)
-	if firstResult.Status != irisync.SyncStatusCreated {
-		t.Fatalf("expected SyncStatusCreated on first sync, got %q", firstResult.Status)
-	}
+	require.Equal(t, irisync.SyncStatusCreated, firstResult.Status, "expected SyncStatusCreated on first sync")
 
 	configPath := filepath.Join(dir, "opencode.json")
 	statBefore, err := os.Stat(configPath)
-	if err != nil {
-		t.Fatalf("config file missing: %v", err)
-	}
+	require.NoError(t, err, "config file missing")
 
 	secondResult := irisync.SyncProvider(dir, p, testServers)
 
-	if secondResult.Status != irisync.SyncStatusUnchanged {
-		t.Fatalf("expected SyncStatusUnchanged, got %q", secondResult.Status)
-	}
-	if secondResult.Err != nil {
-		t.Fatalf("unexpected error: %v", secondResult.Err)
-	}
+	assert.Equal(t, irisync.SyncStatusUnchanged, secondResult.Status)
+	require.NoError(t, secondResult.Err)
 
 	statAfter, err := os.Stat(configPath)
-	if err != nil {
-		t.Fatalf("config file gone: %v", err)
-	}
-	if statAfter.ModTime() != statBefore.ModTime() {
-		t.Fatal("file was written when content was unchanged")
-	}
+	require.NoError(t, err, "config file gone")
+	assert.Equal(t, statBefore.ModTime(), statAfter.ModTime(), "file was written when content was unchanged")
 }
 
 func TestSyncProvider_filePresent_contentChanged_returnsUpdated(t *testing.T) {
@@ -76,9 +62,7 @@ func TestSyncProvider_filePresent_contentChanged_returnsUpdated(t *testing.T) {
 	p := providers.NewClaudeCodeProvider()
 
 	firstResult := irisync.SyncProvider(dir, p, testServers)
-	if firstResult.Status != irisync.SyncStatusCreated {
-		t.Fatalf("expected SyncStatusCreated on first sync, got %q", firstResult.Status)
-	}
+	require.Equal(t, irisync.SyncStatusCreated, firstResult.Status, "expected SyncStatusCreated on first sync")
 
 	updatedServers := map[string]types.MCPServer{
 		"test-server": {
@@ -90,12 +74,8 @@ func TestSyncProvider_filePresent_contentChanged_returnsUpdated(t *testing.T) {
 
 	secondResult := irisync.SyncProvider(dir, p, updatedServers)
 
-	if secondResult.Status != irisync.SyncStatusUpdated {
-		t.Fatalf("expected SyncStatusUpdated, got %q", secondResult.Status)
-	}
-	if secondResult.Err != nil {
-		t.Fatalf("unexpected error: %v", secondResult.Err)
-	}
+	assert.Equal(t, irisync.SyncStatusUpdated, secondResult.Status)
+	require.NoError(t, secondResult.Err)
 }
 
 func TestSyncProvider_generateError_returnsError(t *testing.T) {
@@ -103,18 +83,12 @@ func TestSyncProvider_generateError_returnsError(t *testing.T) {
 	p := providers.NewClaudeCodeProvider()
 
 	badConfigPath := filepath.Join(dir, ".mcp.json")
-	if err := os.WriteFile(badConfigPath, []byte("not valid json {{{{"), 0644); err != nil {
-		t.Fatalf("failed to write bad config: %v", err)
-	}
+	require.NoError(t, os.WriteFile(badConfigPath, []byte("not valid json {{{{"), 0644))
 
 	result := irisync.SyncProvider(dir, p, testServers)
 
-	if result.Status != irisync.SyncStatusError {
-		t.Fatalf("expected SyncStatusError, got %q", result.Status)
-	}
-	if result.Err == nil {
-		t.Fatal("expected non-nil error")
-	}
+	assert.Equal(t, irisync.SyncStatusError, result.Status)
+	assert.NotNil(t, result.Err)
 }
 
 func TestSyncAllProviders_multipleProviders_allResultsReturned(t *testing.T) {
@@ -125,18 +99,14 @@ func TestSyncAllProviders_multipleProviders_allResultsReturned(t *testing.T) {
 
 	results := irisync.SyncAllProviders(dir, reg, testServers)
 
-	if len(results) != 2 {
-		t.Fatalf("expected 2 results, got %d", len(results))
-	}
+	assert.Len(t, results, 2)
 }
 
 func TestSyncAllProviders_oneErrors_errorCapturedInResult(t *testing.T) {
 	dir := t.TempDir()
 
 	badConfigPath := filepath.Join(dir, ".mcp.json")
-	if err := os.WriteFile(badConfigPath, []byte("not valid json {{{{"), 0644); err != nil {
-		t.Fatalf("failed to write bad config: %v", err)
-	}
+	require.NoError(t, os.WriteFile(badConfigPath, []byte("not valid json {{{{"), 0644))
 
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
@@ -144,36 +114,26 @@ func TestSyncAllProviders_oneErrors_errorCapturedInResult(t *testing.T) {
 
 	results := irisync.SyncAllProviders(dir, reg, testServers)
 
-	if len(results) != 2 {
-		t.Fatalf("expected 2 results, got %d", len(results))
-	}
+	require.Len(t, results, 2)
 
 	var errCount, okCount int
 	for _, r := range results {
 		if r.Status == irisync.SyncStatusError {
-			if r.Err == nil {
-				t.Errorf("provider %q has error status but nil Err", r.ProviderName)
-			}
+			assert.NotNil(t, r.Err, "provider %q has error status but nil Err", r.ProviderName)
 			errCount++
 		} else {
 			okCount++
 		}
 	}
-	if errCount != 1 {
-		t.Fatalf("expected 1 error result, got %d", errCount)
-	}
-	if okCount != 1 {
-		t.Fatalf("expected 1 ok result, got %d", okCount)
-	}
+	assert.Equal(t, 1, errCount, "expected 1 error result")
+	assert.Equal(t, 1, okCount, "expected 1 ok result")
 }
 
 func TestSyncAllProviders_oneErrors_doesNotReturnError(t *testing.T) {
 	dir := t.TempDir()
 
 	badConfigPath := filepath.Join(dir, ".mcp.json")
-	if err := os.WriteFile(badConfigPath, []byte("not valid json {{{{"), 0644); err != nil {
-		t.Fatalf("failed to write bad config: %v", err)
-	}
+	require.NoError(t, os.WriteFile(badConfigPath, []byte("not valid json {{{{"), 0644))
 
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
@@ -182,13 +142,11 @@ func TestSyncAllProviders_oneErrors_doesNotReturnError(t *testing.T) {
 
 	found := false
 	for _, r := range results {
-		if r.Status == irisync.SyncStatusError && errors.Is(r.Err, r.Err) {
+		if r.Status == irisync.SyncStatusError && r.Err != nil {
 			found = true
 		}
 	}
-	if !found {
-		t.Fatal("expected error captured in result, not propagated")
-	}
+	assert.True(t, found, "expected error captured in result, not propagated")
 }
 
 // Table-driven tests for SyncAllProviders failure modes and edge cases.
@@ -217,31 +175,21 @@ func runSyncAllProvidersTC(t *testing.T, tc syncAllProvidersTC) {
 
 	results := irisync.SyncAllProviders(dir, reg, testServers)
 
-	if len(results) != tc.wantLen {
-		t.Fatalf("expected %d results, got %d", tc.wantLen, len(results))
-	}
+	require.Len(t, results, tc.wantLen)
 
 	var errCount, okCount int
 	for _, r := range results {
 		if r.Status == irisync.SyncStatusError {
-			if r.Err == nil {
-				t.Errorf("provider %q: SyncStatusError but Err is nil", r.ProviderName)
-			}
+			assert.NotNil(t, r.Err, "provider %q: SyncStatusError but Err is nil", r.ProviderName)
 			errCount++
 		} else {
-			if r.ProviderName == "" {
-				t.Errorf("non-error result has empty ProviderName")
-			}
+			assert.NotEmpty(t, r.ProviderName, "non-error result has empty ProviderName")
 			okCount++
 		}
 	}
 
-	if errCount != tc.wantErrCount {
-		t.Errorf("expected %d error result(s), got %d", tc.wantErrCount, errCount)
-	}
-	if okCount != tc.wantOkCount {
-		t.Errorf("expected %d ok result(s), got %d", tc.wantOkCount, okCount)
-	}
+	assert.Equal(t, tc.wantErrCount, errCount, "error result count")
+	assert.Equal(t, tc.wantOkCount, okCount, "ok result count")
 }
 
 func TestSyncAllProviders_emptyRegistry_returnsEmptySlice(t *testing.T) {
@@ -269,9 +217,7 @@ func TestSyncAllProviders_singleProvider_fails(t *testing.T) {
 		name: "single provider with bad config fails",
 		setup: func(dir string) {
 			// Claude uses .mcp.json — write corrupt JSON to trigger a Generate error.
-			if err := os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte("{{{invalid}}}"), 0644); err != nil {
-				t.Fatalf("setup: %v", err)
-			}
+			require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte("{{{invalid}}}"), 0644))
 		},
 		providers:    func() []providers.Provider { return []providers.Provider{providers.NewClaudeCodeProvider()} },
 		wantLen:      1,
@@ -301,9 +247,7 @@ func TestSyncAllProviders_oneProviderFails_remainingProvidersRun(t *testing.T) {
 	runSyncAllProvidersTC(t, syncAllProvidersTC{
 		name: "one provider fails, remaining providers still run",
 		setup: func(dir string) {
-			if err := os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte("{{{invalid}}}"), 0644); err != nil {
-				t.Fatalf("setup: %v", err)
-			}
+			require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte("{{{invalid}}}"), 0644))
 		},
 		providers: func() []providers.Provider {
 			return []providers.Provider{
@@ -322,9 +266,7 @@ func TestSyncAllProviders_lastProviderFails_allResultsPresent(t *testing.T) {
 	runSyncAllProvidersTC(t, syncAllProvidersTC{
 		name: "last provider fails, all results still present",
 		setup: func(dir string) {
-			if err := os.WriteFile(filepath.Join(dir, "opencode.json"), []byte("{{{invalid}}}"), 0644); err != nil {
-				t.Fatalf("setup: %v", err)
-			}
+			require.NoError(t, os.WriteFile(filepath.Join(dir, "opencode.json"), []byte("{{{invalid}}}"), 0644))
 		},
 		providers: func() []providers.Provider {
 			return []providers.Provider{
@@ -342,12 +284,8 @@ func TestSyncAllProviders_allProvidersFail_allResultsHaveErrors(t *testing.T) {
 	runSyncAllProvidersTC(t, syncAllProvidersTC{
 		name: "all providers fail, all results have error status",
 		setup: func(dir string) {
-			if err := os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte("{{{invalid}}}"), 0644); err != nil {
-				t.Fatalf("setup .mcp.json: %v", err)
-			}
-			if err := os.WriteFile(filepath.Join(dir, "opencode.json"), []byte("{{{invalid}}}"), 0644); err != nil {
-				t.Fatalf("setup opencode.json: %v", err)
-			}
+			require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte("{{{invalid}}}"), 0644), "setup .mcp.json")
+			require.NoError(t, os.WriteFile(filepath.Join(dir, "opencode.json"), []byte("{{{invalid}}}"), 0644), "setup opencode.json")
 		},
 		providers: func() []providers.Provider {
 			return []providers.Provider{
@@ -367,24 +305,16 @@ func TestSyncProvider_symlinkTarget_returnsError(t *testing.T) {
 
 	// Create a real file that the symlink will point to.
 	realFile := filepath.Join(dir, "real-config.json")
-	if err := os.WriteFile(realFile, []byte("{}"), 0644); err != nil {
-		t.Fatalf("setup: write real file: %v", err)
-	}
+	require.NoError(t, os.WriteFile(realFile, []byte("{}"), 0644), "setup: write real file")
 
 	// Create a symlink at the provider's config path pointing to the real file.
 	configPath := p.ConfigFilePath(dir)
-	if err := os.Symlink(realFile, configPath); err != nil {
-		t.Fatalf("setup: create symlink: %v", err)
-	}
+	require.NoError(t, os.Symlink(realFile, configPath), "setup: create symlink")
 
 	result := irisync.SyncProvider(dir, p, testServers)
 
-	if result.Status != irisync.SyncStatusError {
-		t.Fatalf("expected SyncStatusError, got %q", result.Status)
-	}
-	if !errors.Is(result.Err, ierrors.ErrSymlinkNotAllowed) {
-		t.Fatalf("expected error wrapping ErrSymlinkNotAllowed, got: %v", result.Err)
-	}
+	assert.Equal(t, irisync.SyncStatusError, result.Status)
+	assert.True(t, errors.Is(result.Err, ierrors.ErrSymlinkNotAllowed), "expected error wrapping ErrSymlinkNotAllowed, got: %v", result.Err)
 }
 
 func TestSyncAllProviders_errorsAreContainedInResults_noPanic(t *testing.T) {
@@ -394,12 +324,8 @@ func TestSyncAllProviders_errorsAreContainedInResults_noPanic(t *testing.T) {
 
 	for _, name := range []string{".mcp.json", "opencode.json", ".cursor/mcp.json"} {
 		fullPath := filepath.Join(dir, name)
-		if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
-			t.Fatalf("mkdir %s: %v", filepath.Dir(fullPath), err)
-		}
-		if err := os.WriteFile(fullPath, []byte("{{{invalid}}}"), 0644); err != nil {
-			t.Fatalf("write %s: %v", name, err)
-		}
+		require.NoError(t, os.MkdirAll(filepath.Dir(fullPath), 0755), "mkdir %s", filepath.Dir(fullPath))
+		require.NoError(t, os.WriteFile(fullPath, []byte("{{{invalid}}}"), 0644), "write %s", name)
 	}
 
 	reg := registry.NewRegistry()
@@ -409,15 +335,9 @@ func TestSyncAllProviders_errorsAreContainedInResults_noPanic(t *testing.T) {
 
 	results := irisync.SyncAllProviders(dir, reg, testServers)
 
-	if len(results) != 3 {
-		t.Fatalf("expected 3 results, got %d", len(results))
-	}
+	require.Len(t, results, 3)
 	for _, r := range results {
-		if r.Status != irisync.SyncStatusError {
-			t.Errorf("provider %q: expected SyncStatusError, got %q", r.ProviderName, r.Status)
-		}
-		if r.Err == nil {
-			t.Errorf("provider %q: expected non-nil Err", r.ProviderName)
-		}
+		assert.Equal(t, irisync.SyncStatusError, r.Status, "provider %q: expected SyncStatusError", r.ProviderName)
+		assert.NotNil(t, r.Err, "provider %q: expected non-nil Err", r.ProviderName)
 	}
 }
