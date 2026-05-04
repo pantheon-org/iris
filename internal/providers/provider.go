@@ -17,5 +17,5 @@ type Provider interface {
 	Generate(servers map[string]types.MCPServer, existingContent string) (string, error)
 	Parse(content string) (map[string]types.MCPServer, error)
 	ConfigFilePath(projectRoot string) string
-	Exists(projectRoot string) bool
+	Exists(projectRoot string) (bool, error)
 }
