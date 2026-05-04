@@ -80,7 +80,7 @@ func (p *OpenCodeProvider) Generate(servers map[string]types.MCPServer, existing
 		}
 
 		entryType := "local"
-		if srv.Transport == types.TransportSSE || srv.URL != "" {
+		if srv.Transport == types.TransportSSE || (srv.Transport == "" && srv.URL != "") {
 			entryType = "remote"
 		}
 

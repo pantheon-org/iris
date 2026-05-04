@@ -72,7 +72,7 @@ func (p *VSCodeCopilotProvider) Generate(servers map[string]types.MCPServer, exi
 			Env:     srv.Env,
 			URL:     srv.URL,
 		}
-		if srv.Transport == types.TransportSSE || srv.URL != "" {
+		if srv.Transport == types.TransportSSE || (srv.Transport == "" && srv.URL != "") {
 			entry.Type = "sse"
 		} else {
 			entry.Type = "stdio"
