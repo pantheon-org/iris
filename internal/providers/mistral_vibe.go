@@ -121,6 +121,8 @@ func (p *MistralVibeProvider) Generate(servers map[string]types.MCPServer, exist
 	}
 
 	var buf bytes.Buffer
+
+	// Write top-level keys in original order.
 	for _, entry := range orderedTopLevel {
 		single := map[string]interface{}{entry.key: entry.val}
 		if err := toml.NewEncoder(&buf).Encode(single); err != nil {
@@ -128,55 +130,10 @@ func (p *MistralVibeProvider) Generate(servers map[string]types.MCPServer, exist
 		}
 	}
 
-	for _, entry := range entries {
-		buf.WriteString("\n[[mcp_servers]]\n")
-		fmt.Fprintf(&buf, "name = %q\n", entry.Name)
-		fmt.Fprintf(&buf, "transport = %q\n", entry.Transport)
-		if entry.Command != "" {
-			fmt.Fprintf(&buf, "command = %q\n", entry.Command)
-		}
-		if len(entry.Args) > 0 {
-			buf.WriteString("args = [")
-			for i, a := range entry.Args {
-				if i > 0 {
-					buf.WriteString(", ")
-				}
-				fmt.Fprintf(&buf, "%q", a)
-			}
-			buf.WriteString("]\n")
-		}
-		if len(entry.Env) > 0 {
-			buf.WriteString("env = {")
-			keys := make([]string, 0, len(entry.Env))
-			for k := range entry.Env {
-				keys = append(keys, k)
-			}
-			sort.Strings(keys)
-			for i, k := range keys {
-				if i > 0 {
-					buf.WriteString(", ")
-				}
-				fmt.Fprintf(&buf, "%s = %q", k, entry.Env[k])
-			}
-			buf.WriteString("}\n")
-		}
-		if entry.URL != "" {
-			fmt.Fprintf(&buf, "url = %q\n", entry.URL)
-		}
-		if len(entry.Headers) > 0 {
-			buf.WriteString("headers = {")
-			keys := make([]string, 0, len(entry.Headers))
-			for k := range entry.Headers {
-				keys = append(keys, k)
-			}
-			sort.Strings(keys)
-			for i, k := range keys {
-				if i > 0 {
-					buf.WriteString(", ")
-				}
-				fmt.Fprintf(&buf, "%s = %q", k, entry.Headers[k])
-			}
-			buf.WriteString("}\n")
+	// Encode [[mcp_servers]] array-of-tables using the TOML encoder for correctness.
+	if len(entries) > 0 {
+		if err := toml.NewEncoder(&buf).Encode(map[string]interface{}{"mcp_servers": entries}); err != nil {
+			return "", fmt.Errorf("encode mcp_servers: %w", err)
 		}
 	}
 
