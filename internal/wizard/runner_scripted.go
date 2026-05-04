@@ -37,7 +37,7 @@ func (s *ScriptedRunner) PromptConfirm(label string) (bool, error) {
 		return false, err
 	}
 	switch strings.ToLower(strings.TrimSpace(ans)) {
-	case "true", "yes", "1":
+	case "true", "yes", "y", "1":
 		return true, nil
 	default:
 		return false, nil

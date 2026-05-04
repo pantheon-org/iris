@@ -118,7 +118,7 @@ func main() {
 							}
 						}
 						projectRoot := filepath.Dir(store.Path())
-						return wizard.RunInit(wizard.NewBubbleteaRunner(), projectRoot, store, reg)
+						return wizard.RunInit(wizard.NewTerminalRunner(), projectRoot, store, reg)
 					}
 					return cli.RunInitNonInteractive(store, os.Stdout)
 				},
