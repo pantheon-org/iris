@@ -1,4 +1,4 @@
-package merger_test
+package sync_test
 
 import (
 	"errors"
@@ -7,9 +7,9 @@ import (
 	"testing"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
-	"github.com/pantheon-org/iris/internal/merger"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
+	irisync "github.com/pantheon-org/iris/internal/sync"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -25,9 +25,9 @@ func TestSyncProvider_fileAbsent_createsFile(t *testing.T) {
 	dir := t.TempDir()
 	p := providers.NewClaudeCodeProvider()
 
-	result := merger.SyncProvider(dir, p, testServers)
+	result := irisync.SyncProvider(dir, p, testServers)
 
-	if result.Status != merger.SyncStatusCreated {
+	if result.Status != irisync.SyncStatusCreated {
 		t.Fatalf("expected SyncStatusCreated, got %q", result.Status)
 	}
 	if result.Err != nil {
@@ -42,8 +42,8 @@ func TestSyncProvider_filePresent_contentUnchanged_returnsUnchanged(t *testing.T
 	dir := t.TempDir()
 	p := providers.NewOpenCodeProvider()
 
-	firstResult := merger.SyncProvider(dir, p, testServers)
-	if firstResult.Status != merger.SyncStatusCreated {
+	firstResult := irisync.SyncProvider(dir, p, testServers)
+	if firstResult.Status != irisync.SyncStatusCreated {
 		t.Fatalf("expected SyncStatusCreated on first sync, got %q", firstResult.Status)
 	}
 
@@ -53,9 +53,9 @@ func TestSyncProvider_filePresent_contentUnchanged_returnsUnchanged(t *testing.T
 		t.Fatalf("config file missing: %v", err)
 	}
 
-	secondResult := merger.SyncProvider(dir, p, testServers)
+	secondResult := irisync.SyncProvider(dir, p, testServers)
 
-	if secondResult.Status != merger.SyncStatusUnchanged {
+	if secondResult.Status != irisync.SyncStatusUnchanged {
 		t.Fatalf("expected SyncStatusUnchanged, got %q", secondResult.Status)
 	}
 	if secondResult.Err != nil {
@@ -75,8 +75,8 @@ func TestSyncProvider_filePresent_contentChanged_returnsUpdated(t *testing.T) {
 	dir := t.TempDir()
 	p := providers.NewClaudeCodeProvider()
 
-	firstResult := merger.SyncProvider(dir, p, testServers)
-	if firstResult.Status != merger.SyncStatusCreated {
+	firstResult := irisync.SyncProvider(dir, p, testServers)
+	if firstResult.Status != irisync.SyncStatusCreated {
 		t.Fatalf("expected SyncStatusCreated on first sync, got %q", firstResult.Status)
 	}
 
@@ -88,9 +88,9 @@ func TestSyncProvider_filePresent_contentChanged_returnsUpdated(t *testing.T) {
 		},
 	}
 
-	secondResult := merger.SyncProvider(dir, p, updatedServers)
+	secondResult := irisync.SyncProvider(dir, p, updatedServers)
 
-	if secondResult.Status != merger.SyncStatusUpdated {
+	if secondResult.Status != irisync.SyncStatusUpdated {
 		t.Fatalf("expected SyncStatusUpdated, got %q", secondResult.Status)
 	}
 	if secondResult.Err != nil {
@@ -107,9 +107,9 @@ func TestSyncProvider_generateError_returnsError(t *testing.T) {
 		t.Fatalf("failed to write bad config: %v", err)
 	}
 
-	result := merger.SyncProvider(dir, p, testServers)
+	result := irisync.SyncProvider(dir, p, testServers)
 
-	if result.Status != merger.SyncStatusError {
+	if result.Status != irisync.SyncStatusError {
 		t.Fatalf("expected SyncStatusError, got %q", result.Status)
 	}
 	if result.Err == nil {
@@ -123,7 +123,7 @@ func TestSyncAllProviders_multipleProviders_allResultsReturned(t *testing.T) {
 	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 
-	results := merger.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, reg, testServers)
 
 	if len(results) != 2 {
 		t.Fatalf("expected 2 results, got %d", len(results))
@@ -142,7 +142,7 @@ func TestSyncAllProviders_oneErrors_errorCapturedInResult(t *testing.T) {
 	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 
-	results := merger.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, reg, testServers)
 
 	if len(results) != 2 {
 		t.Fatalf("expected 2 results, got %d", len(results))
@@ -150,7 +150,7 @@ func TestSyncAllProviders_oneErrors_errorCapturedInResult(t *testing.T) {
 
 	var errCount, okCount int
 	for _, r := range results {
-		if r.Status == merger.SyncStatusError {
+		if r.Status == irisync.SyncStatusError {
 			if r.Err == nil {
 				t.Errorf("provider %q has error status but nil Err", r.ProviderName)
 			}
@@ -178,11 +178,11 @@ func TestSyncAllProviders_oneErrors_doesNotReturnError(t *testing.T) {
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
 
-	results := merger.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, reg, testServers)
 
 	found := false
 	for _, r := range results {
-		if r.Status == merger.SyncStatusError && errors.Is(r.Err, r.Err) {
+		if r.Status == irisync.SyncStatusError && errors.Is(r.Err, r.Err) {
 			found = true
 		}
 	}
@@ -215,7 +215,7 @@ func runSyncAllProvidersTC(t *testing.T, tc syncAllProvidersTC) {
 		reg.Register(p)
 	}
 
-	results := merger.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, reg, testServers)
 
 	if len(results) != tc.wantLen {
 		t.Fatalf("expected %d results, got %d", tc.wantLen, len(results))
@@ -223,7 +223,7 @@ func runSyncAllProvidersTC(t *testing.T, tc syncAllProvidersTC) {
 
 	var errCount, okCount int
 	for _, r := range results {
-		if r.Status == merger.SyncStatusError {
+		if r.Status == irisync.SyncStatusError {
 			if r.Err == nil {
 				t.Errorf("provider %q: SyncStatusError but Err is nil", r.ProviderName)
 			}
@@ -377,9 +377,9 @@ func TestSyncProvider_symlinkTarget_returnsError(t *testing.T) {
 		t.Fatalf("setup: create symlink: %v", err)
 	}
 
-	result := merger.SyncProvider(dir, p, testServers)
+	result := irisync.SyncProvider(dir, p, testServers)
 
-	if result.Status != merger.SyncStatusError {
+	if result.Status != irisync.SyncStatusError {
 		t.Fatalf("expected SyncStatusError, got %q", result.Status)
 	}
 	if !errors.Is(result.Err, ierrors.ErrSymlinkNotAllowed) {
@@ -407,13 +407,13 @@ func TestSyncAllProviders_errorsAreContainedInResults_noPanic(t *testing.T) {
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewCursorProvider())
 
-	results := merger.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, reg, testServers)
 
 	if len(results) != 3 {
 		t.Fatalf("expected 3 results, got %d", len(results))
 	}
 	for _, r := range results {
-		if r.Status != merger.SyncStatusError {
+		if r.Status != irisync.SyncStatusError {
 			t.Errorf("provider %q: expected SyncStatusError, got %q", r.ProviderName, r.Status)
 		}
 		if r.Err == nil {
