@@ -13,8 +13,8 @@ import (
 func TestCursorProvider_Config(t *testing.T) {
 	p := providers.NewCursorProvider()
 	cfg := p.Config()
-	if cfg.Name != "cursor" {
-		t.Fatalf("expected name %q, got %q", "cursor", cfg.Name)
+	if cfg.Name != "anysphere-cursor" {
+		t.Fatalf("expected name %q, got %q", "anysphere-cursor", cfg.Name)
 	}
 	if !cfg.SupportsProjectConfig {
 		t.Fatal("expected SupportsProjectConfig=true")

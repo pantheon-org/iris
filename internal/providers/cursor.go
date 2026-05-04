@@ -9,8 +9,8 @@ type CursorProvider struct {
 func NewCursorProvider() *CursorProvider {
 	p := &CursorProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameCursor,
-		DisplayName:           "Cursor",
+		Name:                  NameAnyspereCursor,
+		DisplayName:           "Anysphere Cursor",
 		ConfigPath:            ".cursor/mcp.json",
 		SupportsProjectConfig: true,
 	}

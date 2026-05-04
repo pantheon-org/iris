@@ -2,19 +2,19 @@ package providers
 
 import "path/filepath"
 
-type GeminiProvider struct {
+type GoogleGeminiProvider struct {
 	baseJSONProvider
 }
 
-func NewGeminiProvider() *GeminiProvider {
-	return newGeminiProviderWithPath(geminiConfigPath())
+func NewGoogleGeminiProvider() *GoogleGeminiProvider {
+	return newGoogleGeminiProviderWithPath(googleGeminiConfigPath())
 }
 
-func newGeminiProviderWithPath(path string) *GeminiProvider {
-	p := &GeminiProvider{}
+func newGoogleGeminiProviderWithPath(path string) *GoogleGeminiProvider {
+	p := &GoogleGeminiProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameGemini,
-		DisplayName:           "Gemini",
+		Name:                  NameGoogleGemini,
+		DisplayName:           "Google Gemini",
 		ConfigPath:            "~/.gemini/settings.json",
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      path,
@@ -28,13 +28,13 @@ func newGeminiProviderWithPath(path string) *GeminiProvider {
 	return p
 }
 
-// NewGeminiProviderWithPath creates a GeminiProvider pinned to a fixed config path.
+// NewGoogleGeminiProviderWithPath creates a GoogleGeminiProvider pinned to a fixed config path.
 // Intended for use in tests.
-func NewGeminiProviderWithPath(path string) *GeminiProvider {
-	p := &GeminiProvider{}
+func NewGoogleGeminiProviderWithPath(path string) *GoogleGeminiProvider {
+	p := &GoogleGeminiProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameGemini,
-		DisplayName:           "Gemini",
+		Name:                  NameGoogleGemini,
+		DisplayName:           "Google Gemini",
 		ConfigPath:            "~/.gemini/settings.json",
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      path,

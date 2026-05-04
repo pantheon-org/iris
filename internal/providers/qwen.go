@@ -17,8 +17,8 @@ func NewQwenProvider() *QwenProvider {
 func newQwenProviderWithPath(path string) *QwenProvider {
 	p := &QwenProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameQwen,
-		DisplayName:           "Qwen Code",
+		Name:                  NameAlibabaQwenCode,
+		DisplayName:           "Alibaba Qwen Code",
 		ConfigPath:            "~/.qwen/settings.json",
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      path,
@@ -37,8 +37,8 @@ func newQwenProviderWithPath(path string) *QwenProvider {
 func NewQwenProviderWithPath(path string) *QwenProvider {
 	p := &QwenProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameQwen,
-		DisplayName:           "Qwen Code",
+		Name:                  NameAlibabaQwenCode,
+		DisplayName:           "Alibaba Qwen Code",
 		ConfigPath:            "~/.qwen/settings.json",
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      path,
