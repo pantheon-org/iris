@@ -14,11 +14,11 @@ import (
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-func TestCodexProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
+func TestOpenAICodexProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 	cfg := p.Config()
 
-	assert.Equal(t, "codex", cfg.Name)
+	assert.Equal(t, "openai-codex", cfg.Name)
 	assert.Equal(t, "OpenAI Codex", cfg.DisplayName)
 	assert.True(t, cfg.SupportsProjectConfig)
 
@@ -27,14 +27,14 @@ func TestCodexProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	assert.Equal(t, filepath.Join(home, ".codex", "config.toml"), cfg.GlobalConfigPath)
 }
 
-func TestCodexProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {
+func TestOpenAICodexProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 	got := p.ConfigFilePath("/any/project")
 	want := filepath.Join("/any/project", ".codex", "config.toml")
 	assert.Equal(t, want, got)
 }
 
-func TestCodexProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.T) {
+func TestOpenAICodexProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 
 	home, err := os.UserHomeDir()
@@ -43,7 +43,7 @@ func TestCodexProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing
 	assert.Equal(t, want, p.ConfigFilePath(""))
 }
 
-func TestCodexProvider_Exists_ReturnsFalseWhenFileAbsent(t *testing.T) {
+func TestOpenAICodexProvider_Exists_ReturnsFalseWhenFileAbsent(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmp, "config.toml"))
 	ok, err := p.Exists("")
@@ -51,7 +51,7 @@ func TestCodexProvider_Exists_ReturnsFalseWhenFileAbsent(t *testing.T) {
 	assert.False(t, ok)
 }
 
-func TestCodexProvider_Generate_EmptyExistingContent_ProducesCorrectTOML(t *testing.T) {
+func TestOpenAICodexProvider_Generate_EmptyExistingContent_ProducesCorrectTOML(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 	servers := map[string]types.MCPServer{
 		"my-server": {
@@ -69,7 +69,7 @@ func TestCodexProvider_Generate_EmptyExistingContent_ProducesCorrectTOML(t *test
 	assert.Contains(t, got, `args = ["-y", "@modelcontextprotocol/server-filesystem"]`)
 }
 
-func TestCodexProvider_Generate_PreservesNonMcpServersKeys(t *testing.T) {
+func TestOpenAICodexProvider_Generate_PreservesNonMcpServersKeys(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 
 	existing := `version = 1
@@ -96,7 +96,7 @@ command = "old"
 	assert.NotContains(t, got, `[mcp_servers.old-server]`)
 }
 
-func TestCodexProvider_Generate_WithEnv_IncludesEnvMap(t *testing.T) {
+func TestOpenAICodexProvider_Generate_WithEnv_IncludesEnvMap(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 	servers := map[string]types.MCPServer{
 		"env-server": {
@@ -115,7 +115,7 @@ func TestCodexProvider_Generate_WithEnv_IncludesEnvMap(t *testing.T) {
 	assert.Contains(t, got, "bar")
 }
 
-func TestCodexProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+func TestOpenAICodexProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 
 	content, err := os.ReadFile("testdata/openai_codex_input.toml")
@@ -146,7 +146,7 @@ func TestCodexProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	assert.Equal(t, "http://localhost:3000/mcp", chrome.URL)
 }
 
-func TestCodexProvider_Parse_MalformedTOML_WrapsErrMalformedConfig(t *testing.T) {
+func TestOpenAICodexProvider_Parse_MalformedTOML_WrapsErrMalformedConfig(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 
 	_, err := p.Parse("[[mcp_servers\nname = bad toml ][")
@@ -154,7 +154,7 @@ func TestCodexProvider_Parse_MalformedTOML_WrapsErrMalformedConfig(t *testing.T)
 	assert.True(t, errors.Is(err, ierrors.ErrMalformedConfig))
 }
 
-func TestCodexProvider_Generate_FixtureMatch(t *testing.T) {
+func TestOpenAICodexProvider_Generate_FixtureMatch(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 
 	existing, err := os.ReadFile("testdata/openai_codex_input.toml")

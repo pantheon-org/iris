@@ -19,7 +19,7 @@ func newTestRegistry(t *testing.T) *registry.Registry {
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
-	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmp, "gemini-settings.json")))
+	reg.Register(providers.NewGoogleGeminiProviderWithPath(filepath.Join(tmp, "gemini-settings.json")))
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmp, "codex-config.toml")))
 	return reg
 }
@@ -54,8 +54,8 @@ func TestDetect_MCPJsonPresent_ClaudeDetected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "claude" {
-		t.Errorf("expected claude, got %q", got[0].Config().Name)
+	if got[0].Config().Name != "anthropic-claude-code" {
+		t.Errorf("expected anthropic-claude-code, got %q", got[0].Config().Name)
 	}
 }
 
@@ -103,25 +103,25 @@ func TestDetect_BothProjectFilesPresent_BothDetected(t *testing.T) {
 	for _, p := range got {
 		names[p.Config().Name] = true
 	}
-	if !names["claude"] {
-		t.Error("expected claude in results")
+	if !names["anthropic-claude-code"] {
+		t.Error("expected anthropic-claude-code in results")
 	}
 	if !names["opencode"] {
 		t.Error("expected opencode in results")
 	}
 }
 
-func TestDetect_GeminiProjectConfig_Detected(t *testing.T) {
+func TestDetect_GoogleGeminiProjectConfig_Detected(t *testing.T) {
 	root := t.TempDir()
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewGeminiProvider())
+	reg.Register(providers.NewGoogleGeminiProvider())
 
-	geminiDir := filepath.Join(root, ".gemini")
-	if err := os.MkdirAll(geminiDir, 0o755); err != nil {
+	googleGeminiDir := filepath.Join(root, ".gemini")
+	if err := os.MkdirAll(googleGeminiDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(geminiDir, "settings.json"), []byte("{}"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(googleGeminiDir, "settings.json"), []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -133,16 +133,16 @@ func TestDetect_GeminiProjectConfig_Detected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "gemini" {
-		t.Errorf("expected gemini, got %q", got[0].Config().Name)
+	if got[0].Config().Name != "google-gemini" {
+		t.Errorf("expected google-gemini, got %q", got[0].Config().Name)
 	}
 }
 
-func TestDetect_GeminiProjectConfig_AbsentNotDetected(t *testing.T) {
+func TestDetect_GoogleGeminiProjectConfig_AbsentNotDetected(t *testing.T) {
 	root := t.TempDir()
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewGeminiProvider())
+	reg.Register(providers.NewGoogleGeminiProvider())
 
 	got, err := detector.Detect(root, reg)
 	if err != nil {
@@ -154,7 +154,7 @@ func TestDetect_GeminiProjectConfig_AbsentNotDetected(t *testing.T) {
 	}
 }
 
-func TestDetect_CodexProjectConfig_Detected(t *testing.T) {
+func TestDetect_OpenAICodexProjectConfig_Detected(t *testing.T) {
 	root := t.TempDir()
 
 	reg := registry.NewRegistry()
@@ -176,12 +176,12 @@ func TestDetect_CodexProjectConfig_Detected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "codex" {
-		t.Errorf("expected codex, got %q", got[0].Config().Name)
+	if got[0].Config().Name != "openai-codex" {
+		t.Errorf("expected openai-codex, got %q", got[0].Config().Name)
 	}
 }
 
-func TestDetect_CodexProjectConfig_AbsentNotDetected(t *testing.T) {
+func TestDetect_OpenAICodexProjectConfig_AbsentNotDetected(t *testing.T) {
 	root := t.TempDir()
 
 	reg := registry.NewRegistry()

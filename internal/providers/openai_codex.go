@@ -35,7 +35,7 @@ func NewOpenaiCodexProviderWithPath(path string) *OpenaiCodexProvider {
 
 func (p *OpenaiCodexProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  NameCodex,
+		Name:                  NameOpenAICodex,
 		DisplayName:           "OpenAI Codex",
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      p.configPath,

@@ -19,7 +19,7 @@ func buildSyncRegistry(t *testing.T, tmpDir string) *registry.Registry {
 	t.Helper()
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
-	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmpDir, "gemini-settings.json")))
+	reg.Register(providers.NewGoogleGeminiProviderWithPath(filepath.Join(tmpDir, "gemini-settings.json")))
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmpDir, "codex.toml")))
 	return reg
@@ -126,20 +126,20 @@ func TestRunSync_outputSortedAlphabetically(t *testing.T) {
 	require.NoError(t, cli.RunSync(dir, cfg, reg, &buf))
 
 	out := buf.String()
-	claudeIdx := indexOf(out, "claude")
-	codexIdx := indexOf(out, "codex")
-	geminiIdx := indexOf(out, "gemini")
+	claudeIdx := indexOf(out, "anthropic-claude-code")
+	codexIdx := indexOf(out, "openai-codex")
+	geminiIdx := indexOf(out, "google-gemini")
 	opencodeIdx := indexOf(out, "opencode")
 
-	assert.True(t, claudeIdx < codexIdx, "claude should appear before codex")
-	assert.True(t, codexIdx < geminiIdx, "codex should appear before gemini")
-	assert.True(t, geminiIdx < opencodeIdx, "gemini should appear before opencode")
+	assert.True(t, claudeIdx < geminiIdx, "anthropic-claude-code should appear before google-gemini")
+	assert.True(t, geminiIdx < codexIdx, "google-gemini should appear before openai-codex")
+	assert.True(t, codexIdx < opencodeIdx, "openai-codex should appear before opencode")
 }
 
 func TestRunSync_displaysResolvedProjectPaths(t *testing.T) {
 	dir := t.TempDir()
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewGeminiProvider())
+	reg.Register(providers.NewGoogleGeminiProvider())
 	reg.Register(providers.NewOpenaiCodexProvider())
 
 	var buf bytes.Buffer

@@ -20,7 +20,7 @@ func buildTestRegistry(t *testing.T, tmpDir string) *registry.Registry {
 	t.Helper()
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
-	reg.Register(providers.NewGeminiProviderWithPath(filepath.Join(tmpDir, "gemini-settings.json")))
+	reg.Register(providers.NewGoogleGeminiProviderWithPath(filepath.Join(tmpDir, "gemini-settings.json")))
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmpDir, "codex.toml")))
 	return reg
@@ -57,7 +57,7 @@ func TestRunStatus_filePresent_synced(t *testing.T) {
 	cfg := minimalConfig()
 
 	// Generate the expected content and write it to the file.
-	p, err := reg.Get("claude")
+	p, err := reg.Get("anthropic-claude-code")
 	require.NoError(t, err)
 	content, err := p.Generate(cfg.Servers, "")
 	require.NoError(t, err)
@@ -108,7 +108,7 @@ func TestRunStatus_readFailure_showsError(t *testing.T) {
 func TestRunStatus_displaysResolvedProjectPaths(t *testing.T) {
 	dir := t.TempDir()
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewGeminiProvider())
+	reg.Register(providers.NewGoogleGeminiProvider())
 	reg.Register(providers.NewOpenaiCodexProvider())
 
 	var buf bytes.Buffer
