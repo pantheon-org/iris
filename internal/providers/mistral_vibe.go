@@ -41,7 +41,7 @@ func NewMistralVibeProviderWithPath(path string) *MistralVibeProvider {
 
 func (p *MistralVibeProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  "mistral-vibe",
+		Name:                  NameMistralVibe,
 		DisplayName:           "Mistral Vibe",
 		ConfigPath:            "~/.vibe/config.toml",
 		SupportsProjectConfig: true,

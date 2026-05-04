@@ -9,7 +9,7 @@ type IntelliJProvider struct {
 func NewIntelliJProvider() *IntelliJProvider {
 	p := &IntelliJProvider{}
 	p.config = ProviderConfig{
-		Name:                  "intellij",
+		Name:                  NameIntelliJ,
 		DisplayName:           "IntelliJ IDEA",
 		ConfigPath:            ".idea/mcp.json",
 		SupportsProjectConfig: true,

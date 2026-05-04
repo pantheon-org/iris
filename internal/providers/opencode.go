@@ -19,7 +19,7 @@ func NewOpenCodeProvider() *OpenCodeProvider {
 
 func (p *OpenCodeProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  "opencode",
+		Name:                  NameOpenCode,
 		DisplayName:           "OpenCode",
 		ConfigPath:            "opencode.json",
 		SupportsProjectConfig: true,
