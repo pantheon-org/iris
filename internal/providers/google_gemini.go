@@ -1,6 +1,12 @@
 package providers
 
-import "path/filepath"
+import (
+	"path/filepath"
+
+	"github.com/pantheon-org/iris/internal/io"
+)
+
+func googleGeminiConfigPath() string { return io.UserHomePath(".gemini", "settings.json") }
 
 type GoogleGeminiProvider struct {
 	baseJSONProvider
