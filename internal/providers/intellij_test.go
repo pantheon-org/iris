@@ -16,8 +16,8 @@ func TestIntelliJProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	p := providers.NewIntelliJProvider()
 	cfg := p.Config()
 
-	if cfg.Name != "intellij-idea" {
-		t.Errorf("Name = %q, want %q", cfg.Name, "intellij-idea")
+	if cfg.Name != "intellij" {
+		t.Errorf("Name = %q, want %q", cfg.Name, "intellij")
 	}
 	if cfg.DisplayName != "IntelliJ IDEA" {
 		t.Errorf("DisplayName = %q, want %q", cfg.DisplayName, "IntelliJ IDEA")
