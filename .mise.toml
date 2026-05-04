@@ -9,6 +9,9 @@ lefthook = "2.1.5"
 shellcheck = "latest"
 actionlint = "latest"
 goreleaser = "latest"
+"github:rtk-ai/rtk" = "latest"
+"npm:@tobilu/qmd" = "latest"
+"github:DeusData/codebase-memory-mcp" = "latest"
 
 [tasks]
 [tasks.build]
@@ -19,3 +22,6 @@ run = "go test -race ./..."
 
 [tasks.lint]
 run = "golangci-lint run ./..."
+
+[tasks."ai:setup"]
+run = "rtk init --gemini --codex --opencode; qmd skill install --yes; codebase-memory-mcp install"
