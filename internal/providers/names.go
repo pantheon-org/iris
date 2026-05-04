@@ -3,7 +3,7 @@ package providers
 // Provider name constants for all supported providers.
 // Use these instead of raw string literals to avoid typos and aid refactoring.
 const (
-	NameClaude        = "claude"
+	NameClaudeCode    = "claude-code"
 	NameClaudeDesktop = "claude-desktop"
 	NameGemini        = "gemini"
 	NameOpenCode      = "opencode"

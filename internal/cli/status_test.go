@@ -57,7 +57,7 @@ func TestRunStatus_filePresent_synced(t *testing.T) {
 	cfg := minimalConfig()
 
 	// Generate the expected content and write it to the file.
-	p, err := reg.Get("claude")
+	p, err := reg.Get("claude-code")
 	require.NoError(t, err)
 	content, err := p.Generate(cfg.Servers, "")
 	require.NoError(t, err)

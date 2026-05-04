@@ -54,8 +54,8 @@ func TestDetect_MCPJsonPresent_ClaudeDetected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "claude" {
-		t.Errorf("expected claude, got %q", got[0].Config().Name)
+	if got[0].Config().Name != "claude-code" {
+		t.Errorf("expected claude-code, got %q", got[0].Config().Name)
 	}
 }
 
