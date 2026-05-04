@@ -28,8 +28,8 @@ run = "golangci-lint run ./..."
 run = """
     rtk init -g --gemini;
     rtk init --codex;
-    rtk init --opencode;
-    qmd skill install --yes;
+    rtk init -g --opencode;
+    qmd skill install --yes --force;
     codebase-memory-mcp install;
     code-review-graph install
 """
