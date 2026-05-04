@@ -13,8 +13,8 @@ func TestWindsurfProvider_Config(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewWindsurfProviderWithPath(filepath.Join(tmp, "mcp_config.json"))
 	cfg := p.Config()
-	if cfg.Name != "openai-windsurf" {
-		t.Fatalf("expected name %q, got %q", "openai-windsurf", cfg.Name)
+	if cfg.Name != "windsurf" {
+		t.Fatalf("expected name %q, got %q", "windsurf", cfg.Name)
 	}
 	if cfg.SupportsProjectConfig {
 		t.Fatal("expected SupportsProjectConfig=false")

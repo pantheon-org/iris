@@ -20,6 +20,7 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 |---|---|
 | `iris init` | Scaffold `.iris.json` in the current project |
 | `iris init --interactive/-I` | Interactive wizard to scaffold config |
+| `iris init --provider/-p <name> ...` | Limit init to specific providers |
 | `iris add <name> --command/-c <cmd> [--args/-a ...] [--env/-e KEY=VAL ...] [--transport/-t stdio\|sse] [--url/-u <url>]` | Add or update a server |
 | `iris remove <name>` | Remove a server |
 | `iris list` | List all configured servers |
@@ -33,7 +34,6 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 ```json
 {
   "version": 1,
-  "providers": ["claude", "gemini", "opencode", "codex", "cursor", "windsurf"],
   "servers": {
     "filesystem": {
       "transport": "stdio",
@@ -60,12 +60,12 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 | OpenAI Codex (`codex`) | `.codex/config.toml` | `~/.codex/config.toml` |
 | Cursor (`cursor`) | `.cursor/mcp.json` | `~/.cursor/mcp.json` |
 | Windsurf (`windsurf`) | — | `~/.codeium/windsurf/mcp_config.json` |
-| VS Code Copilot (`vscode-copilot`) | `.vscode/mcp.json` | — |
+| VS Code Copilot (`copilot`) | `.vscode/mcp.json` | — |
 | Zed (`zed`) | — | `~/.config/zed/settings.json` |
 | Qwen Code (`qwen`) | `.qwen/settings.json` | `~/.qwen/settings.json` |
 | Warp (`warp`) | — | `~/.warp/mcp.json` |
 | Kimi Code (`kimi`) | — | `~/.kimi/mcp.json` |
-| Mistral Vibe (`mistral-vibe`) | `.vibe/config.toml` | `~/.vibe/config.toml` |
+| Mistral Vibe (`mistral`) | `.vibe/config.toml` | `~/.vibe/config.toml` |
 | IntelliJ IDEA (`intellij`) | `.idea/mcp.json` | — |
 
 ## Development
