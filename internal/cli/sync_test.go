@@ -126,14 +126,14 @@ func TestRunSync_outputSortedAlphabetically(t *testing.T) {
 	require.NoError(t, cli.RunSync(dir, cfg, reg, &buf))
 
 	out := buf.String()
+	opencodeIdx := indexOf(out, "anomalyco-opencode")
 	claudeIdx := indexOf(out, "anthropic-claude-code")
-	codexIdx := indexOf(out, "openai-codex")
 	geminiIdx := indexOf(out, "google-gemini")
-	opencodeIdx := indexOf(out, "opencode")
+	codexIdx := indexOf(out, "openai-codex")
 
+	assert.True(t, opencodeIdx < claudeIdx, "anomalyco-opencode should appear before anthropic-claude-code")
 	assert.True(t, claudeIdx < geminiIdx, "anthropic-claude-code should appear before google-gemini")
 	assert.True(t, geminiIdx < codexIdx, "google-gemini should appear before openai-codex")
-	assert.True(t, codexIdx < opencodeIdx, "openai-codex should appear before opencode")
 }
 
 func TestRunSync_displaysResolvedProjectPaths(t *testing.T) {

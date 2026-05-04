@@ -13,8 +13,8 @@ func TestWarpProvider_Config(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewWarpProviderWithPath(filepath.Join(tmp, "mcp.json"))
 	cfg := p.Config()
-	if cfg.Name != "warp" {
-		t.Fatalf("expected name %q, got %q", "warp", cfg.Name)
+	if cfg.Name != "warp-terminal" {
+		t.Fatalf("expected name %q, got %q", "warp-terminal", cfg.Name)
 	}
 	if cfg.SupportsProjectConfig {
 		t.Fatal("expected SupportsProjectConfig=false")

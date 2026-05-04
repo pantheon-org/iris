@@ -75,7 +75,7 @@ func TestDetect_OpenCodeJsonPresent_OpenCodeDetected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "opencode" {
+	if got[0].Config().Name != "anomalyco-opencode" {
 		t.Errorf("expected opencode, got %q", got[0].Config().Name)
 	}
 }
@@ -106,7 +106,7 @@ func TestDetect_BothProjectFilesPresent_BothDetected(t *testing.T) {
 	if !names["anthropic-claude-code"] {
 		t.Error("expected anthropic-claude-code in results")
 	}
-	if !names["opencode"] {
+	if !names["anomalyco-opencode"] {
 		t.Error("expected opencode in results")
 	}
 }
@@ -219,7 +219,7 @@ func TestDetect_QwenProjectConfig_Detected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "qwen" {
+	if got[0].Config().Name != "alibaba-qwen-code" {
 		t.Errorf("expected qwen, got %q", got[0].Config().Name)
 	}
 }
@@ -262,7 +262,7 @@ func TestDetect_MistralVibeProjectConfig_Detected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "mistral-vibe" {
+	if got[0].Config().Name != "mistral-ai-vibe" {
 		t.Errorf("expected mistral-vibe, got %q", got[0].Config().Name)
 	}
 }

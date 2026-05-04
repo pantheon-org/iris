@@ -15,8 +15,8 @@ import (
 func TestVSCodeCopilotProvider_Config(t *testing.T) {
 	p := providers.NewVSCodeCopilotProvider()
 	cfg := p.Config()
-	if cfg.Name != "vscode-copilot" {
-		t.Fatalf("expected name %q, got %q", "vscode-copilot", cfg.Name)
+	if cfg.Name != "github-copilot" {
+		t.Fatalf("expected name %q, got %q", "github-copilot", cfg.Name)
 	}
 	if !cfg.SupportsProjectConfig {
 		t.Fatal("expected SupportsProjectConfig=true")

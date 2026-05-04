@@ -16,8 +16,8 @@ func TestMistralVibeProvider_Config(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))
 	cfg := p.Config()
-	if cfg.Name != "mistral-vibe" {
-		t.Fatalf("expected name %q, got %q", "mistral-vibe", cfg.Name)
+	if cfg.Name != "mistral-ai-vibe" {
+		t.Fatalf("expected name %q, got %q", "mistral-ai-vibe", cfg.Name)
 	}
 	if !cfg.SupportsProjectConfig {
 		t.Fatal("expected SupportsProjectConfig=true")
