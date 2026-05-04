@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
-	"github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -45,7 +44,11 @@ func (b *baseJSONProvider) SafeConfigFilePath(projectRoot string) (string, error
 }
 
 func (b *baseJSONProvider) Exists(projectRoot string) (bool, error) {
-	_, err := os.Stat(b.ConfigFilePath(projectRoot))
+	path, err := b.SafeConfigFilePath(projectRoot)
+	if err != nil {
+		return false, err
+	}
+	_, err = os.Stat(path)
 	if err == nil {
 		return true, nil
 	}
@@ -68,10 +71,11 @@ func (b *baseJSONProvider) Generate(servers map[string]types.MCPServer, existing
 	for name, srv := range servers {
 		serverType := string(srv.Transport)
 		if serverType == "" {
-			serverType = string(types.TransportStdio)
-		}
-		if srv.URL != "" {
-			serverType = string(types.TransportSSE)
+			if srv.URL != "" {
+				serverType = string(types.TransportSSE)
+			} else {
+				serverType = string(types.TransportStdio)
+			}
 		}
 		mcpServers[name] = mcpServerJSON{
 			Command: srv.Command,
@@ -129,4 +133,3 @@ func (b *baseJSONProvider) Parse(content string) (map[string]types.MCPServer, er
 	return result, nil
 }
 
-func googleGeminiConfigPath() string { return io.UserHomePath(".gemini", "settings.json") }
