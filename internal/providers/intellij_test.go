@@ -42,7 +42,11 @@ func TestIntelliJProvider_ConfigFilePath_ReturnsProjectRelativePath(t *testing.T
 func TestIntelliJProvider_Exists_ReturnsFalseWhenAbsent(t *testing.T) {
 	p := providers.NewIntelliJProvider()
 	tmp := t.TempDir()
-	if p.Exists(tmp) {
+	ok, err := p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
 		t.Error("Exists = true, want false for missing file")
 	}
 }
@@ -56,7 +60,11 @@ func TestIntelliJProvider_Exists_ReturnsTrueWhenPresent(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(tmp, ".idea", "mcp.json"), []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if !p.Exists(tmp) {
+	ok, err := p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
 		t.Error("Exists = false, want true when file present")
 	}
 }

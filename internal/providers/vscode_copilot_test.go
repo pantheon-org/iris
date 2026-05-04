@@ -114,7 +114,11 @@ func TestVSCodeCopilotProvider_Exists(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewVSCodeCopilotProvider()
 
-	if p.Exists(tmp) {
+	ok, err := p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
 		t.Fatal("should not exist before file is created")
 	}
 
@@ -125,7 +129,11 @@ func TestVSCodeCopilotProvider_Exists(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "mcp.json"), []byte(`{"servers":{}}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if !p.Exists(tmp) {
+	ok, err = p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
 		t.Fatal("should exist after file is created")
 	}
 }
