@@ -15,6 +15,8 @@
   "list.servers_count": "服务器 (%d):",
   "status.missing": "缺失",
   "status.error": "错误",
+  "status.synced": "synced",
+  "status.desync": "desync",
   "sync.completed_with_errors": "同步完成但有错误",
   "wizard.import_prompt": "检测到 %s — 导入其服务器？",
   "wizard.add_server": "添加服务器？（yes 继续，no 结束）",

@@ -15,6 +15,8 @@
   "list.servers_count": "サーバー (%d):",
   "status.missing": "存在しない",
   "status.error": "エラー",
+  "status.synced": "synced",
+  "status.desync": "desync",
   "sync.completed_with_errors": "エラーが発生して同期が完了しました",
   "wizard.import_prompt": "%s を検出 — サーバーをインポートしますか？",
   "wizard.add_server": "サーバーを追加しますか？（続けるにはyes、終了するにはno）",

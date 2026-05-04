@@ -15,6 +15,8 @@
   "list.servers_count": "Servers (%d):",
   "status.missing": "missing",
   "status.error": "error",
+  "status.synced": "synced",
+  "status.desync": "desync",
   "sync.completed_with_errors": "sync completed with errors",
   "wizard.import_prompt": "Detected %s — import its servers?",
   "wizard.add_server": "Add a server? (yes to continue, no to finish)",
