@@ -124,4 +124,3 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 
 	return nil
 }
-
