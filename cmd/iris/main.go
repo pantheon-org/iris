@@ -12,6 +12,7 @@ import (
 	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/config"
 	"github.com/pantheon-org/iris/internal/i18n"
+	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
@@ -253,7 +254,12 @@ func main() {
 	)
 
 	if err := root.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		code := cli.ExitGeneral
+		if errors.Is(err, ierrors.ErrServerNotFound) || errors.Is(err, ierrors.ErrProviderNotFound) {
+			code = cli.ExitNotFound
+		} else if errors.Is(err, ierrors.ErrConfigPermission) {
+			code = cli.ExitPermission
+		}
+		os.Exit(code)
 	}
 }

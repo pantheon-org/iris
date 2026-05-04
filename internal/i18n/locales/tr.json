@@ -15,6 +15,8 @@
   "list.servers_count": "Sunucular (%d):",
   "status.missing": "eksik",
   "status.error": "hata",
+  "status.synced": "synced",
+  "status.desync": "desync",
   "sync.completed_with_errors": "senkronizasyon hatalarla tamamlandı",
   "wizard.import_prompt": "%s algılandı — sunucularını içe aktar?",
   "wizard.add_server": "Sunucu eklensin mi? (devam için yes, çıkmak için no)",
