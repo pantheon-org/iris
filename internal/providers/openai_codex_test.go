@@ -46,7 +46,9 @@ func TestCodexProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing
 func TestCodexProvider_Exists_ReturnsFalseWhenFileAbsent(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewOpenaiCodexProviderWithPath(filepath.Join(tmp, "config.toml"))
-	assert.False(t, p.Exists(""))
+	ok, err := p.Exists("")
+	require.NoError(t, err)
+	assert.False(t, ok)
 }
 
 func TestCodexProvider_Generate_EmptyExistingContent_ProducesCorrectTOML(t *testing.T) {
