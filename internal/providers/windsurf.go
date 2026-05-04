@@ -13,7 +13,7 @@ func NewWindsurfProvider() *WindsurfProvider {
 func newWindsurfProviderWithPath(path string) *WindsurfProvider {
 	p := &WindsurfProvider{}
 	p.config = ProviderConfig{
-		Name:                  "windsurf",
+		Name:                  NameWindsurf,
 		DisplayName:           "Windsurf",
 		ConfigPath:            "~/.codeium/windsurf/mcp_config.json",
 		SupportsProjectConfig: false,
