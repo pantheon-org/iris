@@ -96,18 +96,24 @@ func (s *scenarioCtx) aCleanWorkspace() error {
 
 func (s *scenarioCtx) anMCPServerWithCommandAndArgs(name, command, rawArgs string) error {
 	args := splitArgs(rawArgs)
-	return cli.RunAdd(s.cfg, s.store, name, types.MCPServer{
+	if err := cli.RunAdd(s.cfg, s.store, name, types.MCPServer{
 		Transport: types.TransportStdio,
 		Command:   command,
 		Args:      args,
-	})
+	}); err != nil {
+		return fmt.Errorf("add server %s: %w", name, err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) anMCPServerWithCommandAndNoArgs(name, command string) error {
-	return cli.RunAdd(s.cfg, s.store, name, types.MCPServer{
+	if err := cli.RunAdd(s.cfg, s.store, name, types.MCPServer{
 		Transport: types.TransportStdio,
 		Command:   command,
-	})
+	}); err != nil {
+		return fmt.Errorf("add server %s: %w", name, err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) iAddAStdioServerWithCommandAndArgs(name, command, rawArgs string) error {
@@ -157,17 +163,23 @@ func (s *scenarioCtx) iTryToAddAStdioServerWithNoCommand(name string) error {
 // iAddAnMCPServerWithCommandAndArgs is a When-clause alias used in sync scenarios.
 func (s *scenarioCtx) iAddAnMCPServerWithCommandAndArgs(name, command, rawArgs string) error {
 	args := splitArgs(rawArgs)
-	return cli.RunAdd(s.cfg, s.store, name, types.MCPServer{
+	if err := cli.RunAdd(s.cfg, s.store, name, types.MCPServer{
 		Transport: types.TransportStdio,
 		Command:   command,
 		Args:      args,
-	})
+	}); err != nil {
+		return fmt.Errorf("add server %s: %w", name, err)
+	}
+	return nil
 }
 
 // ── remove steps ──────────────────────────────────────────────────────────────
 
 func (s *scenarioCtx) iRemoveTheServer(name string) error {
-	return cli.RunRemove(s.cfg, s.store, name)
+	if err := cli.RunRemove(s.cfg, s.store, name); err != nil {
+		return fmt.Errorf("remove server %s: %w", name, err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) iTryToRemoveTheServer(name string) error {
@@ -179,24 +191,33 @@ func (s *scenarioCtx) iTryToRemoveTheServer(name string) error {
 
 func (s *scenarioCtx) iRunList() error {
 	s.output.Reset()
-	return cli.RunList(s.cfg, s.output, false)
+	if err := cli.RunList(s.cfg, s.output, false); err != nil {
+		return fmt.Errorf("list: %w", err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) iRunListWithJSONOutput() error {
 	s.output.Reset()
-	return cli.RunList(s.cfg, s.output, true)
+	if err := cli.RunList(s.cfg, s.output, true); err != nil {
+		return fmt.Errorf("list json: %w", err)
+	}
+	return nil
 }
 
 // ── sync steps ────────────────────────────────────────────────────────────────
 
 func (s *scenarioCtx) iSyncToAllProviders() error {
-	return cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false)
+	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false); err != nil {
+		return fmt.Errorf("sync: %w", err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) iSyncToAllProvidersAgain() error {
 	s.reg = buildReg(s.root)
 	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false); err != nil {
-		return err
+		return fmt.Errorf("sync: %w", err)
 	}
 	s.syncResults = irisync.SyncAllProviders(s.root, s.reg, s.cfg.Servers)
 	return nil
@@ -204,44 +225,65 @@ func (s *scenarioCtx) iSyncToAllProvidersAgain() error {
 
 func (s *scenarioCtx) iSyncToAllProvidersWithJSONOutput() error {
 	s.output.Reset()
-	return cli.RunSync(s.root, s.cfg, s.reg, s.output, true)
+	if err := cli.RunSync(s.root, s.cfg, s.reg, s.output, true); err != nil {
+		return fmt.Errorf("sync json: %w", err)
+	}
+	return nil
 }
 
 // iSyncToAllProvidersAgainAsWhen is a second sync without capturing results — used in update scenario.
 func (s *scenarioCtx) iSyncToAllProvidersAsWhen() error {
 	s.reg = buildReg(s.root)
-	return cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false)
+	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false); err != nil {
+		return fmt.Errorf("sync: %w", err)
+	}
+	return nil
 }
 
 // ── status steps ──────────────────────────────────────────────────────────────
 
 func (s *scenarioCtx) iRunStatus() error {
 	s.output.Reset()
-	return cli.RunStatus(s.root, s.cfg, s.reg, s.output, false)
+	if err := cli.RunStatus(s.root, s.cfg, s.reg, s.output, false); err != nil {
+		return fmt.Errorf("status: %w", err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) iRunStatusWithJSONOutput() error {
 	s.output.Reset()
-	return cli.RunStatus(s.root, s.cfg, s.reg, s.output, true)
+	if err := cli.RunStatus(s.root, s.cfg, s.reg, s.output, true); err != nil {
+		return fmt.Errorf("status json: %w", err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) iCorruptTheProviderConfigFile(filename string) error {
 	path := filepath.Join(s.root, filename)
-	return os.WriteFile(path, []byte(`{"mcpServers":{}}`), 0644)
+	if err := os.WriteFile(path, []byte(`{"mcpServers":{}}`), 0644); err != nil {
+		return fmt.Errorf("corrupt config: %w", err)
+	}
+	return nil
 }
 
 // ── init steps ────────────────────────────────────────────────────────────────
 
 func (s *scenarioCtx) iRunInit() error {
 	s.output.Reset()
-	return cli.RunInitNonInteractive(s.store, s.output)
+	if err := cli.RunInitNonInteractive(s.store, s.output); err != nil {
+		return fmt.Errorf("init: %w", err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) theIrisConfigAlreadyExistsWithOneServer() error {
-	return cli.RunAdd(s.cfg, s.store, "existing", types.MCPServer{
+	if err := cli.RunAdd(s.cfg, s.store, "existing", types.MCPServer{
 		Transport: types.TransportStdio,
 		Command:   "existing-cmd",
-	})
+	}); err != nil {
+		return fmt.Errorf("add existing: %w", err)
+	}
+	return nil
 }
 
 // ── reload steps ──────────────────────────────────────────────────────────────
@@ -760,7 +802,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 
 func TestFeatures(t *testing.T) {
 	suite := godog.TestSuite{
-		Name:                "iris integration",
+		Name:                 "iris integration",
 		TestSuiteInitializer: nil,
 		ScenarioInitializer:  initializeScenario(t),
 		Options: &godog.Options{
