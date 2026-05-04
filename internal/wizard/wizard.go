@@ -105,9 +105,9 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 		if !errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf("load config: %w", err)
 		}
-		cfg = &types.IrisConfig{Version: 1}
+		cfg = types.NewIrisConfig()
 	} else if cfg == nil {
-		cfg = &types.IrisConfig{Version: 1}
+		cfg = types.NewIrisConfig()
 	}
 
 	for _, p := range pending {
