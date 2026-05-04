@@ -25,4 +25,11 @@ run = "go test -race ./..."
 run = "golangci-lint run ./..."
 
 [tasks."ai:setup"]
-run = "rtk init --gemini --codex --opencode; qmd skill install --yes; codebase-memory-mcp install; code-review-graph install"
+run = """
+    rtk init -g --gemini;
+    rtk init --codex;
+    rtk init --opencode;
+    qmd skill install --yes;
+    codebase-memory-mcp install;
+    code-review-graph install
+"""
