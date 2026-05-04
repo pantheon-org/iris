@@ -159,3 +159,95 @@ func TestGoogleGeminiProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *t
 		t.Errorf("error = %v, want wrapping ErrMalformedConfig", err)
 	}
 }
+
+func TestGoogleGeminiProvider_Generate_SSEServer_writesUrl(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
+	servers := map[string]types.MCPServer{
+		"remote": {Transport: types.TransportSSE, URL: "https://example.com/sse"},
+	}
+	out, err := p.Generate(servers, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		MCPServers map[string]struct {
+			URL     string `json:"url"`
+			HTTPUrl string `json:"httpUrl"`
+		} `json:"mcpServers"`
+	}
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	entry := doc.MCPServers["remote"]
+	if entry.URL != "https://example.com/sse" {
+		t.Fatalf("expected url=%q, got %q", "https://example.com/sse", entry.URL)
+	}
+	if entry.HTTPUrl != "" {
+		t.Fatalf("expected httpUrl to be empty, got %q", entry.HTTPUrl)
+	}
+}
+
+func TestGoogleGeminiProvider_Generate_HTTPServer_writesHttpUrl(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
+	servers := map[string]types.MCPServer{
+		"remote": {Transport: types.TransportHTTP, URL: "https://example.com/mcp"},
+	}
+	out, err := p.Generate(servers, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		MCPServers map[string]struct {
+			URL     string `json:"url"`
+			HTTPUrl string `json:"httpUrl"`
+		} `json:"mcpServers"`
+	}
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	entry := doc.MCPServers["remote"]
+	if entry.HTTPUrl != "https://example.com/mcp" {
+		t.Fatalf("expected httpUrl=%q, got %q", "https://example.com/mcp", entry.HTTPUrl)
+	}
+	if entry.URL != "" {
+		t.Fatalf("expected url to be empty, got %q", entry.URL)
+	}
+}
+
+func TestGoogleGeminiProvider_Parse_httpUrl_setsTransportHTTP(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
+	input := `{"mcpServers":{"remote":{"httpUrl":"https://example.com/mcp"}}}`
+	parsed, err := p.Parse(input)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	srv := parsed["remote"]
+	if srv.Transport != types.TransportHTTP {
+		t.Fatalf("expected TransportHTTP, got %q", srv.Transport)
+	}
+	if srv.URL != "https://example.com/mcp" {
+		t.Fatalf("expected URL=%q, got %q", "https://example.com/mcp", srv.URL)
+	}
+}
+
+func TestGoogleGeminiProvider_Generate_noTypeField(t *testing.T) {
+	p := providers.NewGoogleGeminiProvider()
+	servers := map[string]types.MCPServer{
+		"local": {Transport: types.TransportStdio, Command: "npx", Args: []string{"-y", "server"}},
+	}
+	out, err := p.Generate(servers, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		MCPServers map[string]struct {
+			Type string `json:"type"`
+		} `json:"mcpServers"`
+	}
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	if doc.MCPServers["local"].Type != "" {
+		t.Fatalf("expected no type field, got %q", doc.MCPServers["local"].Type)
+	}
+}

@@ -9,11 +9,15 @@ import (
 	"github.com/pantheon-org/iris/internal/types"
 )
 
+// mcpServerJSON is the wire format for providers that use an mcpServers JSON structure.
+// The `type` field is accepted on read (for round-trip safety) but never written on
+// Generate: transport is inferred from the presence of `url` (remote/SSE) vs `command`
+// (stdio), matching the behaviour of Claude Code, Gemini, Cursor, Qwen, and others.
 type mcpServerJSON struct {
 	Command string            `json:"command,omitempty"`
 	Args    []string          `json:"args,omitempty"`
 	Env     map[string]string `json:"env,omitempty"`
-	Type    string            `json:"type,omitempty"`
+	Type    string            `json:"type,omitempty"` // read-only: "stdio" | "sse" — not written on Generate
 	URL     string            `json:"url,omitempty"`
 	Headers map[string]string `json:"headers,omitempty"`
 	Cwd     string            `json:"cwd,omitempty"`
@@ -69,19 +73,12 @@ func (b *baseJSONProvider) Generate(servers map[string]types.MCPServer, existing
 
 	mcpServers := make(map[string]mcpServerJSON, len(servers))
 	for name, srv := range servers {
-		serverType := string(srv.Transport)
-		if serverType == "" {
-			if srv.URL != "" {
-				serverType = string(types.TransportSSE)
-			} else {
-				serverType = string(types.TransportStdio)
-			}
-		}
+		// Do not write a "type" field: transport is inferred from url vs command
+		// presence by real tools. We only populate fields that official docs define.
 		mcpServers[name] = mcpServerJSON{
 			Command: srv.Command,
 			Args:    srv.Args,
 			Env:     srv.Env,
-			Type:    serverType,
 			URL:     srv.URL,
 			Headers: srv.Headers,
 			Cwd:     srv.Cwd,

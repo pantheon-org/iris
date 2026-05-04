@@ -15,6 +15,6 @@ const (
 	NameAlibabaQwenCode        = "qwen"
 	NameWarpTerminal           = "warp"
 	NameMoonshotKimi           = "kimi"
-	NameMistralAIVibe          = "mistral"
+	NameMistralAIVibe          = "mistral-vibe"
 	NameIntelliJIDEA           = "intellij"
 )

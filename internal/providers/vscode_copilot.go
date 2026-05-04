@@ -72,10 +72,18 @@ func (p *VSCodeCopilotProvider) Generate(servers map[string]types.MCPServer, exi
 			Env:     srv.Env,
 			URL:     srv.URL,
 		}
-		if srv.Transport == types.TransportSSE || (srv.Transport == "" && srv.URL != "") {
+		switch srv.Transport {
+		case types.TransportHTTP:
+			// VS Code Copilot uses "http" for Streamable HTTP (tries HTTP, falls back to SSE).
+			entry.Type = "http"
+		case types.TransportSSE:
 			entry.Type = "sse"
-		} else {
-			entry.Type = "stdio"
+		default:
+			if srv.URL != "" {
+				entry.Type = "sse"
+			} else {
+				entry.Type = "stdio"
+			}
 		}
 		out[name] = entry
 	}
@@ -103,9 +111,19 @@ func (p *VSCodeCopilotProvider) Parse(content string) (map[string]types.MCPServe
 
 	result := make(map[string]types.MCPServer, len(root.Servers))
 	for name, s := range root.Servers {
-		transport := types.TransportStdio
-		if s.Type == "sse" || s.URL != "" {
+		var transport types.Transport
+		switch s.Type {
+		case "http":
+			transport = types.TransportHTTP
+		case "sse":
 			transport = types.TransportSSE
+		default:
+			// Infer from URL if type is missing or unrecognised.
+			if s.URL != "" {
+				transport = types.TransportSSE
+			} else {
+				transport = types.TransportStdio
+			}
 		}
 		result[name] = types.MCPServer{
 			Command:   s.Command,

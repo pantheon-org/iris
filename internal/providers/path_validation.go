@@ -2,6 +2,7 @@ package providers
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -24,4 +25,16 @@ func ValidateProjectRoot(projectRoot string) error {
 		}
 	}
 	return nil
+}
+
+// existsOnDisk reports whether path exists on disk.
+func existsOnDisk(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat config: %w", err)
 }
