@@ -35,7 +35,7 @@ func NewOpenaiCodexProviderWithPath(path string) *OpenaiCodexProvider {
 
 func (p *OpenaiCodexProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  "codex",
+		Name:                  NameCodex,
 		DisplayName:           "OpenAI Codex",
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      p.configPath,
@@ -49,9 +49,15 @@ func (p *OpenaiCodexProvider) ConfigFilePath(projectRoot string) string {
 	return p.configPath
 }
 
-func (p *OpenaiCodexProvider) Exists(projectRoot string) bool {
+func (p *OpenaiCodexProvider) Exists(projectRoot string) (bool, error) {
 	_, err := os.Stat(p.ConfigFilePath(projectRoot))
-	return err == nil
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat config: %w", err)
 }
 
 type codexMCPServer struct {

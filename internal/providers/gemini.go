@@ -13,7 +13,7 @@ func NewGeminiProvider() *GeminiProvider {
 func newGeminiProviderWithPath(path string) *GeminiProvider {
 	p := &GeminiProvider{}
 	p.config = ProviderConfig{
-		Name:                  "gemini",
+		Name:                  NameGemini,
 		DisplayName:           "Gemini",
 		ConfigPath:            "~/.gemini/settings.json",
 		SupportsProjectConfig: true,
@@ -33,7 +33,7 @@ func newGeminiProviderWithPath(path string) *GeminiProvider {
 func NewGeminiProviderWithPath(path string) *GeminiProvider {
 	p := &GeminiProvider{}
 	p.config = ProviderConfig{
-		Name:                  "gemini",
+		Name:                  NameGemini,
 		DisplayName:           "Gemini",
 		ConfigPath:            "~/.gemini/settings.json",
 		SupportsProjectConfig: true,

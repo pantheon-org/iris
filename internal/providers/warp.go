@@ -13,7 +13,7 @@ func NewWarpProvider() *WarpProvider {
 func newWarpProviderWithPath(path string) *WarpProvider {
 	p := &WarpProvider{}
 	p.config = ProviderConfig{
-		Name:                  "warp",
+		Name:                  NameWarp,
 		DisplayName:           "Warp",
 		ConfigPath:            "~/.warp/mcp.json",
 		SupportsProjectConfig: false,

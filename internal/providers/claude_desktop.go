@@ -17,7 +17,7 @@ func NewClaudeDesktopProvider() *ClaudeDesktopProvider {
 func newClaudeDesktopProviderWithPath(path string) *ClaudeDesktopProvider {
 	p := &ClaudeDesktopProvider{}
 	p.config = ProviderConfig{
-		Name:                  "claude-desktop",
+		Name:                  NameClaudeDesktop,
 		DisplayName:           "Claude Desktop",
 		ConfigPath:            "~/Library/Application Support/Claude/claude_desktop_config.json",
 		SupportsProjectConfig: false,

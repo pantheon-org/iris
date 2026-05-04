@@ -1,11 +1,13 @@
 package providers_test
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/types"
 )
@@ -123,18 +125,38 @@ func TestMistralVibeProvider_Generate_httpTransport(t *testing.T) {
 	}
 }
 
+func TestMistralVibeProvider_Parse_malformedInput_returnsError(t *testing.T) {
+	tmp := t.TempDir()
+	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))
+	_, err := p.Parse("not toml at all \x00\xff")
+	if err == nil {
+		t.Fatal("Parse: expected error for malformed input, got nil")
+	}
+	if !errors.Is(err, ierrors.ErrMalformedConfig) {
+		t.Errorf("Parse: error does not wrap ErrMalformedConfig; got: %v", err)
+	}
+}
+
 func TestMistralVibeProvider_Exists(t *testing.T) {
 	tmp := t.TempDir()
 	path := filepath.Join(tmp, "config.toml")
 	p := providers.NewMistralVibeProviderWithPath(path)
 
-	if p.Exists(tmp) {
+	ok, err := p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
 		t.Fatal("should not exist before file is created")
 	}
 	if err := os.WriteFile(path, []byte(""), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if !p.Exists(tmp) {
+	ok, err = p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
 		t.Fatal("should exist after file is created")
 	}
 }

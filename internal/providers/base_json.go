@@ -34,9 +34,25 @@ func (b *baseJSONProvider) ConfigFilePath(projectRoot string) string {
 	return b.resolvedPath(projectRoot)
 }
 
-func (b *baseJSONProvider) Exists(projectRoot string) bool {
+// SafeConfigFilePath validates projectRoot for path traversal before returning
+// the config file path. Returns ErrPathTraversal if projectRoot contains ".."
+// components.
+func (b *baseJSONProvider) SafeConfigFilePath(projectRoot string) (string, error) {
+	if err := ValidateProjectRoot(projectRoot); err != nil {
+		return "", err
+	}
+	return b.resolvedPath(projectRoot), nil
+}
+
+func (b *baseJSONProvider) Exists(projectRoot string) (bool, error) {
 	_, err := os.Stat(b.ConfigFilePath(projectRoot))
-	return err == nil
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat config: %w", err)
 }
 
 func (b *baseJSONProvider) Generate(servers map[string]types.MCPServer, existingContent string) (string, error) {

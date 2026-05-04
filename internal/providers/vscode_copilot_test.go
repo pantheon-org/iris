@@ -2,10 +2,12 @@ package providers_test
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/types"
 )
@@ -110,11 +112,26 @@ func TestVSCodeCopilotProvider_GenerateParse_preservesExistingKeys(t *testing.T)
 	}
 }
 
+func TestVSCodeCopilotProvider_Parse_malformedInput_returnsError(t *testing.T) {
+	p := providers.NewVSCodeCopilotProvider()
+	_, err := p.Parse("not json at all")
+	if err == nil {
+		t.Fatal("Parse: expected error for malformed input, got nil")
+	}
+	if !errors.Is(err, ierrors.ErrMalformedConfig) {
+		t.Errorf("Parse: error does not wrap ErrMalformedConfig; got: %v", err)
+	}
+}
+
 func TestVSCodeCopilotProvider_Exists(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewVSCodeCopilotProvider()
 
-	if p.Exists(tmp) {
+	ok, err := p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
 		t.Fatal("should not exist before file is created")
 	}
 
@@ -125,7 +142,11 @@ func TestVSCodeCopilotProvider_Exists(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "mcp.json"), []byte(`{"servers":{}}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if !p.Exists(tmp) {
+	ok, err = p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
 		t.Fatal("should exist after file is created")
 	}
 }

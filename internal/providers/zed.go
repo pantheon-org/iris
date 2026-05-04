@@ -33,7 +33,7 @@ func NewZedProviderWithPath(path string) *ZedProvider {
 
 func (p *ZedProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  "zed",
+		Name:                  NameZed,
 		DisplayName:           "Zed",
 		ConfigPath:            "~/.config/zed/settings.json",
 		SupportsProjectConfig: false,
@@ -43,9 +43,15 @@ func (p *ZedProvider) Config() ProviderConfig {
 
 func (p *ZedProvider) ConfigFilePath(_ string) string { return p.configPath }
 
-func (p *ZedProvider) Exists(_ string) bool {
+func (p *ZedProvider) Exists(_ string) (bool, error) {
 	_, err := os.Stat(p.configPath)
-	return err == nil
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat config: %w", err)
 }
 
 type zedContextServer struct {

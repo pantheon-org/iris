@@ -2,10 +2,12 @@ package providers_test
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/types"
 )
@@ -76,18 +78,38 @@ func TestZedProvider_GenerateParse_preservesExistingKeys(t *testing.T) {
 	}
 }
 
+func TestZedProvider_Parse_malformedInput_returnsError(t *testing.T) {
+	tmp := t.TempDir()
+	p := providers.NewZedProviderWithPath(filepath.Join(tmp, "settings.json"))
+	_, err := p.Parse("not json at all")
+	if err == nil {
+		t.Fatal("Parse: expected error for malformed input, got nil")
+	}
+	if !errors.Is(err, ierrors.ErrMalformedConfig) {
+		t.Errorf("Parse: error does not wrap ErrMalformedConfig; got: %v", err)
+	}
+}
+
 func TestZedProvider_Exists(t *testing.T) {
 	tmp := t.TempDir()
 	path := filepath.Join(tmp, "settings.json")
 	p := providers.NewZedProviderWithPath(path)
 
-	if p.Exists(tmp) {
+	ok, err := p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
 		t.Fatal("should not exist before file is created")
 	}
 	if err := os.WriteFile(path, []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if !p.Exists(tmp) {
+	ok, err = p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
 		t.Fatal("should exist after file is created")
 	}
 }

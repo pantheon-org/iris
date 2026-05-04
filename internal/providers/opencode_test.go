@@ -43,7 +43,11 @@ func TestOpenCodeProvider_ConfigFilePath_ReturnsProjectPath(t *testing.T) {
 func TestOpenCodeProvider_Exists_ReturnsFalseWhenAbsent(t *testing.T) {
 	p := providers.NewOpenCodeProvider()
 	dir := t.TempDir()
-	if p.Exists(dir) {
+	ok, err := p.Exists(dir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
 		t.Error("Exists: want false for missing file")
 	}
 }
@@ -54,7 +58,11 @@ func TestOpenCodeProvider_Exists_ReturnsTrueWhenPresent(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "opencode.json"), []byte("{}"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if !p.Exists(dir) {
+	ok, err := p.Exists(dir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !ok {
 		t.Error("Exists: want true when file present")
 	}
 }

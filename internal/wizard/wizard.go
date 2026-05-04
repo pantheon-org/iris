@@ -1,6 +1,7 @@
 package wizard
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -22,7 +23,11 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 	var pending []pendingServer
 
 	// Detect installed harnesses and offer to import their existing MCP servers.
-	for _, p := range detector.Detect(projectRoot, registry) {
+	detected, err := detector.Detect(projectRoot, registry)
+	if err != nil {
+		return fmt.Errorf("detect providers: %w", err)
+	}
+	for _, p := range detected {
 		importIt, err := r.PromptConfirm(i18n.T("wizard.import_prompt", p.Config().DisplayName))
 		if err != nil {
 			return fmt.Errorf("prompt import %s: %w", p.Config().Name, err)
@@ -100,7 +105,12 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 	}
 
 	cfg, err := store.Load()
-	if err != nil || cfg == nil {
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("load config: %w", err)
+		}
+		cfg = types.NewIrisConfig()
+	} else if cfg == nil {
 		cfg = types.NewIrisConfig()
 	}
 

@@ -19,7 +19,7 @@ func NewOpenCodeProvider() *OpenCodeProvider {
 
 func (p *OpenCodeProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  "opencode",
+		Name:                  NameOpenCode,
 		DisplayName:           "OpenCode",
 		ConfigPath:            "opencode.json",
 		SupportsProjectConfig: true,
@@ -31,9 +31,15 @@ func (p *OpenCodeProvider) ConfigFilePath(projectRoot string) string {
 	return filepath.Join(projectRoot, "opencode.json")
 }
 
-func (p *OpenCodeProvider) Exists(projectRoot string) bool {
+func (p *OpenCodeProvider) Exists(projectRoot string) (bool, error) {
 	_, err := os.Stat(p.ConfigFilePath(projectRoot))
-	return err == nil
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat config: %w", err)
 }
 
 type opencodeMCPEntry struct {

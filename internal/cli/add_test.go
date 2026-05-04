@@ -20,9 +20,8 @@ func newTempStore(t *testing.T) (*config.Store, string) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, ".iris.json")
 	initial := &types.IrisConfig{
-		Version:   1,
-		Providers: []string{},
-		Servers:   map[string]types.MCPServer{},
+		Version: 1,
+		Servers: map[string]types.MCPServer{},
 	}
 	store, err := config.NewStore(path)
 	require.NoError(t, err)

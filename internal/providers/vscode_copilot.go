@@ -26,7 +26,7 @@ func NewVSCodeCopilotProvider() *VSCodeCopilotProvider {
 
 func (p *VSCodeCopilotProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  "vscode-copilot",
+		Name:                  NameVSCodeCopilot,
 		DisplayName:           "VS Code Copilot",
 		ConfigPath:            ".vscode/mcp.json",
 		SupportsProjectConfig: true,
@@ -37,9 +37,15 @@ func (p *VSCodeCopilotProvider) ConfigFilePath(projectRoot string) string {
 	return p.configPath(projectRoot)
 }
 
-func (p *VSCodeCopilotProvider) Exists(projectRoot string) bool {
+func (p *VSCodeCopilotProvider) Exists(projectRoot string) (bool, error) {
 	_, err := os.Stat(p.ConfigFilePath(projectRoot))
-	return err == nil
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat config: %w", err)
 }
 
 type vscodeServer struct {
