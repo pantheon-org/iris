@@ -40,9 +40,8 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 	}
 
 	cfg := &types.IrisConfig{
-		Version:   1,
-		Providers: []string{"claude", "gemini", "opencode", "codex"},
-		Servers:   make(map[string]types.MCPServer),
+		Version: 1,
+		Servers: make(map[string]types.MCPServer),
 	}
 
 	if err := cli.RunAdd(cfg, store, "filesystem", types.MCPServer{
@@ -158,9 +157,8 @@ func TestIris_addRemove_persistsCorrectly(t *testing.T) {
 	}
 
 	cfg := &types.IrisConfig{
-		Version:   1,
-		Providers: []string{"claude"},
-		Servers:   make(map[string]types.MCPServer),
+		Version: 1,
+		Servers: make(map[string]types.MCPServer),
 	}
 
 	servers := map[string]types.MCPServer{

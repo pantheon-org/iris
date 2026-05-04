@@ -45,6 +45,9 @@ func (s *Store) Load() (*types.IrisConfig, error) {
 	if err := s.codec.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("parse %s: %w", s.path, ierrors.ErrMalformedConfig)
 	}
+	if cfg.Version != 0 && cfg.Version != 1 {
+		return nil, fmt.Errorf("parse %s: version %d: %w", s.path, cfg.Version, ierrors.ErrUnsupportedVersion)
+	}
 	if cfg.Servers == nil {
 		cfg.Servers = make(map[string]types.MCPServer)
 	}
