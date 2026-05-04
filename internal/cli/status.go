@@ -19,6 +19,13 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 	})
 
 	fmt.Fprint(w, "Provider Status:\n")
+	maxWidth := 12 // minimum
+	for _, p := range all {
+		if len(p.Config().Name) > maxWidth {
+			maxWidth = len(p.Config().Name)
+		}
+	}
+	fmtStr := fmt.Sprintf("  %%-%ds  %%-8s  %%s\n", maxWidth)
 	for _, p := range all {
 		name := p.Config().Name
 		path := p.ConfigFilePath(projectRoot)
@@ -30,14 +37,14 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 			if errors.Is(err, os.ErrNotExist) {
 				status = i18n.T("status.missing")
 			}
-			fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, status, displayPath)
+			fmt.Fprintf(w, fmtStr, name, status, displayPath)
 			continue
 		}
 
 		existing := string(data)
 		generated, err := p.Generate(cfg.Servers, existing)
 		if err != nil {
-			fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, i18n.T("status.error"), displayPath)
+			fmt.Fprintf(w, fmtStr, name, i18n.T("status.error"), displayPath)
 			continue
 		}
 
@@ -45,7 +52,7 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 		if generated != existing {
 			status = i18n.T("status.desync")
 		}
-		fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, status, displayPath)
+		fmt.Fprintf(w, fmtStr, name, status, displayPath)
 	}
 	return nil
 }
