@@ -1,9 +1,11 @@
 package merger
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
@@ -52,6 +54,14 @@ func SyncProvider(projectRoot string, p providers.Provider, servers map[string]t
 
 	if err := os.MkdirAll(filepath.Dir(configPath), 0755); err != nil {
 		return SyncResult{ProviderName: name, Status: SyncStatusError, Err: err}
+	}
+
+	if info, err := os.Lstat(configPath); err == nil && info.Mode()&os.ModeSymlink != 0 {
+		return SyncResult{
+			ProviderName: name,
+			Status:       SyncStatusError,
+			Err:          fmt.Errorf("config path %s is a symlink: %w", configPath, ierrors.ErrSymlinkNotAllowed),
+		}
 	}
 
 	if err := os.WriteFile(configPath, []byte(newContent), 0644); err != nil {
