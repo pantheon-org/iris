@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
 	irisync "github.com/pantheon-org/iris/internal/sync"
@@ -358,6 +359,32 @@ func TestSyncAllProviders_allProvidersFail_allResultsHaveErrors(t *testing.T) {
 		wantErrCount: 2,
 		wantOkCount:  0,
 	})
+}
+
+func TestSyncProvider_symlinkTarget_returnsError(t *testing.T) {
+	dir := t.TempDir()
+	p := providers.NewClaudeCodeProvider()
+
+	// Create a real file that the symlink will point to.
+	realFile := filepath.Join(dir, "real-config.json")
+	if err := os.WriteFile(realFile, []byte("{}"), 0644); err != nil {
+		t.Fatalf("setup: write real file: %v", err)
+	}
+
+	// Create a symlink at the provider's config path pointing to the real file.
+	configPath := p.ConfigFilePath(dir)
+	if err := os.Symlink(realFile, configPath); err != nil {
+		t.Fatalf("setup: create symlink: %v", err)
+	}
+
+	result := irisync.SyncProvider(dir, p, testServers)
+
+	if result.Status != irisync.SyncStatusError {
+		t.Fatalf("expected SyncStatusError, got %q", result.Status)
+	}
+	if !errors.Is(result.Err, ierrors.ErrSymlinkNotAllowed) {
+		t.Fatalf("expected error wrapping ErrSymlinkNotAllowed, got: %v", result.Err)
+	}
 }
 
 func TestSyncAllProviders_errorsAreContainedInResults_noPanic(t *testing.T) {
