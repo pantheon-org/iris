@@ -78,7 +78,7 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 
 	reg := buildRegistry(t, root)
 
-	if err := cli.RunSync(root, cfg, reg, io.Discard); err != nil {
+	if err := cli.RunSync(root, cfg, reg, io.Discard, false); err != nil {
 		t.Fatalf("RunSync (first): %v", err)
 	}
 
@@ -148,7 +148,7 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 	}
 
 	reg2 := buildRegistry(t, root)
-	if err := cli.RunSync(root, cfg, reg2, io.Discard); err != nil {
+	if err := cli.RunSync(root, cfg, reg2, io.Discard, false); err != nil {
 		t.Fatalf("RunSync (second): %v", err)
 	}
 

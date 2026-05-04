@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -40,7 +41,7 @@ func TestRunSync_allCreated_printsCreatedStatus(t *testing.T) {
 	cfg := syncConfig()
 	var buf bytes.Buffer
 
-	err := cli.RunSync(dir, cfg, reg, &buf)
+	err := cli.RunSync(dir, cfg, reg, &buf, false)
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -52,10 +53,10 @@ func TestRunSync_unchanged_printsUnchangedStatus(t *testing.T) {
 	reg := buildSyncRegistry(t, dir)
 	cfg := syncConfig()
 
-	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}))
+	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, false))
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, cfg, reg, &buf)
+	err := cli.RunSync(dir, cfg, reg, &buf, false)
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "unchanged")
@@ -67,7 +68,7 @@ func TestRunSync_updated_printsUpdatedStatus(t *testing.T) {
 	reg.Register(providers.NewClaudeCodeProvider())
 
 	cfg := syncConfig()
-	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}))
+	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, false))
 
 	updatedCfg := &types.IrisConfig{
 		Version: 1,
@@ -78,7 +79,7 @@ func TestRunSync_updated_printsUpdatedStatus(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, updatedCfg, reg, &buf)
+	err := cli.RunSync(dir, updatedCfg, reg, &buf, false)
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "updated")
@@ -111,7 +112,7 @@ func TestRunSync_providerError_returnsError(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, cfg, reg, &buf)
+	err := cli.RunSync(dir, cfg, reg, &buf, false)
 
 	require.Error(t, err)
 	assert.Contains(t, buf.String(), "error")
@@ -123,7 +124,7 @@ func TestRunSync_outputSortedAlphabetically(t *testing.T) {
 	cfg := syncConfig()
 	var buf bytes.Buffer
 
-	require.NoError(t, cli.RunSync(dir, cfg, reg, &buf))
+	require.NoError(t, cli.RunSync(dir, cfg, reg, &buf, false))
 
 	out := buf.String()
 	opencodeIdx := indexOf(out, "opencode")
@@ -143,7 +144,7 @@ func TestRunSync_displaysResolvedProjectPaths(t *testing.T) {
 	reg.Register(providers.NewOpenaiCodexProvider())
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, syncConfig(), reg, &buf)
+	err := cli.RunSync(dir, syncConfig(), reg, &buf, false)
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -168,10 +169,54 @@ func TestRunSync_displaysPinnedProviderPathOnError(t *testing.T) {
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, syncConfig(), reg, &buf)
+	err := cli.RunSync(dir, syncConfig(), reg, &buf, false)
 
 	require.Error(t, err)
 	assert.Contains(t, buf.String(), lockedFile)
+}
+
+func TestRunSync_jsonOutput_validJSON(t *testing.T) {
+	dir := t.TempDir()
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(dir, "codex.toml")))
+	cfg := syncConfig()
+	var buf bytes.Buffer
+
+	err := cli.RunSync(dir, cfg, reg, &buf, true)
+
+	require.NoError(t, err)
+
+	var out cli.SyncOutput
+	require.NoError(t, json.NewDecoder(&buf).Decode(&out))
+	require.Len(t, out.Results, 1)
+	assert.Equal(t, "codex", out.Results[0].Provider)
+	assert.NotEmpty(t, out.Results[0].Status)
+	assert.NotEmpty(t, out.Results[0].Path)
+}
+
+func TestRunSync_jsonOutput_errorIncluded(t *testing.T) {
+	if os.Getuid() == 0 {
+		t.Skip("chmod 0555 has no effect as root")
+	}
+
+	dir := t.TempDir()
+	lockedDir := filepath.Join(dir, "locked")
+	require.NoError(t, os.MkdirAll(lockedDir, 0o555))
+	t.Cleanup(func() { _ = os.Chmod(lockedDir, 0o755) })
+
+	lockedFile := filepath.Join(lockedDir, "codex.toml")
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
+
+	var buf bytes.Buffer
+	err := cli.RunSync(dir, syncConfig(), reg, &buf, true)
+
+	require.Error(t, err)
+
+	var out cli.SyncOutput
+	require.NoError(t, json.NewDecoder(&buf).Decode(&out))
+	require.Len(t, out.Results, 1)
+	assert.NotEmpty(t, out.Results[0].Error)
 }
 
 func indexOf(s, substr string) int {
