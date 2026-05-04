@@ -7,16 +7,16 @@ import (
 	"strings"
 )
 
-// BubbleteaRunner is the production terminal UI runner.
-type BubbleteaRunner struct {
+// TerminalRunner is the production terminal UI runner.
+type TerminalRunner struct {
 	scanner *bufio.Scanner
 }
 
-func NewBubbleteaRunner() *BubbleteaRunner {
-	return &BubbleteaRunner{scanner: bufio.NewScanner(os.Stdin)}
+func NewTerminalRunner() *TerminalRunner {
+	return &TerminalRunner{scanner: bufio.NewScanner(os.Stdin)}
 }
 
-func (b *BubbleteaRunner) prompt(label, hint string) (string, error) {
+func (b *TerminalRunner) prompt(label, hint string) (string, error) {
 	if hint != "" {
 		fmt.Fprintf(os.Stderr, "%s [%s]: ", label, hint)
 	} else {
@@ -31,16 +31,16 @@ func (b *BubbleteaRunner) prompt(label, hint string) (string, error) {
 	return strings.TrimSpace(b.scanner.Text()), nil
 }
 
-func (b *BubbleteaRunner) PromptText(label, placeholder string) (string, error) {
+func (b *TerminalRunner) PromptText(label, placeholder string) (string, error) {
 	return b.prompt(label, placeholder)
 }
 
-func (b *BubbleteaRunner) PromptSelect(label string, options []string) (string, error) {
+func (b *TerminalRunner) PromptSelect(label string, options []string) (string, error) {
 	hint := strings.Join(options, "/")
 	return b.prompt(label, hint)
 }
 
-func (b *BubbleteaRunner) PromptConfirm(label string) (bool, error) {
+func (b *TerminalRunner) PromptConfirm(label string) (bool, error) {
 	ans, err := b.prompt(label, "yes/no")
 	if err != nil {
 		return false, err

@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/config"
 	"github.com/pantheon-org/iris/internal/detector"
 	"github.com/pantheon-org/iris/internal/i18n"
@@ -36,10 +35,11 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 			continue
 		}
 		filePath := p.ConfigFilePath(projectRoot)
-		content, err := readFile(filePath)
+		data, err := os.ReadFile(filePath)
 		if err != nil {
 			return fmt.Errorf("read %s config: %w", p.Config().Name, err)
 		}
+		content := string(data)
 		servers, err := p.Parse(content)
 		if err != nil {
 			return fmt.Errorf("parse %s config: %w", p.Config().Name, err)
@@ -110,32 +110,17 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 			return fmt.Errorf("load config: %w", err)
 		}
 		cfg = types.NewIrisConfig()
-	} else if cfg == nil {
-		cfg = types.NewIrisConfig()
 	}
 
 	for _, p := range pending {
-		if err := cli.RunAdd(cfg, store, p.name, p.server); err != nil {
+		if err := p.server.Validate(); err != nil {
 			return fmt.Errorf("add server %q: %w", p.name, err)
 		}
-		if loaded, loadErr := store.Load(); loadErr == nil {
-			cfg = loaded
-		}
+		cfg.Servers[p.name] = p.server
 	}
-
-	if len(pending) == 0 {
-		if err := store.Save(cfg); err != nil {
-			return fmt.Errorf("save config: %w", err)
-		}
+	if err := store.Save(cfg); err != nil {
+		return fmt.Errorf("save config: %w", err)
 	}
 
 	return nil
-}
-
-func readFile(path string) (string, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return "", fmt.Errorf("read file %s: %w", path, err)
-	}
-	return string(data), nil
 }
