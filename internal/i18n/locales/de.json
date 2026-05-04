@@ -10,6 +10,7 @@
   "flag.interactive": "Interaktiven Assistenten starten",
   "flag.provider": "Auf Anbieter nach Name beschränken (wiederholbar)",
   "flag.lang": "Sprache überschreiben (z.B. fr, ja, zh-CN)",
+  "flag.json": "Ergebnisse als JSON ausgeben",
   "init.already_exists": "Konfiguration existiert bereits unter %s",
   "init.initialized": "%s initialisiert",
   "list.servers_count": "Server (%d):",

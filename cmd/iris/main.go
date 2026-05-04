@@ -186,23 +186,31 @@ func main() {
 				return cli.RunRemove(cfg, store, args[0])
 			},
 		},
-		&cobra.Command{
-			Use:   "list",
-			Short: i18n.T("cmd.list"),
-			RunE: func(cmd *cobra.Command, args []string) error {
-				store, err := loadConfig(configFlag)
-				if err != nil {
-					return err
-				}
-				cfg, err := store.Load()
-				if err != nil {
-					return fmt.Errorf("load config: %w", err)
-				}
-				return cli.RunList(cfg, os.Stdout)
-			},
-		},
 		func() *cobra.Command {
-			var providerNames []string
+			var jsonOutput bool
+			cmd := &cobra.Command{
+				Use:   "list",
+				Short: i18n.T("cmd.list"),
+				RunE: func(cmd *cobra.Command, args []string) error {
+					store, err := loadConfig(configFlag)
+					if err != nil {
+						return err
+					}
+					cfg, err := store.Load()
+					if err != nil {
+						return fmt.Errorf("load config: %w", err)
+					}
+					return cli.RunList(cfg, os.Stdout, jsonOutput)
+				},
+			}
+			cmd.Flags().BoolVar(&jsonOutput, "json", false, i18n.T("flag.json"))
+			return cmd
+		}(),
+		func() *cobra.Command {
+			var (
+				providerNames []string
+				jsonOutput    bool
+			)
 			cmd := &cobra.Command{
 				Use:   "sync",
 				Short: i18n.T("cmd.sync"),
@@ -226,31 +234,37 @@ func main() {
 							return fmt.Errorf("filter providers: %w", err)
 						}
 					}
-					return cli.RunSync(projectRoot, cfg, reg, os.Stdout)
+					return cli.RunSync(projectRoot, cfg, reg, os.Stdout, jsonOutput)
 				},
 			}
 			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, i18n.T("flag.provider"))
+			cmd.Flags().BoolVar(&jsonOutput, "json", false, i18n.T("flag.json"))
 			return cmd
 		}(),
-		&cobra.Command{
-			Use:   "status",
-			Short: i18n.T("cmd.status"),
-			RunE: func(cmd *cobra.Command, args []string) error {
-				projectRoot, err := filepath.Abs(".")
-				if err != nil {
-					return fmt.Errorf("resolve project root: %w", err)
-				}
-				store, err := loadConfig(configFlag)
-				if err != nil {
-					return err
-				}
-				cfg, err := store.Load()
-				if err != nil {
-					return fmt.Errorf("load config: %w", err)
-				}
-				return cli.RunStatus(projectRoot, cfg, buildRegistry(), os.Stdout)
-			},
-		},
+		func() *cobra.Command {
+			var jsonOutput bool
+			cmd := &cobra.Command{
+				Use:   "status",
+				Short: i18n.T("cmd.status"),
+				RunE: func(cmd *cobra.Command, args []string) error {
+					projectRoot, err := filepath.Abs(".")
+					if err != nil {
+						return fmt.Errorf("resolve project root: %w", err)
+					}
+					store, err := loadConfig(configFlag)
+					if err != nil {
+						return err
+					}
+					cfg, err := store.Load()
+					if err != nil {
+						return fmt.Errorf("load config: %w", err)
+					}
+					return cli.RunStatus(projectRoot, cfg, buildRegistry(), os.Stdout, jsonOutput)
+				},
+			}
+			cmd.Flags().BoolVar(&jsonOutput, "json", false, i18n.T("flag.json"))
+			return cmd
+		}(),
 	)
 
 	if err := root.Execute(); err != nil {

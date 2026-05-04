@@ -10,6 +10,7 @@
   "flag.interactive": "run interactive wizard",
   "flag.provider": "limit to provider(s) by name (repeatable)",
   "flag.lang": "language override (e.g. fr, ja, zh-CN)",
+  "flag.json": "output results as JSON",
   "init.already_exists": "Config already exists at %s",
   "init.initialized": "Initialized %s",
   "list.servers_count": "Servers (%d):",
