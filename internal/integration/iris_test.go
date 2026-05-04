@@ -21,12 +21,28 @@ func buildRegistry(t *testing.T, root string) *registry.Registry {
 	t.Helper()
 	googleGeminiPath := filepath.Join(root, "gemini-settings.json")
 	codexPath := filepath.Join(root, "codex-config.toml")
+	claudeDesktopPath := filepath.Join(root, "claude-desktop-config.json")
+	windsurfPath := filepath.Join(root, "windsurf-config.json")
+	zedPath := filepath.Join(root, "zed-settings.json")
+	warpPath := filepath.Join(root, "warp-mcp.json")
+	kimiPath := filepath.Join(root, "kimi-settings.json")
+	mistralVibePath := filepath.Join(root, "mistral-vibe-config.toml")
 
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
+	reg.Register(providers.NewClaudeDesktopProviderWithPath(claudeDesktopPath))
 	reg.Register(providers.NewGoogleGeminiProviderWithPath(googleGeminiPath))
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(codexPath))
+	reg.Register(providers.NewCursorProvider())
+	reg.Register(providers.NewWindsurfProviderWithPath(windsurfPath))
+	reg.Register(providers.NewVSCodeCopilotProvider())
+	reg.Register(providers.NewZedProviderWithPath(zedPath))
+	reg.Register(providers.NewQwenProvider())
+	reg.Register(providers.NewWarpProviderWithPath(warpPath))
+	reg.Register(providers.NewKimiProviderWithPath(kimiPath))
+	reg.Register(providers.NewMistralVibeProviderWithPath(mistralVibePath))
+	reg.Register(providers.NewIntelliJProvider())
 	return reg
 }
 
