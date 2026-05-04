@@ -18,6 +18,14 @@ func RunSync(projectRoot string, cfg *types.IrisConfig, registry *registry.Regis
 	})
 
 	var hasErr bool
+	maxWidth := 12 // minimum
+	for _, r := range results {
+		if len(r.ProviderName) > maxWidth {
+			maxWidth = len(r.ProviderName)
+		}
+	}
+	fmtStr := fmt.Sprintf("  %%-%ds  %%-9s  %%s\n", maxWidth)
+	fmtStrErr := fmt.Sprintf("  %%-%ds  %%-9s  %%s  (%%s)\n", maxWidth)
 	for _, r := range results {
 		p, err := registry.Get(r.ProviderName)
 		displayPath := r.ProviderName
@@ -26,10 +34,10 @@ func RunSync(projectRoot string, cfg *types.IrisConfig, registry *registry.Regis
 		}
 
 		if r.Err != nil {
-			fmt.Fprintf(w, "  %-12s  %-9s  %s  (%s)\n", r.ProviderName, string(r.Status), displayPath, r.Err)
+			fmt.Fprintf(w, fmtStrErr, r.ProviderName, string(r.Status), displayPath, r.Err)
 			hasErr = true
 		} else {
-			fmt.Fprintf(w, "  %-12s  %-9s  %s\n", r.ProviderName, string(r.Status), displayPath)
+			fmt.Fprintf(w, fmtStr, r.ProviderName, string(r.Status), displayPath)
 		}
 	}
 
