@@ -10,7 +10,7 @@
   "flag.interactive": "lancer l'assistant interactif",
   "flag.provider": "limiter au(x) fournisseur(s) par nom (répétable)",
   "flag.lang": "langue de substitution (ex. fr, ja, zh-CN)",
-  "flag.json": "output results as JSON",
+  "flag.json": "afficher les résultats en JSON",
   "init.already_exists": "La configuration existe déjà dans %s",
   "init.initialized": "%s initialisé",
   "list.servers_count": "Serveurs (%d) :",

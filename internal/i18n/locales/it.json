@@ -10,7 +10,7 @@
   "flag.interactive": "avvia la procedura guidata interattiva",
   "flag.provider": "limita al/ai provider per nome (ripetibile)",
   "flag.lang": "sostituzione della lingua (es. fr, ja, zh-CN)",
-  "flag.json": "output results as JSON",
+  "flag.json": "mostrare i risultati in JSON",
   "init.already_exists": "La configurazione esiste già in %s",
   "init.initialized": "%s inizializzato",
   "list.servers_count": "Server (%d):",

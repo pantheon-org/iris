@@ -10,7 +10,7 @@
   "flag.interactive": "대화형 마법사 실행",
   "flag.provider": "이름으로 제공업체 제한 (반복 가능)",
   "flag.lang": "언어 재정의 (예: fr, ja, zh-CN)",
-  "flag.json": "output results as JSON",
+  "flag.json": "결과를 JSON으로 출력",
   "init.already_exists": "%s 에 설정이 이미 존재합니다",
   "init.initialized": "%s 초기화됨",
   "list.servers_count": "서버 (%d):",

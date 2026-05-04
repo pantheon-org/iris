@@ -10,7 +10,7 @@
   "flag.interactive": "執行互動式精靈",
   "flag.provider": "依名稱限制提供商（可重複）",
   "flag.lang": "語言覆蓋（例如 fr、ja、zh-CN）",
-  "flag.json": "output results as JSON",
+  "flag.json": "以 JSON 格式輸出結果",
   "init.already_exists": "設定已存在於 %s",
   "init.initialized": "%s 已初始化",
   "list.servers_count": "伺服器 (%d):",
