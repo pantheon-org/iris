@@ -2,16 +2,17 @@
 minimum_release_age = "7d"
 
 [tools]
+"github:DeusData/codebase-memory-mcp" = "latest"
+"github:rtk-ai/rtk" = "latest"
+"github:swanysimon/mdlint" = "latest"
+"npm:@tobilu/qmd" = "latest"
+"pipx:code-review-graph" = "latest"
+actionlint = "latest"
 go = "1.24.3"
 golangci-lint = "2.11.4"
-"github:swanysimon/mdlint" = "latest"
+goreleaser = "latest"
 lefthook = "2.1.5"
 shellcheck = "latest"
-actionlint = "latest"
-goreleaser = "latest"
-"github:rtk-ai/rtk" = "latest"
-"npm:@tobilu/qmd" = "latest"
-"github:DeusData/codebase-memory-mcp" = "latest"
 
 [tasks]
 [tasks.build]
@@ -24,4 +25,4 @@ run = "go test -race ./..."
 run = "golangci-lint run ./..."
 
 [tasks."ai:setup"]
-run = "rtk init --gemini --codex --opencode; qmd skill install --yes; codebase-memory-mcp install"
+run = "rtk init --gemini --codex --opencode; qmd skill install --yes; codebase-memory-mcp install; code-review-graph install"
