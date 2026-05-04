@@ -1,5 +1,25 @@
 # Changelog
 
+## [2026.5.11](https://github.com/pantheon-org/iris/compare/v2026.5.10...v2026.5.11) (2026-05-04)
+
+
+### Features
+
+* add Gemini, Qwen, Windsurf, and Copilot provider implementations ([#104](https://github.com/pantheon-org/iris/issues/104)) ([9688c9b](https://github.com/pantheon-org/iris/commit/9688c9bfec6ce4b7f4422c5a52afdf2650671311))
+* **cli:** add --json flag to list, sync, and status commands ([#102](https://github.com/pantheon-org/iris/issues/102)) ([ff9e4dc](https://github.com/pantheon-org/iris/commit/ff9e4dc8281af173fc0f5f0167828240e9eb71d7))
+* **opencode:** add doc-review plugin for idle session doc checks ([#90](https://github.com/pantheon-org/iris/issues/90)) ([711bba0](https://github.com/pantheon-org/iris/commit/711bba02ccd6b869b392a05b75122b95697be8f5))
+* translate status.synced/desync and add semantic exit codes ([#98](https://github.com/pantheon-org/iris/issues/98)) ([11cc2b2](https://github.com/pantheon-org/iris/commit/11cc2b25af016e3989104cb97b1fe011bc0f88d9))
+
+
+### Bug Fixes
+
+* correct opencode Enabled parse bug and remove os.Exit from sync RunE ([#94](https://github.com/pantheon-org/iris/issues/94)) ([743d024](https://github.com/pantheon-org/iris/commit/743d024502a8eac246d95265f1c0e6e05ac08ab5))
+* harden config store and startup error handling ([#95](https://github.com/pantheon-org/iris/issues/95)) ([c6584e1](https://github.com/pantheon-org/iris/commit/c6584e142c6acacf8175724b6b2b273fd5fefc1c))
+* move symlink check before MkdirAll and compute dynamic column widths ([#96](https://github.com/pantheon-org/iris/issues/96)) ([7501ffc](https://github.com/pantheon-org/iris/commit/7501ffc4e4bd3d11a64de2a970428a7fec2f0368))
+* **providers:** revert provider names to short CLI-friendly identifiers ([#92](https://github.com/pantheon-org/iris/issues/92)) ([8d4f211](https://github.com/pantheon-org/iris/commit/8d4f211e531e90fd5b814a8830344435d2137117))
+* warn on UserHomeDir failure and clarify ValidateProjectRoot docs ([#99](https://github.com/pantheon-org/iris/issues/99)) ([f2965a7](https://github.com/pantheon-org/iris/commit/f2965a7bbd6eaa605a202e4435d55eb10c3e4308))
+* wizard batch saves, rename TerminalRunner, unify PromptConfirm ([#97](https://github.com/pantheon-org/iris/issues/97)) ([2db9901](https://github.com/pantheon-org/iris/commit/2db9901e7b43668786629717783ba0cc6d8f28ff))
+
 ## [2026.5.10](https://github.com/pantheon-org/iris/compare/v2026.5.9...v2026.5.10) (2026-05-04)
 
 
