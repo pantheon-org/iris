@@ -186,9 +186,9 @@ func TestStore_Load_permissionDenied_returnsConfigPermissionError(t *testing.T) 
 	assert.True(t, errors.Is(err, ierrors.ErrConfigPermission))
 }
 
-// TestStore_Save_concurrent_noRace verifies that concurrent calls to Save do not
+// TestStore_Save_concurrent_noDataRace verifies that concurrent calls to Save do not
 // race on the underlying file. Run with: go test -race ./internal/config/...
-func TestStore_Save_concurrent_noRace(t *testing.T) {
+func TestStore_Save_concurrent_noDataRace(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "concurrent.json")
 
