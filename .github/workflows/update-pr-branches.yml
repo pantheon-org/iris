@@ -1,0 +1,22 @@
+name: Update PR Branches
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-pr-branches:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update all open PR branches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          BASE_BRANCH: main
+        run: bash .github/scripts/update-pr-branches.sh
