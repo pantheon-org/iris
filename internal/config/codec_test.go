@@ -40,16 +40,16 @@ func TestCodecForExtension_toml_returnsCodec(t *testing.T) {
 	assert.Equal(t, ".toml", c.Extension())
 }
 
-func TestCodecForExtension_unknown_returnsMalformedConfigError(t *testing.T) {
+func TestCodecForExtension_unknown_returnsUnsupportedFormatError(t *testing.T) {
 	_, err := config.CodecForExtension(".xml")
 	require.Error(t, err)
-	assert.True(t, errors.Is(err, ierrors.ErrMalformedConfig))
+	assert.True(t, errors.Is(err, ierrors.ErrUnsupportedFormat))
 }
 
-func TestCodecForExtension_empty_returnsMalformedConfigError(t *testing.T) {
+func TestCodecForExtension_empty_returnsUnsupportedFormatError(t *testing.T) {
 	_, err := config.CodecForExtension("")
 	require.Error(t, err)
-	assert.True(t, errors.Is(err, ierrors.ErrMalformedConfig))
+	assert.True(t, errors.Is(err, ierrors.ErrUnsupportedFormat))
 }
 
 func TestJsonCodec_roundTrip_equal(t *testing.T) {
