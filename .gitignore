@@ -5,10 +5,8 @@ coverage.html
 .cache/
 .claude/skills/
 .context/plans/
-.cursorrules
 .github/skills/
 .rtk/
 .vscode/
-.windsurfrules
 # Added by code-review-graph
 .code-review-graph/
