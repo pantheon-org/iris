@@ -37,9 +37,15 @@ func (p *VSCodeCopilotProvider) ConfigFilePath(projectRoot string) string {
 	return p.configPath(projectRoot)
 }
 
-func (p *VSCodeCopilotProvider) Exists(projectRoot string) bool {
+func (p *VSCodeCopilotProvider) Exists(projectRoot string) (bool, error) {
 	_, err := os.Stat(p.ConfigFilePath(projectRoot))
-	return err == nil
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat config: %w", err)
 }
 
 type vscodeServer struct {

@@ -44,9 +44,15 @@ func (b *baseJSONProvider) SafeConfigFilePath(projectRoot string) (string, error
 	return b.resolvedPath(projectRoot), nil
 }
 
-func (b *baseJSONProvider) Exists(projectRoot string) bool {
+func (b *baseJSONProvider) Exists(projectRoot string) (bool, error) {
 	_, err := os.Stat(b.ConfigFilePath(projectRoot))
-	return err == nil
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat config: %w", err)
 }
 
 func (b *baseJSONProvider) Generate(servers map[string]types.MCPServer, existingContent string) (string, error) {
