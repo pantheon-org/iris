@@ -45,7 +45,7 @@ func (p *OpenCodeProvider) Exists(projectRoot string) (bool, error) {
 type opencodeMCPEntry struct {
 	Command     []string          `json:"command,omitempty"`
 	Type        string            `json:"type,omitempty"`
-	Enabled     bool              `json:"enabled"`
+	Enabled     *bool             `json:"enabled,omitempty"`
 	Environment map[string]string `json:"environment,omitempty"`
 	URL         string            `json:"url,omitempty"`
 	Headers     map[string]string `json:"headers,omitempty"`
@@ -69,14 +69,13 @@ func (p *OpenCodeProvider) Generate(servers map[string]types.MCPServer, existing
 		}
 		cmd = append(cmd, srv.Args...)
 
-		enabled := true
+		var enabled *bool
 		if srv.Enabled != nil {
-			enabled = *srv.Enabled
-		}
-
-		env := srv.Env
-		if env == nil {
-			env = map[string]string{}
+			v := *srv.Enabled
+			enabled = &v
+		} else {
+			v := true
+			enabled = &v
 		}
 
 		entryType := "local"
@@ -88,7 +87,7 @@ func (p *OpenCodeProvider) Generate(servers map[string]types.MCPServer, existing
 			Command:     cmd,
 			Type:        entryType,
 			Enabled:     enabled,
-			Environment: env,
+			Environment: srv.Env,
 			URL:         srv.URL,
 			Headers:     srv.Headers,
 			Cwd:         srv.Cwd,
@@ -138,7 +137,7 @@ func (p *OpenCodeProvider) Parse(content string) (map[string]types.MCPServer, er
 			URL:       entry.URL,
 			Headers:   entry.Headers,
 			Cwd:       entry.Cwd,
-			Enabled:   &enabled,
+			Enabled:   enabled,
 			Transport: transport,
 		}
 	}
