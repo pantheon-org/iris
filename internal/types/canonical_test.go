@@ -15,8 +15,7 @@ import (
 func fixture() types.IrisConfig {
 	enabled := true
 	return types.IrisConfig{
-		Version:   1,
-		Providers: []string{"claude", "cursor"},
+		Version: 1,
 		Servers: map[string]types.MCPServer{
 			"my-server": {
 				Transport: types.TransportStdio,
