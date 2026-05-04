@@ -13,8 +13,8 @@ func TestClaudeDesktopProvider_Config(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewClaudeDesktopProviderWithPath(filepath.Join(tmp, "claude_desktop_config.json"))
 	cfg := p.Config()
-	if cfg.Name != "anthropic-claude-desktop" {
-		t.Fatalf("expected name %q, got %q", "anthropic-claude-desktop", cfg.Name)
+	if cfg.Name != "claude-desktop" {
+		t.Fatalf("expected name %q, got %q", "claude-desktop", cfg.Name)
 	}
 	if cfg.SupportsProjectConfig {
 		t.Fatal("expected SupportsProjectConfig=false")
