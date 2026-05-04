@@ -18,8 +18,7 @@ import (
 func irisFixture() *types.IrisConfig {
 	enabled := true
 	return &types.IrisConfig{
-		Version:   1,
-		Providers: []string{"claude"},
+		Version: 1,
 		Servers: map[string]types.MCPServer{
 			"test-server": {
 				Transport: types.TransportStdio,
@@ -146,7 +145,7 @@ func TestStore_SaveLoad_roundTrip_toml(t *testing.T) {
 func TestStore_Load_noServersKey_serversMapIsNonNil(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "minimal.json")
-	require.NoError(t, os.WriteFile(path, []byte(`{"version":1,"providers":[]}`), 0o644))
+	require.NoError(t, os.WriteFile(path, []byte(`{"version":1}`), 0o644))
 
 	s, err := config.NewStore(path)
 	require.NoError(t, err)
@@ -216,4 +215,43 @@ func TestStore_Save_concurrent_noDataRace(t *testing.T) {
 	got, err := s.Load()
 	require.NoError(t, err)
 	assert.Equal(t, irisFixture(), got)
+}
+
+func TestStore_Load_versionZero_loadsSuccessfully(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "v0.json")
+	require.NoError(t, os.WriteFile(path, []byte(`{"version":0}`), 0o644))
+
+	s, err := config.NewStore(path)
+	require.NoError(t, err)
+
+	cfg, err := s.Load()
+	require.NoError(t, err)
+	assert.Equal(t, 0, cfg.Version)
+}
+
+func TestStore_Load_versionOne_loadsSuccessfully(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "v1.json")
+	require.NoError(t, os.WriteFile(path, []byte(`{"version":1}`), 0o644))
+
+	s, err := config.NewStore(path)
+	require.NoError(t, err)
+
+	cfg, err := s.Load()
+	require.NoError(t, err)
+	assert.Equal(t, 1, cfg.Version)
+}
+
+func TestStore_Load_versionTwo_returnsUnsupportedVersionError(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "v2.json")
+	require.NoError(t, os.WriteFile(path, []byte(`{"version":2}`), 0o644))
+
+	s, err := config.NewStore(path)
+	require.NoError(t, err)
+
+	_, err = s.Load()
+	require.Error(t, err)
+	assert.True(t, errors.Is(err, ierrors.ErrUnsupportedVersion))
 }
