@@ -5,13 +5,13 @@ import (
 	"io"
 	"sort"
 
-	"github.com/pantheon-org/iris/internal/merger"
 	"github.com/pantheon-org/iris/internal/registry"
+	irisync "github.com/pantheon-org/iris/internal/sync"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
 func RunSync(projectRoot string, cfg *types.IrisConfig, registry *registry.Registry, w io.Writer) error {
-	results := merger.SyncAllProviders(projectRoot, registry, cfg.Servers)
+	results := irisync.SyncAllProviders(projectRoot, registry, cfg.Servers)
 
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].ProviderName < results[j].ProviderName
