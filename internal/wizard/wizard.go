@@ -1,6 +1,7 @@
 package wizard
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -104,7 +105,12 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 	}
 
 	cfg, err := store.Load()
-	if err != nil || cfg == nil {
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf("load config: %w", err)
+		}
+		cfg = types.NewIrisConfig()
+	} else if cfg == nil {
 		cfg = types.NewIrisConfig()
 	}
 
