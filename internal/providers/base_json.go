@@ -132,4 +132,3 @@ func (b *baseJSONProvider) Parse(content string) (map[string]types.MCPServer, er
 	}
 	return result, nil
 }
-
