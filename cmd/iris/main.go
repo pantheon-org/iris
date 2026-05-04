@@ -84,7 +84,7 @@ func main() {
 				if errors.Is(err, os.ErrNotExist) {
 					return nil // config doesn't exist yet (e.g. during init)
 				}
-				return err
+				return fmt.Errorf("load config: %w", err)
 			}
 			if cfg.Lang != "" {
 				i18n.SetLang(cfg.Lang)
