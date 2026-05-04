@@ -9,8 +9,10 @@ import (
 )
 
 // ValidateProjectRoot checks that projectRoot does not contain path traversal
-// sequences. An empty string is allowed — callers interpret it as "use global
-// config path". Returns ErrPathTraversal if any ".." component is present.
+// sequences (".."). An empty string is allowed — callers interpret it as "use
+// global config path". Absolute paths are expected and permitted; the CLI always
+// passes an absolute path obtained from filepath.Abs("."). Returns ErrPathTraversal
+// if any ".." component is present.
 func ValidateProjectRoot(projectRoot string) error {
 	if projectRoot == "" {
 		return nil
