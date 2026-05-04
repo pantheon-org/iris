@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026.5.8](https://github.com/pantheon-org/iris/compare/v2026.5.7...v2026.5.8) (2026-05-02)
+
+
+### Bug Fixes
+
+* **config:** add mutex to Store.Save and handle temp file cleanup errors ([#68](https://github.com/pantheon-org/iris/issues/68)) ([45049c2](https://github.com/pantheon-org/iris/commit/45049c2b070d6a0c17155e58c84ea620b9aaa35f))
+* **i18n:** propagate load errors and optimise normalize loop ([#76](https://github.com/pantheon-org/iris/issues/76)) ([8d81e4f](https://github.com/pantheon-org/iris/commit/8d81e4f0f39b2bba0f96a3fc86bb9225da644502))
+* **providers:** validate projectRoot to prevent path traversal in ConfigFilePath ([#73](https://github.com/pantheon-org/iris/issues/73)) ([bbc56af](https://github.com/pantheon-org/iris/commit/bbc56af13116333f21093174bd4b7d99af8b0ae3))
+* **registry:** include provider name in Filter error for easier debugging ([#71](https://github.com/pantheon-org/iris/issues/71)) ([dbc6880](https://github.com/pantheon-org/iris/commit/dbc6880e7a48517bb7c5c779a7460f716255557b))
+* **types:** guarantee non-nil IrisConfig.Servers and remove defensive nil checks ([#67](https://github.com/pantheon-org/iris/issues/67)) ([af685c0](https://github.com/pantheon-org/iris/commit/af685c0c67598e23dc4fc9598db0752f791e1453))
+
 ## [2026.5.7](https://github.com/pantheon-org/iris/compare/v2026.5.6...v2026.5.7) (2026-05-02)
 
 
