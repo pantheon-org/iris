@@ -1,5 +1,66 @@
 # Changelog
 
+## [2026.5.10](https://github.com/pantheon-org/iris/compare/v2026.5.9...v2026.5.10) (2026-05-04)
+
+
+### Features
+
+* **ci:** auto-update all open PR branches when main is pushed ([#83](https://github.com/pantheon-org/iris/issues/83)) ([fcc39bc](https://github.com/pantheon-org/iris/commit/fcc39bcaa25ac2e3b50da1775a09aa044ef1eda5))
+* **cli:** add --provider flag to sync and init subcommands ([#56](https://github.com/pantheon-org/iris/issues/56)) ([8f1d5e1](https://github.com/pantheon-org/iris/commit/8f1d5e17aef729108067ff7295d7664062782c22))
+* **cli:** add add and remove commands ([#27](https://github.com/pantheon-org/iris/issues/27)) ([cefd0af](https://github.com/pantheon-org/iris/commit/cefd0af74dc4d291b6cf0fb81eb86ab4a1a96288))
+* **cli:** add init command ([#30](https://github.com/pantheon-org/iris/issues/30)) ([9ddd9e9](https://github.com/pantheon-org/iris/commit/9ddd9e9b51f13dbfb0f0acac9eb5ec08a9395494))
+* **cli:** add list and status commands ([#26](https://github.com/pantheon-org/iris/issues/26)) ([159b70f](https://github.com/pantheon-org/iris/commit/159b70f4ed93013df714fcec7c4a41ef56ce2b66))
+* **cli:** add short flag aliases for all subcommand options ([#44](https://github.com/pantheon-org/iris/issues/44)) ([cd8e4d7](https://github.com/pantheon-org/iris/commit/cd8e4d74a2ae15e2fea577bab48317d81c7fd513))
+* **cli:** add sync command ([#28](https://github.com/pantheon-org/iris/issues/28)) ([0d45a66](https://github.com/pantheon-org/iris/commit/0d45a66525dbc0680e7710759ab91c68785c782f))
+* **config:** add codec interface and store ([#19](https://github.com/pantheon-org/iris/issues/19)) ([3a3f722](https://github.com/pantheon-org/iris/commit/3a3f722f49b960a3d9f3965f6ec7d0ca2dd57fc4))
+* **detector:** add project root provider detector ([#24](https://github.com/pantheon-org/iris/issues/24)) ([2a085f6](https://github.com/pantheon-org/iris/commit/2a085f69190f80a650a405b5999d91651aced02e))
+* enhance MCP server configuration with additional fields and preserve remote server attributes ([#61](https://github.com/pantheon-org/iris/issues/61)) ([4ff7393](https://github.com/pantheon-org/iris/commit/4ff739338c60ffe72c55abca6dcbfa5e40370b12))
+* **i18n:** allow lang to be set in .iris.json config ([#59](https://github.com/pantheon-org/iris/issues/59)) ([350f9ee](https://github.com/pantheon-org/iris/commit/350f9ee538920b48784fdabe34697c0366e29908))
+* **i18n:** internationalise CLI with 14 languages via embedded JSON locales ([#57](https://github.com/pantheon-org/iris/issues/57)) ([c2b799d](https://github.com/pantheon-org/iris/commit/c2b799d66745a0bfd998ff3732ab1d999286ed33))
+* **ierrors:** add sentinel errors ([#17](https://github.com/pantheon-org/iris/issues/17)) ([9b46186](https://github.com/pantheon-org/iris/commit/9b461863fba011267649d0b582588d525de6a189))
+* **integration:** add end-to-end test and update README ([#31](https://github.com/pantheon-org/iris/issues/31)) ([b5ae7d0](https://github.com/pantheon-org/iris/commit/b5ae7d0ce4328c332b0be4aadfd02b7c02ddb3ca))
+* **merger:** add SyncProvider and SyncAllProviders ([#25](https://github.com/pantheon-org/iris/issues/25)) ([13fc1eb](https://github.com/pantheon-org/iris/commit/13fc1eb710f5c07484f95790733058c556d245ce))
+* **providers:** add 10 new providers + docs ([#38](https://github.com/pantheon-org/iris/issues/38)) ([4db743c](https://github.com/pantheon-org/iris/commit/4db743c2ae0de0b1599cc92bf4c7763dd9c8fa67))
+* **providers:** add Claude and Gemini provider implementations ([#22](https://github.com/pantheon-org/iris/issues/22)) ([4bd5d7d](https://github.com/pantheon-org/iris/commit/4bd5d7d77e4ae33fe4cd3f2d2d15a8bacf1a167b))
+* **providers:** add Codex provider implementation ([#21](https://github.com/pantheon-org/iris/issues/21)) ([6d6cf7b](https://github.com/pantheon-org/iris/commit/6d6cf7b04294b57c7a3bf672330f18a262484ff1))
+* **providers:** add IntelliJ IDEA provider (.idea/mcp.json) ([#41](https://github.com/pantheon-org/iris/issues/41)) ([3d39508](https://github.com/pantheon-org/iris/commit/3d39508197808563145d90be8b24d31193bbef3d))
+* **providers:** add named constants for provider names ([#81](https://github.com/pantheon-org/iris/issues/81)) ([dcf0831](https://github.com/pantheon-org/iris/commit/dcf0831b5ee2672a268d8b0e3bbbe4ec59a6857b))
+* **providers:** add OpenCode provider implementation ([#23](https://github.com/pantheon-org/iris/issues/23)) ([8b87974](https://github.com/pantheon-org/iris/commit/8b879741ddf4ced6e66b05d25b8f98b7ab8f29b4))
+* **providers:** add Provider interface and Registry ([#20](https://github.com/pantheon-org/iris/issues/20)) ([b9cecfb](https://github.com/pantheon-org/iris/commit/b9cecfbe2e49b6b2b399669139d68fec9766f8f2))
+* **scaffold:** add dependencies and wire six no-op cobra subcommands ([#15](https://github.com/pantheon-org/iris/issues/15)) ([afb6350](https://github.com/pantheon-org/iris/commit/afb635079ae60242de4077444853a5884dd099ea))
+* switch to CalVer (YYYY.M.PATCH) release versioning ([#3](https://github.com/pantheon-org/iris/issues/3)) ([bd9e668](https://github.com/pantheon-org/iris/commit/bd9e6688c10723066384d80fb1384c16904ce871))
+* **types:** add canonical MCPServer and IrisConfig types ([#18](https://github.com/pantheon-org/iris/issues/18)) ([d73f79a](https://github.com/pantheon-org/iris/commit/d73f79a94e93cebd412303e07adb41e3c1ead35e))
+* **types:** add MCPServer.Validate to reject invalid transport and URL values ([#72](https://github.com/pantheon-org/iris/issues/72)) ([6d7ccfe](https://github.com/pantheon-org/iris/commit/6d7ccfef235fb02ef402bb7854ca348371764886))
+* **wizard:** add Runner interface, ScriptedRunner, and RunInit ([#29](https://github.com/pantheon-org/iris/issues/29)) ([b3725df](https://github.com/pantheon-org/iris/commit/b3725dfbcc0ca6b5eb3ece55385a24f5dfa61e40))
+* **wizard:** add URL prompt for SSE transport in server configuration ([#63](https://github.com/pantheon-org/iris/issues/63)) ([e004f35](https://github.com/pantheon-org/iris/commit/e004f3535237efd71f4f1a4c148e96e83f890ef2))
+* **wizard:** detect installed harnesses and offer to import servers on init ([#55](https://github.com/pantheon-org/iris/issues/55)) ([8e3ff46](https://github.com/pantheon-org/iris/commit/8e3ff4628b4756c32e619461d344a59aa4dfedec))
+
+
+### Bug Fixes
+
+* **ci:** run checks on release-please branches to satisfy branch protection ([#34](https://github.com/pantheon-org/iris/issues/34)) ([2ec203c](https://github.com/pantheon-org/iris/commit/2ec203c43ed2425d1d5c0342b71c0be3f78cb498))
+* **cli:** improve error handling in RunStatus for missing files ([#64](https://github.com/pantheon-org/iris/issues/64)) ([0a93562](https://github.com/pantheon-org/iris/commit/0a93562348adacf2d84bfe473ba23e5349fafbcc))
+* **config:** add mutex to Store.Save and handle temp file cleanup errors ([#68](https://github.com/pantheon-org/iris/issues/68)) ([155ce29](https://github.com/pantheon-org/iris/commit/155ce2936665233c08cf37dfa20003bfd981758b))
+* **config:** remove dead Providers field and validate Version on load ([#79](https://github.com/pantheon-org/iris/issues/79)) ([29328ca](https://github.com/pantheon-org/iris/commit/29328cae6a1928a8cd36bd9b7e47c266c2aa8447))
+* **detector:** surface IO errors from Exists() instead of silently skipping providers ([#74](https://github.com/pantheon-org/iris/issues/74)) ([c9dfce1](https://github.com/pantheon-org/iris/commit/c9dfce109eda3891ae45b2f6b0d3607ab9caa439))
+* **i18n:** propagate load errors and optimise normalize loop ([#76](https://github.com/pantheon-org/iris/issues/76)) ([c786dff](https://github.com/pantheon-org/iris/commit/c786dffeb91c913003ee080c05a846aa6facdb5a))
+* **merger:** guard against symlink targets in SyncProvider ([#80](https://github.com/pantheon-org/iris/issues/80)) ([54bd93f](https://github.com/pantheon-org/iris/commit/54bd93fde550dd27257fdb6423ef98226f90dde3))
+* **providers:** add missing opencode_expected.json test fixture ([#33](https://github.com/pantheon-org/iris/issues/33)) ([b8fb5e6](https://github.com/pantheon-org/iris/commit/b8fb5e6bac97b45c01a5d6dbf5b58662db62c683))
+* **providers:** correct Gemini config path and enable project-level config ([#46](https://github.com/pantheon-org/iris/issues/46)) ([242a839](https://github.com/pantheon-org/iris/commit/242a83968295e15203e3ddd3e145f27d2e289b19))
+* **providers:** enable project-level config support for Codex (.codex/config.toml) ([#50](https://github.com/pantheon-org/iris/issues/50)) ([f75b2a6](https://github.com/pantheon-org/iris/commit/f75b2a63bfc45af82b48af29707adc8b14be8104))
+* **providers:** enable project-level config support for Mistral Vibe (.vibe/config.toml) ([#52](https://github.com/pantheon-org/iris/issues/52)) ([3224ead](https://github.com/pantheon-org/iris/commit/3224eadec90d8428c2e33217c7b1449b780367b3))
+* **providers:** enable project-level config support for Qwen Code (.qwen/settings.json) ([#51](https://github.com/pantheon-org/iris/issues/51)) ([a83ea7a](https://github.com/pantheon-org/iris/commit/a83ea7a5fdd86b86cba7e4d6e3bf70cc89205d18))
+* **providers:** validate projectRoot to prevent path traversal in ConfigFilePath ([#73](https://github.com/pantheon-org/iris/issues/73)) ([a56dbdc](https://github.com/pantheon-org/iris/commit/a56dbdc1d6ea9a71a12abe50ae7fdbc840b3b694))
+* read GH_APP_ID from vars not secrets in release-please workflow ([#85](https://github.com/pantheon-org/iris/issues/85)) ([b2a8a5d](https://github.com/pantheon-org/iris/commit/b2a8a5d14b7fbff9537599db90d3c4a7b50fc038))
+* **registry:** include provider name in Filter error for easier debugging ([#71](https://github.com/pantheon-org/iris/issues/71)) ([3bafcb7](https://github.com/pantheon-org/iris/commit/3bafcb790ad9cc3d032551560a1da4e12e80468e))
+* remove bootstrap_sha from release-please manifest ([#4](https://github.com/pantheon-org/iris/issues/4)) ([23afa3d](https://github.com/pantheon-org/iris/commit/23afa3d67406987376e47f57358faffbb2657609))
+* resolve misleading file paths in status and sync commands ([#65](https://github.com/pantheon-org/iris/issues/65)) ([40261a8](https://github.com/pantheon-org/iris/commit/40261a87f4080564b484b237371fdfad3e417168))
+* set versioning-strategy as workflow input for release-please ([#6](https://github.com/pantheon-org/iris/issues/6)) ([2af9e9c](https://github.com/pantheon-org/iris/commit/2af9e9c293ca2ebaa8c1193f24a9b92c1962fa30))
+* **types:** guarantee non-nil IrisConfig.Servers and remove defensive nil checks ([#67](https://github.com/pantheon-org/iris/issues/67)) ([ea52c21](https://github.com/pantheon-org/iris/commit/ea52c212e10861e9decf28019b602b61de961d00))
+* use correct versioning key in release-please config ([#10](https://github.com/pantheon-org/iris/issues/10)) ([4a14e75](https://github.com/pantheon-org/iris/commit/4a14e75b2369b773737c3197bc081c9cd98b4593))
+* use GitHub App token in release-please workflow to trigger CI checks ([#84](https://github.com/pantheon-org/iris/issues/84)) ([4a5cfd7](https://github.com/pantheon-org/iris/commit/4a5cfd7a6d7ed2c56d537c23e0825eeccdc771c1))
+* **wizard:** propagate readFile error in RunInit instead of silent fallback ([#75](https://github.com/pantheon-org/iris/issues/75)) ([3d788a8](https://github.com/pantheon-org/iris/commit/3d788a83597d8bfb8b631e7cb5f7c2b1b3addb5b))
+
 ## [2026.5.9](https://github.com/pantheon-org/iris/compare/v2026.5.8...v2026.5.9) (2026-05-04)
 
 
