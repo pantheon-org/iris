@@ -10,6 +10,7 @@
   "flag.interactive": "uruchom interaktywny kreator",
   "flag.provider": "ogranicz do dostawcy(ów) według nazwy (powtarzalne)",
   "flag.lang": "zastąpienie języka (np. fr, ja, zh-CN)",
+  "flag.json": "output results as JSON",
   "init.already_exists": "Konfiguracja już istnieje w %s",
   "init.initialized": "Zainicjowano %s",
   "list.servers_count": "Serwery (%d):",

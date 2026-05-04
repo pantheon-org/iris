@@ -10,6 +10,7 @@
   "flag.interactive": "インタラクティブウィザードを実行する",
   "flag.provider": "名前でプロバイダーを限定する（繰り返し可）",
   "flag.lang": "言語の上書き（例: fr、ja、zh-CN）",
+  "flag.json": "output results as JSON",
   "init.already_exists": "%s に設定が既に存在します",
   "init.initialized": "%s を初期化しました",
   "list.servers_count": "サーバー (%d):",

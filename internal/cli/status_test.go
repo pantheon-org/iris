@@ -41,7 +41,7 @@ func TestRunStatus_allMissing_showsMissing(t *testing.T) {
 	cfg := minimalConfig()
 	var buf bytes.Buffer
 
-	err := cli.RunStatus(dir, cfg, reg, &buf)
+	err := cli.RunStatus(dir, cfg, reg, &buf, false)
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -64,7 +64,7 @@ func TestRunStatus_filePresent_synced(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(content), 0o644))
 
 	var buf bytes.Buffer
-	err = cli.RunStatus(dir, cfg, reg, &buf)
+	err = cli.RunStatus(dir, cfg, reg, &buf, false)
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "synced")
@@ -82,7 +82,7 @@ func TestRunStatus_filePresent_desync(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), stale, 0o644))
 
 	var buf bytes.Buffer
-	err := cli.RunStatus(dir, cfg, reg, &buf)
+	err := cli.RunStatus(dir, cfg, reg, &buf, false)
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "desync")
@@ -98,7 +98,7 @@ func TestRunStatus_readFailure_showsError(t *testing.T) {
 	require.NoError(t, os.Mkdir(filepath.Join(dir, ".mcp.json"), 0o755))
 
 	var buf bytes.Buffer
-	err := cli.RunStatus(dir, cfg, reg, &buf)
+	err := cli.RunStatus(dir, cfg, reg, &buf, false)
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "error")
@@ -112,11 +112,53 @@ func TestRunStatus_displaysResolvedProjectPaths(t *testing.T) {
 	reg.Register(providers.NewOpenaiCodexProvider())
 
 	var buf bytes.Buffer
-	err := cli.RunStatus(dir, minimalConfig(), reg, &buf)
+	err := cli.RunStatus(dir, minimalConfig(), reg, &buf, false)
 
 	require.NoError(t, err)
 	out := buf.String()
 	assert.Contains(t, out, filepath.Join(dir, ".gemini", "settings.json"))
 	assert.Contains(t, out, filepath.Join(dir, ".codex", "config.toml"))
 	assert.NotContains(t, out, "~/.gemini/settings.json")
+}
+
+func TestRunStatus_jsonOutput_validJSON(t *testing.T) {
+	dir := t.TempDir()
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewOpenaiCodexProviderWithPath(filepath.Join(dir, "codex.toml")))
+	cfg := minimalConfig()
+	var buf bytes.Buffer
+
+	err := cli.RunStatus(dir, cfg, reg, &buf, true)
+
+	require.NoError(t, err)
+
+	var out cli.StatusOutput
+	require.NoError(t, json.NewDecoder(&buf).Decode(&out))
+	require.Len(t, out.Providers, 1)
+	assert.Equal(t, "codex", out.Providers[0].Provider)
+	assert.Equal(t, "missing", out.Providers[0].Status)
+	assert.NotEmpty(t, out.Providers[0].Path)
+}
+
+func TestRunStatus_jsonOutput_synced(t *testing.T) {
+	dir := t.TempDir()
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewClaudeCodeProvider())
+	cfg := minimalConfig()
+
+	p, err := reg.Get("claude")
+	require.NoError(t, err)
+	content, err := p.Generate(cfg.Servers, "")
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(content), 0o644))
+
+	var buf bytes.Buffer
+	err = cli.RunStatus(dir, cfg, reg, &buf, true)
+
+	require.NoError(t, err)
+
+	var out cli.StatusOutput
+	require.NoError(t, json.NewDecoder(&buf).Decode(&out))
+	require.Len(t, out.Providers, 1)
+	assert.Equal(t, "synced", out.Providers[0].Status)
 }

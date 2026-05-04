@@ -10,6 +10,7 @@
   "flag.interactive": "etkileşimli sihirbazı çalıştır",
   "flag.provider": "sağlayıcıları ada göre sınırla (tekrarlanabilir)",
   "flag.lang": "dil geçersiz kılma (örn. fr, ja, zh-CN)",
+  "flag.json": "output results as JSON",
   "init.already_exists": "Yapılandırma zaten %s konumunda mevcut",
   "init.initialized": "%s başlatıldı",
   "list.servers_count": "Sunucular (%d):",

@@ -10,6 +10,7 @@
   "flag.interactive": "запустить интерактивный мастер",
   "flag.provider": "ограничить провайдером(ами) по имени (повторяемый)",
   "flag.lang": "переопределение языка (напр. fr, ja, zh-CN)",
+  "flag.json": "output results as JSON",
   "init.already_exists": "Конфигурация уже существует в %s",
   "init.initialized": "%s инициализирован",
   "list.servers_count": "Серверы (%d):",

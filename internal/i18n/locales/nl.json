@@ -10,6 +10,7 @@
   "flag.interactive": "interactieve wizard uitvoeren",
   "flag.provider": "beperken tot provider(s) op naam (herhaalbaar)",
   "flag.lang": "taal overschrijven (bijv. fr, ja, zh-CN)",
+  "flag.json": "output results as JSON",
   "init.already_exists": "Configuratie bestaat al op %s",
   "init.initialized": "%s geïnitialiseerd",
   "list.servers_count": "Servers (%d):",

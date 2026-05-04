@@ -10,6 +10,7 @@
   "flag.interactive": "运行交互式向导",
   "flag.provider": "按名称限制提供商（可重复）",
   "flag.lang": "语言覆盖（例如 fr、ja、zh-CN）",
+  "flag.json": "output results as JSON",
   "init.already_exists": "配置已存在于 %s",
   "init.initialized": "%s 已初始化",
   "list.servers_count": "服务器 (%d):",
