@@ -41,9 +41,9 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 			continue
 		}
 
-		status := "synced"
+		status := i18n.T("status.synced")
 		if generated != existing {
-			status = "desync"
+			status = i18n.T("status.desync")
 		}
 		fmt.Fprintf(w, "  %-12s  %-8s  %s\n", name, status, displayPath)
 	}

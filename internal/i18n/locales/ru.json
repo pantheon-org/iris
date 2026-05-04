@@ -15,6 +15,8 @@
   "list.servers_count": "Серверы (%d):",
   "status.missing": "отсутствует",
   "status.error": "ошибка",
+  "status.synced": "synced",
+  "status.desync": "desync",
   "sync.completed_with_errors": "синхронизация завершена с ошибками",
   "wizard.import_prompt": "Обнаружен %s — импортировать его серверы?",
   "wizard.add_server": "Добавить сервер? (yes для продолжения, no для завершения)",
