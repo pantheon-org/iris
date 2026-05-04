@@ -56,9 +56,15 @@ func (p *MistralVibeProvider) ConfigFilePath(projectRoot string) string {
 	return p.configPath
 }
 
-func (p *MistralVibeProvider) Exists(projectRoot string) bool {
+func (p *MistralVibeProvider) Exists(projectRoot string) (bool, error) {
 	_, err := os.Stat(p.ConfigFilePath(projectRoot))
-	return err == nil
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("stat config: %w", err)
 }
 
 type vibeMCPServer struct {

@@ -57,7 +57,11 @@ func TestGeminiProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testin
 func TestGeminiProvider_Exists_ReturnsFalseWhenAbsent(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewGeminiProviderWithPath(filepath.Join(tmp, "settings.json"))
-	if p.Exists(tmp) {
+	ok, err := p.Exists(tmp)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if ok {
 		t.Error("Exists = true, want false for missing file")
 	}
 }
