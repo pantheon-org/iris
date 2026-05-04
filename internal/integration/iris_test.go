@@ -11,9 +11,9 @@ import (
 
 	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/config"
-	"github.com/pantheon-org/iris/internal/merger"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
+	irisync "github.com/pantheon-org/iris/internal/sync"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -137,13 +137,13 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 		t.Fatalf("RunSync (second): %v", err)
 	}
 
-	results := merger.SyncAllProviders(root, reg2, cfg.Servers)
+	results := irisync.SyncAllProviders(root, reg2, cfg.Servers)
 	for _, r := range results {
 		if r.Err != nil {
 			t.Errorf("provider %s: unexpected error: %v", r.ProviderName, r.Err)
 		}
-		if r.Status != merger.SyncStatusUnchanged {
-			t.Errorf("provider %s: expected %s, got %s", r.ProviderName, merger.SyncStatusUnchanged, r.Status)
+		if r.Status != irisync.SyncStatusUnchanged {
+			t.Errorf("provider %s: expected %s, got %s", r.ProviderName, irisync.SyncStatusUnchanged, r.Status)
 		}
 	}
 }
