@@ -188,3 +188,25 @@ func TestClaudeCodeProvider_GenerateParse_PreservesRemoteServerFields(t *testing
 		t.Fatalf("roundtrip mismatch:\n got: %#v\nwant: %#v", parsed, servers)
 	}
 }
+
+func TestClaudeCodeProvider_Generate_noTypeField(t *testing.T) {
+	p := providers.NewClaudeCodeProvider()
+	servers := map[string]types.MCPServer{
+		"local": {Transport: types.TransportStdio, Command: "npx", Args: []string{"-y", "server"}},
+	}
+	out, err := p.Generate(servers, "")
+	if err != nil {
+		t.Fatalf("Generate error: %v", err)
+	}
+	var doc struct {
+		MCPServers map[string]struct {
+			Type string `json:"type"`
+		} `json:"mcpServers"`
+	}
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	if doc.MCPServers["local"].Type != "" {
+		t.Fatalf("Generate should not write type field, got %q", doc.MCPServers["local"].Type)
+	}
+}

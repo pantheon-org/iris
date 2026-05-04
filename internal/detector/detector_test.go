@@ -262,7 +262,7 @@ func TestDetect_MistralVibeProjectConfig_Detected(t *testing.T) {
 	if len(got) != 1 {
 		t.Fatalf("expected 1 provider, got %d", len(got))
 	}
-	if got[0].Config().Name != "mistral" {
+	if got[0].Config().Name != "mistral-vibe" {
 		t.Errorf("expected mistral-vibe, got %q", got[0].Config().Name)
 	}
 }

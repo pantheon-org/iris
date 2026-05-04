@@ -1,6 +1,10 @@
 package providers
 
-import "path/filepath"
+import (
+	"path/filepath"
+
+	"github.com/pantheon-org/iris/internal/io"
+)
 
 type ClaudeCodeProvider struct {
 	baseJSONProvider
@@ -13,9 +17,13 @@ func NewClaudeCodeProvider() *ClaudeCodeProvider {
 		DisplayName:           "Anthropic Claude Code",
 		ConfigPath:            ".mcp.json",
 		SupportsProjectConfig: true,
+		GlobalConfigPath:      io.UserHomePath(".claude.json"),
 	}
 	p.resolvedPath = func(projectRoot string) string {
-		return filepath.Join(projectRoot, ".mcp.json")
+		if projectRoot != "" {
+			return filepath.Join(projectRoot, ".mcp.json")
+		}
+		return io.UserHomePath(".claude.json")
 	}
 	return p
 }

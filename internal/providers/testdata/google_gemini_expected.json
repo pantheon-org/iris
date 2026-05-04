@@ -2,8 +2,7 @@
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "type": "stdio"
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
     }
   },
   "theme": "dark"

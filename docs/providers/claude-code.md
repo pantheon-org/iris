@@ -4,10 +4,10 @@
 
 ## Config file
 
-| Scope   | Path           |
-|---------|----------------|
-| Project | `.mcp.json`    |
-| Global  | `~/.mcp.json`  |
+| Scope   | Path              |
+|---------|-------------------|
+| Project | `.mcp.json`        |
+| Global  | `~/.claude.json`  |
 
 ## Format
 

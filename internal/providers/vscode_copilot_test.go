@@ -158,3 +158,37 @@ func keysOf(m map[string]json.RawMessage) []string {
 	}
 	return keys
 }
+
+func TestVSCodeCopilotProvider_Generate_httpTransport_writesHttpType(t *testing.T) {
+	p := providers.NewVSCodeCopilotProvider()
+	servers := map[string]types.MCPServer{
+		"remote": {Transport: types.TransportHTTP, URL: "https://api.githubcopilot.com/mcp"},
+	}
+	out, err := p.Generate(servers, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Servers map[string]struct {
+			Type string `json:"type"`
+		} `json:"servers"`
+	}
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	if doc.Servers["remote"].Type != "http" {
+		t.Fatalf("expected type=%q, got %q", "http", doc.Servers["remote"].Type)
+	}
+}
+
+func TestVSCodeCopilotProvider_Parse_httpType_setsTransportHTTP(t *testing.T) {
+	p := providers.NewVSCodeCopilotProvider()
+	input := `{"servers":{"remote":{"type":"http","url":"https://api.githubcopilot.com/mcp"}}}`
+	parsed, err := p.Parse(input)
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if parsed["remote"].Transport != types.TransportHTTP {
+		t.Fatalf("expected TransportHTTP, got %q", parsed["remote"].Transport)
+	}
+}
