@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
-	"strings"
 
 	"github.com/BurntSushi/toml"
 
@@ -157,7 +156,7 @@ func (p *OpenaiCodexProvider) Generate(servers map[string]types.MCPServer, exist
 		if len(srv.Env) > 0 {
 			fmt.Fprintf(&buf, "\n[mcp_servers.%s.env]\n", tomlTableKey(name))
 			for _, key := range sortedKeys(srv.Env) {
-				fmt.Fprintf(&buf, "%s = %q\n", tomlMapKey(key), srv.Env[key])
+				fmt.Fprintf(&buf, "%s = %q\n", tomlTableKey(key), srv.Env[key])
 			}
 		}
 	}
@@ -200,13 +199,6 @@ func tomlTableKey(key string) string {
 	return fmt.Sprintf("%q", key)
 }
 
-func tomlMapKey(key string) string {
-	if isBareTOMLKey(key) {
-		return key
-	}
-	return fmt.Sprintf("%q", key)
-}
-
 func isBareTOMLKey(key string) bool {
 	if key == "" {
 		return false
@@ -217,7 +209,7 @@ func isBareTOMLKey(key string) bool {
 		}
 		return false
 	}
-	return !strings.Contains(key, ".")
+	return true
 }
 
 func sortedKeys[V any](m map[string]V) []string {

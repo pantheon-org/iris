@@ -29,10 +29,6 @@ type MistralVibeProvider struct {
 	pinned     bool
 }
 
-func newMistralVibeProviderWithPath(path string) *MistralVibeProvider {
-	return &MistralVibeProvider{configPath: path}
-}
-
 // NewMistralVibeProviderWithPath creates a MistralVibeProvider pinned to a fixed config path.
 // Intended for use in tests.
 func NewMistralVibeProviderWithPath(path string) *MistralVibeProvider {
