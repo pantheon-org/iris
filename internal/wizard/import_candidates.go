@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
@@ -32,6 +33,54 @@ type ImportCandidate struct {
 //	"<server-name>  [<provider>] [<scope>]"
 func (c ImportCandidate) Label() string {
 	return fmt.Sprintf("%s  [%s] [%s]", c.ServerName, c.ProviderName, c.Scope)
+}
+
+// GroupedCandidate represents a unique MCP server consolidated across all providers
+// that define it. The server definition is taken from the first provider encountered.
+type GroupedCandidate struct {
+	ServerName string
+	Server     types.MCPServer
+	Providers  []string // ordered list of provider names that define this server
+}
+
+// Label returns the display string shown in the multi-select prompt:
+//
+//	"<server-name>  [<provider1> · <provider2> · ...]"
+func (g GroupedCandidate) Label() string {
+	return fmt.Sprintf("%s  [%s]", g.ServerName, strings.Join(g.Providers, " · "))
+}
+
+// GroupImportCandidates collapses a flat list of ImportCandidates into one entry per
+// unique server name. The server definition is taken from the first occurrence; duplicate
+// provider names are deduplicated while preserving insertion order.
+func GroupImportCandidates(candidates []ImportCandidate) []GroupedCandidate {
+	seen := make(map[string]int) // serverName → index in result
+	var result []GroupedCandidate
+
+	for _, c := range candidates {
+		if idx, ok := seen[c.ServerName]; ok {
+			// Append provider only if not already listed.
+			g := &result[idx]
+			alreadyListed := false
+			for _, p := range g.Providers {
+				if p == c.ProviderName {
+					alreadyListed = true
+					break
+				}
+			}
+			if !alreadyListed {
+				g.Providers = append(g.Providers, c.ProviderName)
+			}
+		} else {
+			seen[c.ServerName] = len(result)
+			result = append(result, GroupedCandidate{
+				ServerName: c.ServerName,
+				Server:     c.Server,
+				Providers:  []string{c.ProviderName},
+			})
+		}
+	}
+	return result
 }
 
 // CollectImportCandidates scans every provider in the registry for both project-level

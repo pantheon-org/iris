@@ -10,6 +10,7 @@ import (
 
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
+	"github.com/pantheon-org/iris/internal/types"
 	"github.com/pantheon-org/iris/internal/wizard"
 )
 
@@ -161,10 +162,72 @@ func TestCollectImportCandidates_oneMalformedOneValid_returnsValid(t *testing.T)
 func TestImportCandidate_Label_formatIsNameProviderScope(t *testing.T) {
 	c := wizard.ImportCandidate{
 		ServerName:   "fmt",
-		ProviderName: "claude-code",
+		ProviderName: "claude",
 		Scope:        wizard.ScopeProject,
 	}
-	assert.Equal(t, "fmt  [claude-code] [project]", c.Label())
+	assert.Equal(t, "fmt  [claude] [project]", c.Label())
+}
+
+// ── GroupImportCandidates ─────────────────────────────────────────────────────
+
+func TestGroupImportCandidates_empty_returnsEmpty(t *testing.T) {
+	got := wizard.GroupImportCandidates(nil)
+	assert.Empty(t, got)
+}
+
+func TestGroupImportCandidates_uniqueNames_oneEntryEach(t *testing.T) {
+	candidates := []wizard.ImportCandidate{
+		{ServerName: "fmt", ProviderName: "claude", Scope: wizard.ScopeProject},
+		{ServerName: "github", ProviderName: "cursor", Scope: wizard.ScopeProject},
+	}
+	got := wizard.GroupImportCandidates(candidates)
+	require.Len(t, got, 2)
+	assert.Equal(t, "fmt", got[0].ServerName)
+	assert.Equal(t, []string{"claude"}, got[0].Providers)
+	assert.Equal(t, "github", got[1].ServerName)
+}
+
+func TestGroupImportCandidates_sameNameTwoProviders_collapsedIntoOne(t *testing.T) {
+	candidates := []wizard.ImportCandidate{
+		{ServerName: "shared", ProviderName: "claude", Scope: wizard.ScopeProject},
+		{ServerName: "shared", ProviderName: "cursor", Scope: wizard.ScopeProject},
+	}
+	got := wizard.GroupImportCandidates(candidates)
+	require.Len(t, got, 1)
+	assert.Equal(t, "shared", got[0].ServerName)
+	assert.Equal(t, []string{"claude", "cursor"}, got[0].Providers)
+}
+
+func TestGroupImportCandidates_sameNameSameProvider_deduplicatesProvider(t *testing.T) {
+	candidates := []wizard.ImportCandidate{
+		{ServerName: "shared", ProviderName: "claude", Scope: wizard.ScopeProject},
+		{ServerName: "shared", ProviderName: "claude", Scope: wizard.ScopeGlobal},
+	}
+	got := wizard.GroupImportCandidates(candidates)
+	require.Len(t, got, 1)
+	assert.Equal(t, []string{"claude"}, got[0].Providers)
+}
+
+func TestGroupImportCandidates_preservesFirstDefinition(t *testing.T) {
+	srv1 := types.MCPServer{Command: "npx"}
+	srv2 := types.MCPServer{Command: "uvx"}
+	candidates := []wizard.ImportCandidate{
+		{ServerName: "shared", Server: srv1, ProviderName: "claude"},
+		{ServerName: "shared", Server: srv2, ProviderName: "cursor"},
+	}
+	got := wizard.GroupImportCandidates(candidates)
+	require.Len(t, got, 1)
+	assert.Equal(t, "npx", got[0].Server.Command)
+}
+
+func TestGroupedCandidate_Label_singleProvider(t *testing.T) {
+	g := wizard.GroupedCandidate{ServerName: "fmt", Providers: []string{"claude"}}
+	assert.Equal(t, "fmt  [claude]", g.Label())
+}
+
+func TestGroupedCandidate_Label_multipleProviders(t *testing.T) {
+	g := wizard.GroupedCandidate{ServerName: "fmt", Providers: []string{"claude", "cursor", "codex"}}
+	assert.Equal(t, "fmt  [claude · cursor · codex]", g.Label())
 }
 
 // ── PromptMultiSelect scripted runner ─────────────────────────────────────────

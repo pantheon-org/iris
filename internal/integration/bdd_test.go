@@ -39,6 +39,7 @@ type scenarioCtx struct {
 	syncResults      []irisync.SyncResult
 	reloadedCfg      *types.IrisConfig
 	importCandidates []wizard.ImportCandidate
+	groupedCandidates []wizard.GroupedCandidate
 }
 
 func newScenarioCtx(root string) *scenarioCtx {
@@ -376,7 +377,11 @@ func (s *scenarioCtx) iRunInteractiveInitAndSelectNoServers() error {
 func (s *scenarioCtx) iRunInteractiveInitAndCollectImportCandidates() error {
 	var err error
 	s.importCandidates, err = wizard.CollectImportCandidates(s.root, s.reg)
-	return err
+	if err != nil {
+		return err
+	}
+	s.groupedCandidates = wizard.GroupImportCandidates(s.importCandidates)
+	return nil
 }
 
 func (s *scenarioCtx) iRunInteractiveInitAndSelectServer(serverName string) error {
@@ -493,17 +498,39 @@ func (s *scenarioCtx) theImportCandidatesIncludeEntry(serverName, providerName, 
 		serverName, providerName, scope, s.importCandidates)
 }
 
-func (s *scenarioCtx) theImportCandidatesContainExactlyNEntriesForServer(n int, serverName string) error {
+func (s *scenarioCtx) theGroupedCandidatesContainExactlyNEntryForServer(n int, serverName string) error {
 	count := 0
-	for _, c := range s.importCandidates {
-		if c.ServerName == serverName {
+	for _, g := range s.groupedCandidates {
+		if g.ServerName == serverName {
 			count++
 		}
 	}
 	if count != n {
-		return fmt.Errorf("expected %d entries for server %q, got %d", n, serverName, count)
+		return fmt.Errorf("expected %d grouped entries for server %q, got %d", n, serverName, count)
 	}
 	return nil
+}
+
+func (s *scenarioCtx) theGroupedCandidateForServerListsProviders(serverName, p1, p2 string) error {
+	for _, g := range s.groupedCandidates {
+		if g.ServerName != serverName {
+			continue
+		}
+		has := func(name string) bool {
+			for _, p := range g.Providers {
+				if p == name {
+					return true
+				}
+			}
+			return false
+		}
+		if !has(p1) || !has(p2) {
+			return fmt.Errorf("grouped candidate %q has providers %v, expected both %q and %q",
+				serverName, g.Providers, p1, p2)
+		}
+		return nil
+	}
+	return fmt.Errorf("no grouped candidate found for server %q", serverName)
 }
 
 // ── provider setup helpers ────────────────────────────────────────────────────
@@ -1236,7 +1263,8 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^the iris config contains (\d+) servers$`, s.theIrisConfigContainsNServers)
 		sc.Step(`^the iris config contains server "([^"]+)" with command "([^"]+)"$`, s.theIrisConfigContainsServerWithCommand)
 		sc.Step(`^the import candidates include an entry for server "([^"]+)" from provider "([^"]+)" with scope "([^"]+)"$`, s.theImportCandidatesIncludeEntry)
-		sc.Step(`^the import candidates contain exactly (\d+) entries for server "([^"]+)"$`, s.theImportCandidatesContainExactlyNEntriesForServer)
+		sc.Step(`^the grouped candidates contain exactly (\d+) entry for server "([^"]+)"$`, s.theGroupedCandidatesContainExactlyNEntryForServer)
+		sc.Step(`^the grouped candidate for server "([^"]+)" lists providers "([^"]+)" and "([^"]+)"$`, s.theGroupedCandidateForServerListsProviders)
 	}
 }
 

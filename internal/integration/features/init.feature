@@ -42,11 +42,12 @@ Feature: Init command
     And the iris config contains server "fmt" with command "npx"
     And the iris config contains server "github" with command "uvx"
 
-  Scenario: Interactive init deduplicates servers with the same name across providers
+  Scenario: Interactive init groups servers with the same name across providers into one entry
     Given a Claude Code project config exists with server "shared" command "npx" args "-y foo"
     And a Cursor project config exists with server "shared" command "npx" args "-y foo"
     When I run interactive init and collect the import candidates
-    Then the import candidates contain exactly 2 entries for server "shared"
+    Then the grouped candidates contain exactly 1 entry for server "shared"
+    And the grouped candidate for server "shared" lists providers "claude" and "cursor"
 
   Scenario: Interactive init shows global scope for providers with global configs
     Given a global Google Gemini config exists with server "gemini-srv" command "python" args "-m gemini_mcp"

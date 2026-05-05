@@ -25,18 +25,19 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 	if err != nil {
 		return fmt.Errorf("collect import candidates: %w", err)
 	}
-	if len(candidates) > 0 {
-		labels := make([]string, len(candidates))
-		for i, c := range candidates {
-			labels[i] = c.Label()
+	grouped := GroupImportCandidates(candidates)
+	if len(grouped) > 0 {
+		labels := make([]string, len(grouped))
+		for i, g := range grouped {
+			labels[i] = g.Label()
 		}
 		selected, err := r.PromptMultiSelect(i18n.T("wizard.select_import"), labels)
 		if err != nil {
 			return fmt.Errorf("prompt select import: %w", err)
 		}
 		for _, idx := range selected {
-			c := candidates[idx]
-			pending = append(pending, pendingServer{name: c.ServerName, server: c.Server})
+			g := grouped[idx]
+			pending = append(pending, pendingServer{name: g.ServerName, server: g.Server})
 		}
 	}
 
