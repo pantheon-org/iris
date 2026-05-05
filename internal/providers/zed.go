@@ -35,9 +35,9 @@ func (p *ZedProvider) Config() ProviderConfig {
 	return ProviderConfig{
 		Name:                  NameZed,
 		DisplayName:           "Zed",
-		ConfigPath:            "~/.config/zed/settings.json",
+		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,
-		GlobalConfigPath:      p.configPath,
+		GlobalConfigPath:      homeRel(p.configPath),
 	}
 }
 
@@ -121,4 +121,4 @@ func (p *ZedProvider) Parse(content string) (map[string]types.MCPServer, error) 
 	return result, nil
 }
 
-func zedConfigPath() string { return io.UserConfigPath("zed", "settings.json") }
+func zedConfigPath() string { return io.UserHomePath(".config", "zed", "settings.json") }

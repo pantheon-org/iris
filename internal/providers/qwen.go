@@ -27,9 +27,9 @@ func newQwenProviderWithPath(path string) *QwenProvider {
 	p.config = ProviderConfig{
 		Name:                  NameAlibabaQwenCode,
 		DisplayName:           "Alibaba Qwen Code",
-		ConfigPath:            "~/.qwen/settings.json",
+		LocalConfigPath:       strPtr(".qwen/settings.json"),
 		SupportsProjectConfig: true,
-		GlobalConfigPath:      path,
+		GlobalConfigPath:      homeRel(path),
 	}
 	p.resolvedPath = func(projectRoot string) string {
 		if projectRoot != "" {
@@ -47,9 +47,9 @@ func NewQwenProviderWithPath(path string) *QwenProvider {
 	p.config = ProviderConfig{
 		Name:                  NameAlibabaQwenCode,
 		DisplayName:           "Alibaba Qwen Code",
-		ConfigPath:            "~/.qwen/settings.json",
+		LocalConfigPath:       strPtr(".qwen/settings.json"),
 		SupportsProjectConfig: true,
-		GlobalConfigPath:      path,
+		GlobalConfigPath:      homeRel(path),
 	}
 	p.resolvedPath = func(_ string) string {
 		return path

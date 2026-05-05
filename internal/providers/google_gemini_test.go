@@ -26,8 +26,8 @@ func TestGoogleGeminiProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) 
 	if !cfg.SupportsProjectConfig {
 		t.Error("SupportsProjectConfig = false, want true")
 	}
-	if !strings.Contains(cfg.GlobalConfigPath, filepath.Join(".gemini", "settings.json")) {
-		t.Errorf("GlobalConfigPath = %q, want path containing .gemini/settings.json", cfg.GlobalConfigPath)
+	if cfg.GlobalConfigPath == nil || !strings.Contains(*cfg.GlobalConfigPath, filepath.Join(".gemini", "settings.json")) {
+		t.Errorf("GlobalConfigPath = %v, want path containing .gemini/settings.json", cfg.GlobalConfigPath)
 	}
 }
 

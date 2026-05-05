@@ -25,9 +25,9 @@ func newClaudeCodeProviderWithGlobalPath(globalPath string) *ClaudeCodeProvider 
 	p.config = ProviderConfig{
 		Name:                  NameAnthropicClaudeCode,
 		DisplayName:           "Anthropic Claude Code",
-		ConfigPath:            ".mcp.json",
+		LocalConfigPath:       strPtr(".mcp.json"),
 		SupportsProjectConfig: true,
-		GlobalConfigPath:      globalPath,
+		GlobalConfigPath:      homeRel(globalPath),
 	}
 	p.resolvedPath = func(projectRoot string) string {
 		if projectRoot != "" {

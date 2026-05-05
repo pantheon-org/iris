@@ -20,14 +20,14 @@ func TestOpenCodeProvider_Config_ReturnsCorrectConfig(t *testing.T) {
 	if cfg.Name != "opencode" {
 		t.Errorf("Name: got %q, want %q", cfg.Name, "opencode")
 	}
-	if cfg.ConfigPath != "opencode.json" {
-		t.Errorf("ConfigPath: got %q, want %q", cfg.ConfigPath, "opencode.json")
+	if cfg.LocalConfigPath == nil || *cfg.LocalConfigPath != "opencode.json" {
+		t.Errorf("LocalConfigPath: got %v, want %q", cfg.LocalConfigPath, "opencode.json")
 	}
 	if !cfg.SupportsProjectConfig {
 		t.Error("SupportsProjectConfig: want true")
 	}
-	if cfg.GlobalConfigPath == "" {
-		t.Error("GlobalConfigPath: want non-empty")
+	if cfg.GlobalConfigPath == nil {
+		t.Error("GlobalConfigPath: want non-nil")
 	}
 }
 

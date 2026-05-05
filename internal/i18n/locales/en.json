@@ -19,6 +19,8 @@
   "status.desync": "desync",
   "status.error": "error",
   "status.missing": "missing",
+  "status.scope.global": "global",
+  "status.scope.local": "local",
   "status.synced": "synced",
   "sync.completed_with_errors": "sync completed with errors",
   "wizard.add_server": "Add a server? (yes to continue, no to finish)",

@@ -15,9 +15,9 @@ func newKimiProviderWithPath(path string) *KimiProvider {
 	p.config = ProviderConfig{
 		Name:                  NameMoonshotKimi,
 		DisplayName:           "Moonshot Kimi",
-		ConfigPath:            "~/.kimi/mcp.json",
+		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,
-		GlobalConfigPath:      path,
+		GlobalConfigPath:      homeRel(path),
 	}
 	p.resolvedPath = func(_ string) string {
 		return path

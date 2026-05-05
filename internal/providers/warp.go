@@ -15,9 +15,9 @@ func newWarpProviderWithPath(path string) *WarpProvider {
 	p.config = ProviderConfig{
 		Name:                  NameWarpTerminal,
 		DisplayName:           "Warp Terminal",
-		ConfigPath:            "~/.warp/mcp.json",
+		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,
-		GlobalConfigPath:      path,
+		GlobalConfigPath:      homeRel(path),
 	}
 	p.resolvedPath = func(_ string) string {
 		return path

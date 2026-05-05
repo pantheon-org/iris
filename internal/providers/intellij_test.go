@@ -25,8 +25,8 @@ func TestIntelliJProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	if !cfg.SupportsProjectConfig {
 		t.Error("SupportsProjectConfig = false, want true")
 	}
-	if cfg.ConfigPath != ".idea/mcp.json" {
-		t.Errorf("ConfigPath = %q, want %q", cfg.ConfigPath, ".idea/mcp.json")
+	if cfg.LocalConfigPath == nil || *cfg.LocalConfigPath != ".idea/mcp.json" {
+		t.Errorf("LocalConfigPath = %v, want %q", cfg.LocalConfigPath, ".idea/mcp.json")
 	}
 }
 

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
+	irio "github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
@@ -102,8 +103,9 @@ func CollectImportCandidates(projectRoot string, reg *registry.Registry) ([]Impo
 		}
 
 		// Global config (when provider exposes one).
-		if cfg.GlobalConfigPath != "" {
-			cs, err := readCandidatesFromPath(p, cfg.GlobalConfigPath, cfg.Name, ScopeGlobal)
+		if cfg.GlobalConfigPath != nil {
+			absGlobal := irio.UserHomePath(*cfg.GlobalConfigPath)
+			cs, err := readCandidatesFromPath(p, absGlobal, cfg.Name, ScopeGlobal)
 			if err != nil {
 				return nil, fmt.Errorf("read global config for %s: %w", cfg.Name, err)
 			}
