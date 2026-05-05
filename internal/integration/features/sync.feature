@@ -30,7 +30,7 @@ Feature: Sync MCP servers to all providers
     When I sync to all providers again
     Then all providers report status "unchanged"
 
-  Scenario: All 14 providers write correct config formats
+  Scenario: All supported providers write provider-specific formats
     Given an MCP server "tool" with command "uvx" and args "some-tool"
     When I sync to all providers
     Then the JSON provider file ".mcp.json" contains servers "tool" under key "mcpServers"
