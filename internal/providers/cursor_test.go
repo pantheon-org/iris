@@ -59,6 +59,53 @@ func TestCursorProvider_GenerateParse_roundtrip(t *testing.T) {
 	}
 }
 
+func TestCursorProvider_Parse_withTestdata(t *testing.T) {
+	content, err := os.ReadFile("testdata/cursor_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := providers.NewCursorProvider()
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["brave-search"].Env["BRAVE_API_KEY"] != "test-key" {
+		t.Errorf("brave-search env = %v, want BRAVE_API_KEY=test-key", parsed["brave-search"].Env)
+	}
+}
+
+func TestCursorProvider_Generate_stripsTypeField(t *testing.T) {
+	content, err := os.ReadFile("testdata/cursor_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	p := providers.NewCursorProvider()
+	servers := map[string]types.MCPServer{
+		"filesystem": {Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"}},
+	}
+	out, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	var doc struct {
+		MCPServers map[string]struct {
+			Type string `json:"type"`
+		} `json:"mcpServers"`
+	}
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	if doc.MCPServers["filesystem"].Type != "" {
+		t.Errorf("expected type field to be stripped on generate, got %q", doc.MCPServers["filesystem"].Type)
+	}
+}
+
 func TestCursorProvider_Exists(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewCursorProvider()

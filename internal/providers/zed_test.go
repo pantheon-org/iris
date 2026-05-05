@@ -57,6 +57,28 @@ func TestZedProvider_Parse(t *testing.T) {
 	}
 }
 
+func TestZedProvider_Parse_withTestdata(t *testing.T) {
+	content, err := os.ReadFile("testdata/zed_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewZedProviderWithPath(filepath.Join(tmp, "settings.json"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
+		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
+	}
+}
+
 func TestZedProvider_GenerateParse_preservesExistingKeys(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewZedProviderWithPath(filepath.Join(tmp, "settings.json"))
@@ -75,6 +97,32 @@ func TestZedProvider_GenerateParse_preservesExistingKeys(t *testing.T) {
 	}
 	if _, ok := doc["theme"]; !ok {
 		t.Fatal("expected 'theme' key to be preserved")
+	}
+}
+
+func TestZedProvider_Generate_withTestdata_preservesZedSettings(t *testing.T) {
+	content, err := os.ReadFile("testdata/zed_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewZedProviderWithPath(filepath.Join(tmp, "settings.json"))
+	servers := map[string]types.MCPServer{
+		"filesystem": {Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"}},
+	}
+	out, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	if _, ok := doc["theme"]; !ok {
+		t.Error("expected 'theme' key to be preserved")
+	}
+	if _, ok := doc["buffer_font_size"]; !ok {
+		t.Error("expected 'buffer_font_size' key to be preserved")
 	}
 }
 
