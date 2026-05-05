@@ -33,6 +33,7 @@ Feature: Init command
     Then the iris config file exists on disk
     And the iris config contains 1 servers
     And the iris config contains server "fmt" with command "npx"
+    And the iris config providers list contains "claude"
 
   Scenario: Interactive init imports servers from multiple providers
     Given a Claude Code project config exists with server "fmt" command "npx" args "-y @modelcontextprotocol/server-filesystem /tmp"

@@ -236,6 +236,13 @@ func (s *scenarioCtx) iRunListWithJSONOutput() error {
 
 func (s *scenarioCtx) iSyncToAllProviders() error {
 	s.reg = buildReg(s.root)
+	if len(s.cfg.Providers) > 0 {
+		filtered, err := s.reg.Filter(s.cfg.Providers)
+		if err != nil {
+			return fmt.Errorf("filter providers: %w", err)
+		}
+		s.reg = filtered
+	}
 	s.syncResults = irisync.SyncAllProviders(s.root, s.reg, s.cfg.Servers)
 	return nil
 }
@@ -488,6 +495,31 @@ func (s *scenarioCtx) theIrisConfigContainsServerWithCommand(name, command strin
 	return nil
 }
 
+func (s *scenarioCtx) theIrisConfigProvidersListContains(providerName string) error {
+	store2, err := config.NewStore(s.storePath)
+	if err != nil {
+		return fmt.Errorf("NewStore: %w", err)
+	}
+	cfg, err := store2.Load()
+	if err != nil {
+		return fmt.Errorf("load: %w", err)
+	}
+	for _, p := range cfg.Providers {
+		if p == providerName {
+			return nil
+		}
+	}
+	return fmt.Errorf("providers list %v does not contain %q", cfg.Providers, providerName)
+}
+
+func (s *scenarioCtx) theIrisConfigProvidersListIsSetTo(providerName string) error {
+	s.cfg.Providers = []string{providerName}
+	if err := s.store.Save(s.cfg); err != nil {
+		return fmt.Errorf("save: %w", err)
+	}
+	return nil
+}
+
 func (s *scenarioCtx) theImportCandidatesIncludeEntry(serverName, providerName, scope string) error {
 	for _, c := range s.importCandidates {
 		if c.ServerName == serverName && c.ProviderName == providerName && string(c.Scope) == scope {
@@ -717,6 +749,14 @@ func (s *scenarioCtx) theProviderConfigFileExists(filename string) error {
 	path := filepath.Join(s.root, filename)
 	if _, err := os.Stat(path); err != nil {
 		return fmt.Errorf("expected file %s to exist: %w", path, err)
+	}
+	return nil
+}
+
+func (s *scenarioCtx) theProviderConfigFileDoesNotExist(filename string) error {
+	path := filepath.Join(s.root, filename)
+	if _, err := os.Stat(path); err == nil {
+		return fmt.Errorf("expected file %s to not exist, but it does", path)
 	}
 	return nil
 }
@@ -1265,6 +1305,9 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^the import candidates include an entry for server "([^"]+)" from provider "([^"]+)" with scope "([^"]+)"$`, s.theImportCandidatesIncludeEntry)
 		sc.Step(`^the grouped candidates contain exactly (\d+) entry for server "([^"]+)"$`, s.theGroupedCandidatesContainExactlyNEntryForServer)
 		sc.Step(`^the grouped candidate for server "([^"]+)" lists providers "([^"]+)" and "([^"]+)"$`, s.theGroupedCandidateForServerListsProviders)
+		sc.Step(`^the iris config providers list contains "([^"]+)"$`, s.theIrisConfigProvidersListContains)
+		sc.Step(`^the iris config providers list is set to "([^"]+)"$`, s.theIrisConfigProvidersListIsSetTo)
+		sc.Step(`^the provider config file "([^"]+)" does not exist$`, s.theProviderConfigFileDoesNotExist)
 	}
 }
 

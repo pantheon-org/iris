@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 
 	"github.com/pantheon-org/iris/internal/config"
@@ -110,6 +111,20 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 		}
 		cfg.Servers[p.name] = p.server
 	}
+
+	// Record which providers were detected on this machine so that `iris sync`
+	// can default to them without requiring an explicit --provider flag.
+	seen := make(map[string]struct{}, len(candidates))
+	for _, c := range candidates {
+		seen[c.ProviderName] = struct{}{}
+	}
+	detectedProviders := make([]string, 0, len(seen))
+	for name := range seen {
+		detectedProviders = append(detectedProviders, name)
+	}
+	sort.Strings(detectedProviders)
+	cfg.Providers = detectedProviders
+
 	if err := store.Save(cfg); err != nil {
 		return fmt.Errorf("save config: %w", err)
 	}

@@ -113,6 +113,21 @@ func TestRunInit_importDetectedProvider_importsServers(t *testing.T) {
 	require.NoError(t, err)
 	assert.Contains(t, cfg.Servers, "imported-srv")
 	assert.Equal(t, "npx", cfg.Servers["imported-srv"].Command)
+	assert.Equal(t, []string{"claude"}, cfg.Providers)
+}
+
+func TestRunInit_noProviderConfigs_providersListEmpty(t *testing.T) {
+	store := newStore(t)
+	r := wizard.NewScriptedRunner([]string{
+		"no", // Add a server?
+	})
+
+	err := wizard.RunInit(r, "", store, newRegistry())
+	require.NoError(t, err)
+
+	cfg, err := store.Load()
+	require.NoError(t, err)
+	assert.Empty(t, cfg.Providers)
 }
 
 func TestRunInit_importDetectedProvider_declineImport(t *testing.T) {
@@ -137,6 +152,8 @@ func TestRunInit_importDetectedProvider_declineImport(t *testing.T) {
 	cfg, err := store.Load()
 	require.NoError(t, err)
 	assert.Empty(t, cfg.Servers)
+	// Provider was detected even though user declined import.
+	assert.Equal(t, []string{"claude"}, cfg.Providers)
 }
 
 func TestRunInit_duplicateName_overwritten(t *testing.T) {
