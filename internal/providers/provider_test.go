@@ -1,6 +1,7 @@
 package providers_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -10,6 +11,16 @@ import (
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 )
+
+// requireJSONEqual asserts that two JSON strings are semantically equal,
+// ignoring field ordering differences produced by different marshal paths.
+func requireJSONEqual(t *testing.T, want, got string) {
+	t.Helper()
+	var wantVal, gotVal any
+	require.NoError(t, json.Unmarshal([]byte(want), &wantVal), "want: invalid JSON")
+	require.NoError(t, json.Unmarshal([]byte(got), &gotVal), "got: invalid JSON")
+	assert.Equal(t, wantVal, gotVal)
+}
 
 func TestValidateProjectRoot_TraversalDotDot_ReturnsErrPathTraversal(t *testing.T) {
 	err := providers.ValidateProjectRoot("/some/project/../../etc")

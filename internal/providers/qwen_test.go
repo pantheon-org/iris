@@ -87,9 +87,7 @@ func TestQwenProvider_Generate_FixtureMatch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got != string(expected) {
-		t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, expected)
-	}
+	requireJSONEqual(t, string(expected), got)
 }
 
 func TestQwenProvider_Exists(t *testing.T) {
