@@ -7,6 +7,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
+
 	"github.com/pantheon-org/iris/internal/i18n"
 	"github.com/pantheon-org/iris/internal/types"
 )
@@ -62,6 +65,10 @@ func RunList(cfg *types.IrisConfig, w io.Writer, jsonOutput bool, st *Styles) er
 	}
 
 	fmt.Fprintln(w, st.Bold.Render(i18n.T("list.servers_count", len(names))))
+	t := table.New().
+		Border(lipgloss.HiddenBorder()).
+		BorderTop(false).
+		BorderBottom(false)
 	for _, name := range names {
 		srv := cfg.Servers[name]
 		transport := string(srv.Transport)
@@ -76,11 +83,12 @@ func RunList(cfg *types.IrisConfig, w io.Writer, jsonOutput bool, st *Styles) er
 		parts = append(parts, srv.Args...)
 		cmdLine := strings.Join(parts, " ")
 
-		fmt.Fprintf(w, "  %-12s  %-6s  %s\n",
+		t.Row(
 			st.Accent.Render(name),
 			st.Muted.Render(transport),
 			st.Muted.Render(cmdLine),
 		)
 	}
+	fmt.Fprintln(w, t.Render())
 	return nil
 }
