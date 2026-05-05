@@ -15,6 +15,12 @@ Feature: Sync MCP servers to all providers
     And the JSON provider file "gemini-settings.json" contains servers "filesystem,fetch" under key "mcpServers"
     And the opencode provider file "opencode.json" contains servers "filesystem,fetch"
     And the TOML provider file "codex-config.toml" contains servers "filesystem,fetch"
+    And the JSON provider file "claude-desktop-config.json" contains servers "filesystem,fetch" under key "mcpServers"
+    And the JSON provider file "windsurf-config.json" contains servers "filesystem,fetch" under key "mcpServers"
+    And the JSON provider file "warp-mcp.json" contains servers "filesystem,fetch" under key "mcpServers"
+    And the JSON provider file "kimi-settings.json" contains servers "filesystem,fetch" under key "mcpServers"
+    And the JSON provider file ".idea/mcp.json" contains servers "filesystem,fetch" under key "mcpServers"
+    And the JSON provider file ".qwen/settings.json" contains servers "filesystem,fetch" under key "mcpServers"
 
   Scenario: Sync is idempotent
     Given an MCP server "filesystem" with command "npx" and args "-y,@modelcontextprotocol/server-filesystem,/tmp"
