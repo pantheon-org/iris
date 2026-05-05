@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/pantheon-org/iris/internal/config"
-	"github.com/pantheon-org/iris/internal/detector"
 	"github.com/pantheon-org/iris/internal/i18n"
 	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
@@ -21,31 +20,23 @@ type pendingServer struct {
 func RunInit(r Runner, projectRoot string, store *config.Store, registry *registry.Registry) error {
 	var pending []pendingServer
 
-	// Detect installed harnesses and offer to import their existing MCP servers.
-	detected, err := detector.Detect(projectRoot, registry)
+	// Collect all MCP servers found across every provider config (project + global).
+	candidates, err := CollectImportCandidates(projectRoot, registry)
 	if err != nil {
-		return fmt.Errorf("detect providers: %w", err)
+		return fmt.Errorf("collect import candidates: %w", err)
 	}
-	for _, p := range detected {
-		importIt, err := r.PromptConfirm(i18n.T("wizard.import_prompt", p.Config().DisplayName))
+	if len(candidates) > 0 {
+		labels := make([]string, len(candidates))
+		for i, c := range candidates {
+			labels[i] = c.Label()
+		}
+		selected, err := r.PromptMultiSelect(i18n.T("wizard.select_import"), labels)
 		if err != nil {
-			return fmt.Errorf("prompt import %s: %w", p.Config().Name, err)
+			return fmt.Errorf("prompt select import: %w", err)
 		}
-		if !importIt {
-			continue
-		}
-		filePath := p.ConfigFilePath(projectRoot)
-		data, err := os.ReadFile(filePath)
-		if err != nil {
-			return fmt.Errorf("read %s config: %w", p.Config().Name, err)
-		}
-		content := string(data)
-		servers, err := p.Parse(content)
-		if err != nil {
-			return fmt.Errorf("parse %s config: %w", p.Config().Name, err)
-		}
-		for name, srv := range servers {
-			pending = append(pending, pendingServer{name: name, server: srv})
+		for _, idx := range selected {
+			c := candidates[idx]
+			pending = append(pending, pendingServer{name: c.ServerName, server: c.Server})
 		}
 	}
 

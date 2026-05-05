@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -51,4 +52,42 @@ func (b *TerminalRunner) PromptConfirm(label string) (bool, error) {
 	default:
 		return false, nil
 	}
+}
+
+// PromptMultiSelect prints a numbered list to stderr, then reads a comma-separated
+// list of 0-based indices. Enter with no input selects nothing.
+func (b *TerminalRunner) PromptMultiSelect(label string, options []string) ([]int, error) {
+	fmt.Fprintf(os.Stderr, "\n%s\n", label)
+	for i, o := range options {
+		fmt.Fprintf(os.Stderr, "  [%d] %s\n", i, o)
+	}
+	fmt.Fprintf(os.Stderr, "Enter numbers separated by commas (or leave empty to skip): ")
+
+	if !b.scanner.Scan() {
+		if err := b.scanner.Err(); err != nil {
+			return nil, fmt.Errorf("scan multi-select: %w", err)
+		}
+		return nil, nil
+	}
+	raw := strings.TrimSpace(b.scanner.Text())
+	if raw == "" {
+		return nil, nil
+	}
+
+	var result []int
+	for _, part := range strings.Split(raw, ",") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		i, err := strconv.Atoi(part)
+		if err != nil {
+			return nil, fmt.Errorf("invalid selection %q: %w", part, err)
+		}
+		if i < 0 || i >= len(options) {
+			return nil, fmt.Errorf("selection %d out of range [0, %d)", i, len(options))
+		}
+		result = append(result, i)
+	}
+	return result, nil
 }

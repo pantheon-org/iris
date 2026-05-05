@@ -19,7 +19,7 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 | Command | Description |
 |---|---|
 | `iris init` | Scaffold `.iris.json` in the current project |
-| `iris init --interactive/-I` | Interactive wizard to scaffold config |
+| `iris init --interactive/-I` | Interactive wizard — scans all provider configs (global + project), shows a numbered multi-select to pick servers to import, then lets you add more manually |
 | `iris init --provider/-p <name> ...` | Limit init to specific providers |
 | `iris add <name> --command/-c <cmd> [--args/-a ...] [--env/-e KEY=VAL ...] [--transport/-t stdio\|sse] [--url/-u <url>]` | Add or update a server |
 | `iris remove <name>` | Remove a server |

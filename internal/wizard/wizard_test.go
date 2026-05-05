@@ -28,6 +28,7 @@ func newRegistry() *registry.Registry {
 func TestRunInit_happyPath_twoServers(t *testing.T) {
 	store := newStore(t)
 	r := wizard.NewScriptedRunner([]string{
+		// No provider configs exist, so PromptMultiSelect is not called.
 		"yes",      // Add a server?
 		"server-a", // Server name
 		"stdio",    // Transport
@@ -93,16 +94,16 @@ func TestRunInit_importDetectedProvider_importsServers(t *testing.T) {
 	store, err := config.NewStore(filepath.Join(dir, ".iris.json"))
 	require.NoError(t, err)
 
-	// Write a Claude .mcp.json with one server in the project root.
 	mcpJSON := `{"mcpServers":{"imported-srv":{"command":"npx","args":["-y","thing"],"type":"stdio"}}}`
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(mcpJSON), 0o600))
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeCodeProvider())
+	// Pin global path to a non-existent file to avoid reading real ~/.claude.json.
+	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(filepath.Join(dir, "no-global.json")))
 
 	r := wizard.NewScriptedRunner([]string{
-		"yes", // Detected Claude Code — import its servers?
-		"no",  // Add a server?
+		"0",  // PromptMultiSelect: select index 0 (imported-srv [claude-code] [project])
+		"no", // Add a server?
 	})
 
 	err = wizard.RunInit(r, dir, store, reg)
@@ -123,11 +124,11 @@ func TestRunInit_importDetectedProvider_declineImport(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(mcpJSON), 0o600))
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeCodeProvider())
+	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(filepath.Join(dir, "no-global.json")))
 
 	r := wizard.NewScriptedRunner([]string{
-		"no", // Detected Claude Code — import its servers? — declined
-		"no", // Add a server?
+		"none", // PromptMultiSelect: select nothing
+		"no",   // Add a server?
 	})
 
 	err = wizard.RunInit(r, dir, store, reg)

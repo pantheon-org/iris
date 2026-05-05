@@ -25,5 +25,6 @@
   "wizard.url": "URL",
   "wizard.command": "Commande",
   "wizard.args": "Arguments (séparés par des espaces, laisser vide pour aucun)",
-  "wizard.transport": "Transport"
+  "wizard.transport": "Transport",
+  "wizard.select_import": "Sélectionnez les serveurs à importer (numéros séparés par des virgules, laisser vide pour ignorer)"
 }

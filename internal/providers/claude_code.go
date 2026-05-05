@@ -11,19 +11,29 @@ type ClaudeCodeProvider struct {
 }
 
 func NewClaudeCodeProvider() *ClaudeCodeProvider {
+	return newClaudeCodeProviderWithGlobalPath(io.UserHomePath(".claude.json"))
+}
+
+// NewClaudeCodeProviderWithGlobalPath creates a ClaudeCodeProvider with a fixed global
+// config path. Intended for use in tests to avoid reading the real ~/.claude.json.
+func NewClaudeCodeProviderWithGlobalPath(globalPath string) *ClaudeCodeProvider {
+	return newClaudeCodeProviderWithGlobalPath(globalPath)
+}
+
+func newClaudeCodeProviderWithGlobalPath(globalPath string) *ClaudeCodeProvider {
 	p := &ClaudeCodeProvider{}
 	p.config = ProviderConfig{
 		Name:                  NameAnthropicClaudeCode,
 		DisplayName:           "Anthropic Claude Code",
 		ConfigPath:            ".mcp.json",
 		SupportsProjectConfig: true,
-		GlobalConfigPath:      io.UserHomePath(".claude.json"),
+		GlobalConfigPath:      globalPath,
 	}
 	p.resolvedPath = func(projectRoot string) string {
 		if projectRoot != "" {
 			return filepath.Join(projectRoot, ".mcp.json")
 		}
-		return io.UserHomePath(".claude.json")
+		return globalPath
 	}
 	return p
 }

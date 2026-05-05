@@ -22,6 +22,7 @@ import (
 	"github.com/pantheon-org/iris/internal/registry"
 	irisync "github.com/pantheon-org/iris/internal/sync"
 	"github.com/pantheon-org/iris/internal/types"
+	"github.com/pantheon-org/iris/internal/wizard"
 )
 
 // scenarioCtx holds per-scenario mutable state.
@@ -33,10 +34,11 @@ type scenarioCtx struct {
 	reg       *registry.Registry
 
 	// captured output / results
-	lastErr     error
-	output      *bytes.Buffer
-	syncResults []irisync.SyncResult
-	reloadedCfg *types.IrisConfig
+	lastErr          error
+	output           *bytes.Buffer
+	syncResults      []irisync.SyncResult
+	reloadedCfg      *types.IrisConfig
+	importCandidates []wizard.ImportCandidate
 }
 
 func newScenarioCtx(root string) *scenarioCtx {
@@ -57,8 +59,9 @@ func buildReg(root string) *registry.Registry {
 	kimiPath := filepath.Join(root, "kimi-settings.json")
 	mistralVibePath := filepath.Join(root, "mistral-vibe-config.toml")
 
+	claudeCodeGlobalPath := filepath.Join(root, "claude-global.json")
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeCodeProvider())
+	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(claudeCodeGlobalPath))
 	reg.Register(providers.NewClaudeDesktopProviderWithPath(claudeDesktopPath))
 	reg.Register(providers.NewGoogleGeminiProviderWithPath(googleGeminiPath))
 	reg.Register(providers.NewOpenCodeProvider())
@@ -321,6 +324,230 @@ func (s *scenarioCtx) iRunInit() error {
 		return fmt.Errorf("init: %w", err)
 	}
 	return nil
+}
+
+// ── interactive init step helpers ─────────────────────────────────────────────
+
+// irisConfigServerCount returns the number of servers in the on-disk iris config.
+func (s *scenarioCtx) irisConfigServerCount() (int, error) {
+	store2, err := config.NewStore(s.storePath)
+	if err != nil {
+		return 0, fmt.Errorf("NewStore: %w", err)
+	}
+	cfg, err := store2.Load()
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return 0, nil
+		}
+		return 0, fmt.Errorf("load: %w", err)
+	}
+	return len(cfg.Servers), nil
+}
+
+// runInteractiveInit executes wizard.RunInit using a ScriptedRunner built from answers.
+func (s *scenarioCtx) runInteractiveInit(answers []string) error {
+	r := wizard.NewScriptedRunner(answers)
+	return wizard.RunInit(r, s.root, s.store, s.reg)
+}
+
+// buildIsolatedReg constructs a registry with only the providers needed for
+// interactive-init BDD scenarios, all paths pinned under root so no real
+// home-directory configs are read.
+func buildIsolatedReg(root string) *registry.Registry {
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(filepath.Join(root, "claude-global.json")))
+	reg.Register(providers.NewCursorProvider())
+	reg.Register(providers.NewGoogleGeminiProviderWithPath(filepath.Join(root, "gemini-settings.json")))
+	return reg
+}
+
+func (s *scenarioCtx) noProviderConfigFilesExist() error {
+	s.reg = buildIsolatedReg(s.root)
+	return nil
+}
+
+func (s *scenarioCtx) iRunInteractiveInitAndSelectNoServers() error {
+	return s.runInteractiveInit([]string{
+		"none", // PromptMultiSelect: select nothing
+		"no",   // Add a server?
+	})
+}
+
+func (s *scenarioCtx) iRunInteractiveInitAndCollectImportCandidates() error {
+	var err error
+	s.importCandidates, err = wizard.CollectImportCandidates(s.root, s.reg)
+	return err
+}
+
+func (s *scenarioCtx) iRunInteractiveInitAndSelectServer(serverName string) error {
+	// Determine the index of serverName in the candidates list.
+	candidates, err := wizard.CollectImportCandidates(s.root, s.reg)
+	if err != nil {
+		return fmt.Errorf("collect candidates: %w", err)
+	}
+	idx := -1
+	for i, c := range candidates {
+		if c.ServerName == serverName {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		return fmt.Errorf("server %q not found in import candidates", serverName)
+	}
+	return s.runInteractiveInit([]string{
+		fmt.Sprintf("%d", idx), // PromptMultiSelect: select this index
+		"no",                   // Add a server?
+	})
+}
+
+func (s *scenarioCtx) iRunInteractiveInitAndSelectAllDiscoveredServers() error {
+	return s.runInteractiveInit([]string{
+		"all", // PromptMultiSelect: select all
+		"no",  // Add a server?
+	})
+}
+
+func (s *scenarioCtx) iRunInteractiveInitSkipImportAndManuallyAddServer(name, command, args string) error {
+	argList := strings.Fields(args)
+	// No candidates exist (noProviderConfigFilesExist was the Given), so
+	// PromptMultiSelect is never called — go straight to the manual loop.
+	answers := []string{
+		"yes",                      // Add a server?
+		name,                       // Server name
+		"stdio",                    // Transport
+		command,                    // Command
+		strings.Join(argList, " "), // Args
+		"no",                       // Add a server?
+	}
+	return s.runInteractiveInit(answers)
+}
+
+func (s *scenarioCtx) iRunInteractiveInitImportServerAndManuallyAddServer(importName, manualName, command, args string) error {
+	candidates, err := wizard.CollectImportCandidates(s.root, s.reg)
+	if err != nil {
+		return fmt.Errorf("collect candidates: %w", err)
+	}
+	idx := -1
+	for i, c := range candidates {
+		if c.ServerName == importName {
+			idx = i
+			break
+		}
+	}
+	if idx < 0 {
+		return fmt.Errorf("server %q not found in import candidates", importName)
+	}
+	argList := strings.Fields(args)
+	answers := []string{
+		fmt.Sprintf("%d", idx), // PromptMultiSelect: select import
+		"yes",                  // Add a server?
+		manualName,             // Server name
+		"stdio",                // Transport
+		command,                // Command
+		strings.Join(argList, " "), // Args
+		"no",                   // Add a server?
+	}
+	return s.runInteractiveInit(answers)
+}
+
+// ── interactive init assertions ────────────────────────────────────────────────
+
+func (s *scenarioCtx) theIrisConfigContainsNServers(n int) error {
+	count, err := s.irisConfigServerCount()
+	if err != nil {
+		return err
+	}
+	if count != n {
+		return fmt.Errorf("expected %d servers, got %d", n, count)
+	}
+	return nil
+}
+
+func (s *scenarioCtx) theIrisConfigContainsServerWithCommand(name, command string) error {
+	store2, err := config.NewStore(s.storePath)
+	if err != nil {
+		return fmt.Errorf("NewStore: %w", err)
+	}
+	cfg, err := store2.Load()
+	if err != nil {
+		return fmt.Errorf("load: %w", err)
+	}
+	srv, ok := cfg.Servers[name]
+	if !ok {
+		return fmt.Errorf("server %q not found in iris config", name)
+	}
+	if srv.Command != command {
+		return fmt.Errorf("server %q: expected command %q, got %q", name, command, srv.Command)
+	}
+	return nil
+}
+
+func (s *scenarioCtx) theImportCandidatesIncludeEntry(serverName, providerName, scope string) error {
+	for _, c := range s.importCandidates {
+		if c.ServerName == serverName && c.ProviderName == providerName && string(c.Scope) == scope {
+			return nil
+		}
+	}
+	return fmt.Errorf("no candidate found for server=%q provider=%q scope=%q (got: %v)",
+		serverName, providerName, scope, s.importCandidates)
+}
+
+func (s *scenarioCtx) theImportCandidatesContainExactlyNEntriesForServer(n int, serverName string) error {
+	count := 0
+	for _, c := range s.importCandidates {
+		if c.ServerName == serverName {
+			count++
+		}
+	}
+	if count != n {
+		return fmt.Errorf("expected %d entries for server %q, got %d", n, serverName, count)
+	}
+	return nil
+}
+
+// ── provider setup helpers ────────────────────────────────────────────────────
+
+func (s *scenarioCtx) aClaudeCodeProjectConfigExistsWithServer(serverName, command, rawArgs string) error {
+	s.reg = buildIsolatedReg(s.root)
+	args := strings.Fields(rawArgs)
+	entry := map[string]any{"command": command, "args": args, "type": "stdio"}
+	doc := map[string]any{"mcpServers": map[string]any{serverName: entry}}
+	data, err := json.Marshal(doc)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(s.root, ".mcp.json"), data, 0o600)
+}
+
+func (s *scenarioCtx) aCursorProjectConfigExistsWithServer(serverName, command, rawArgs string) error {
+	// Does not reset s.reg — assumes a provider-setup step already set it via aClaudeCodeProjectConfigExistsWithServer
+	// or noProviderConfigFilesExist. For standalone use it will rely on the isolated registry already set.
+	args := strings.Fields(rawArgs)
+	entry := map[string]any{"command": command, "args": args, "type": "stdio"}
+	doc := map[string]any{"mcpServers": map[string]any{serverName: entry}}
+	data, err := json.Marshal(doc)
+	if err != nil {
+		return err
+	}
+	cursorDir := filepath.Join(s.root, ".cursor")
+	if err := os.MkdirAll(cursorDir, 0o700); err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(cursorDir, "mcp.json"), data, 0o600)
+}
+
+func (s *scenarioCtx) aGlobalGoogleGeminiConfigExistsWithServer(serverName, command, rawArgs string) error {
+	s.reg = buildIsolatedReg(s.root)
+	args := strings.Fields(rawArgs)
+	entry := map[string]any{"command": command, "args": args}
+	doc := map[string]any{"mcpServers": map[string]any{serverName: entry}}
+	data, err := json.Marshal(doc)
+	if err != nil {
+		return err
+	}
+	globalPath := filepath.Join(s.root, "gemini-settings.json")
+	return os.WriteFile(globalPath, data, 0o600)
 }
 
 func (s *scenarioCtx) theIrisConfigAlreadyExistsWithOneServer() error {
@@ -930,8 +1157,20 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^I run status with JSON output$`, s.iRunStatusWithJSONOutput)
 		sc.Step(`^I corrupt the provider config file "([^"]+)"$`, s.iCorruptTheProviderConfigFile)
 
-		// init
+		// init (non-interactive)
 		sc.Step(`^I run init$`, s.iRunInit)
+
+		// init (interactive)
+		sc.Step(`^no provider config files exist$`, s.noProviderConfigFilesExist)
+		sc.Step(`^a Claude Code project config exists with server "([^"]+)" command "([^"]+)" args "([^"]+)"$`, s.aClaudeCodeProjectConfigExistsWithServer)
+		sc.Step(`^a Cursor project config exists with server "([^"]+)" command "([^"]+)" args "([^"]+)"$`, s.aCursorProjectConfigExistsWithServer)
+		sc.Step(`^a global Google Gemini config exists with server "([^"]+)" command "([^"]+)" args "([^"]+)"$`, s.aGlobalGoogleGeminiConfigExistsWithServer)
+		sc.Step(`^I run interactive init and select no servers$`, s.iRunInteractiveInitAndSelectNoServers)
+		sc.Step(`^I run interactive init and collect the import candidates$`, s.iRunInteractiveInitAndCollectImportCandidates)
+		sc.Step(`^I run interactive init and select server "([^"]+)"$`, s.iRunInteractiveInitAndSelectServer)
+		sc.Step(`^I run interactive init and select all discovered servers$`, s.iRunInteractiveInitAndSelectAllDiscoveredServers)
+		sc.Step(`^I run interactive init, skip import, and manually add server "([^"]+)" command "([^"]+)" args "([^"]+)"$`, s.iRunInteractiveInitSkipImportAndManuallyAddServer)
+		sc.Step(`^I run interactive init, import server "([^"]+)", and manually add server "([^"]+)" command "([^"]+)" args "([^"]+)"$`, s.iRunInteractiveInitImportServerAndManuallyAddServer)
 
 		// reload
 		sc.Step(`^I reload the config from disk$`, s.iReloadTheConfigFromDisk)
@@ -988,6 +1227,10 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 
 		// assertions — init
 		sc.Step(`^the iris config file is valid JSON with version 1$`, s.theIrisConfigFileIsValidJSONWithVersion1)
+		sc.Step(`^the iris config contains (\d+) servers$`, s.theIrisConfigContainsNServers)
+		sc.Step(`^the iris config contains server "([^"]+)" with command "([^"]+)"$`, s.theIrisConfigContainsServerWithCommand)
+		sc.Step(`^the import candidates include an entry for server "([^"]+)" from provider "([^"]+)" with scope "([^"]+)"$`, s.theImportCandidatesIncludeEntry)
+		sc.Step(`^the import candidates contain exactly (\d+) entries for server "([^"]+)"$`, s.theImportCandidatesContainExactlyNEntriesForServer)
 	}
 }
 
