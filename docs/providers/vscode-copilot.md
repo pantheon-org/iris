@@ -1,6 +1,6 @@
 # VS Code GitHub Copilot
 
-**iris provider name:** `vscode-copilot`
+**iris provider name:** `copilot`
 
 ## Config file
 
