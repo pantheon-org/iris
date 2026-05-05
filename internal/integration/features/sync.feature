@@ -79,3 +79,9 @@ Feature: Sync MCP servers to all providers
     Then the copilot server "tool" in file ".vscode/mcp.json" does not have field "headers"
     And the copilot server "tool" in file ".vscode/mcp.json" does not have field "cwd"
     And the copilot server "tool" in file ".vscode/mcp.json" does not have field "enabled"
+
+  Scenario: SSE servers sync url field to JSON providers
+    Given an SSE server "remote" with URL "https://example.com/sse"
+    When I sync to all providers
+    Then the JSON provider file ".mcp.json" server "remote" under key "mcpServers" has field "url"
+    And the JSON provider file "gemini-settings.json" server "remote" under key "mcpServers" has field "url"
