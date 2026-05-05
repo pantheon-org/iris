@@ -29,3 +29,10 @@ Feature: Status of provider configs
     And I run status with JSON output
     Then the JSON status output has a "providers" array
     And the JSON status providers contain an entry for provider "claude" with status "synced"
+
+  Scenario: Status distinguishes "claude" from "claude-desktop"
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to all providers
+    And I run status
+    Then the status output contains provider "claude" with status "synced"
+    And the status output contains provider "claude-desktop" with status "synced"

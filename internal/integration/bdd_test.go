@@ -642,21 +642,20 @@ func (s *scenarioCtx) theJSONStatusProvidersContainEntryForProviderWithStatus(pr
 }
 
 // theStatusOutputContainsProviderWithStatus scans text output for provider+status.
+// It performs an exact field match on the provider name (first whitespace-delimited
+// token on each line) to avoid "claude" matching "claude-desktop" lines.
 func (s *scenarioCtx) theStatusOutputContainsProviderWithStatus(provider, status string) error {
 	out := s.output.String()
-	if !strings.Contains(out, provider) {
-		return fmt.Errorf("provider %q not found in status output:\n%s", provider, out)
-	}
-	if !strings.Contains(out, status) {
-		return fmt.Errorf("status %q not found in status output:\n%s", status, out)
-	}
-	// Confirm they appear on the same line.
 	for _, line := range strings.Split(out, "\n") {
-		if strings.Contains(line, provider) && strings.Contains(line, status) {
+		fields := strings.Fields(line)
+		if len(fields) < 2 {
+			continue
+		}
+		if fields[0] == provider && strings.Contains(line, status) {
 			return nil
 		}
 	}
-	return fmt.Errorf("no line with both provider=%q and status=%q in:\n%s", provider, status, out)
+	return fmt.Errorf("no line with provider=%q and status=%q in:\n%s", provider, status, out)
 }
 
 // --- init assertions ---
