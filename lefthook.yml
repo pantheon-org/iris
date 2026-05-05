@@ -10,6 +10,10 @@ pre-commit:
     golangci-lint:
       glob: "**/*.go"
       run: golangci-lint run ./...
+    json-lint:
+      glob: "internal/**/*.json"
+      run: jsonlint -q -s -i {staged_files}
+      stage_fixed: true
     mdlint:
       glob: "**/*.md"
       exclude:
