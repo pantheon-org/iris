@@ -279,6 +279,40 @@ func (s *scenarioCtx) iCorruptTheProviderConfigFile(filename string) error {
 	return nil
 }
 
+// ── round-trip steps ──────────────────────────────────────────────────────────
+
+func (s *scenarioCtx) aProviderFileExistsWithExtraKey(filename, key, value string) error {
+	path := filepath.Join(s.root, filename)
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return fmt.Errorf("mkdir: %w", err)
+	}
+	content := map[string]interface{}{key: value}
+	data, err := json.MarshalIndent(content, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal: %w", err)
+	}
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		return fmt.Errorf("write %s: %w", path, err)
+	}
+	return nil
+}
+
+func (s *scenarioCtx) theJSONProviderFileStillHasKey(filename, key string) error {
+	path := filepath.Join(s.root, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return fmt.Errorf("parse %s: %w", path, err)
+	}
+	if _, ok := doc[key]; !ok {
+		return fmt.Errorf("%s: key %q was not preserved", filename, key)
+	}
+	return nil
+}
+
 // ── init steps ────────────────────────────────────────────────────────────────
 
 func (s *scenarioCtx) iRunInit() error {
@@ -850,6 +884,8 @@ func parseEnvPairs(raw string) map[string]string {
 	}
 	return env
 }
+
+
 
 // ── suite wiring ──────────────────────────────────────────────────────────────
 

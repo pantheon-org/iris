@@ -86,6 +86,20 @@ Feature: Sync MCP servers to all providers
     Then the JSON provider file ".mcp.json" server "remote" under key "mcpServers" has field "url"
     And the JSON provider file "gemini-settings.json" server "remote" under key "mcpServers" has field "url"
 
+  Scenario: Sync preserves extra keys in existing Gemini config
+    Given a provider file "gemini-settings.json" exists with extra key "theme" set to "dark"
+    And an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to all providers
+    Then the JSON provider file "gemini-settings.json" still has key "theme"
+    And the JSON provider file "gemini-settings.json" contains servers "tool" under key "mcpServers"
+
+  Scenario: Sync preserves extra keys in existing Zed config
+    Given a provider file "zed-settings.json" exists with extra key "vim_mode" set to "true"
+    And an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to all providers
+    Then the JSON provider file "zed-settings.json" still has key "vim_mode"
+    And the zed provider file "zed-settings.json" contains servers "tool"
+
   Scenario: Env vars are written to JSON providers
     Given an MCP server "envtool" with command "node" and args "server.js"
     And the server "envtool" has env var "MY_KEY" set to "MY_VAL"
