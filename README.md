@@ -24,8 +24,11 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 | `iris add <name> --command/-c <cmd> [--args/-a ...] [--env/-e KEY=VAL ...] [--transport/-t stdio\|sse] [--url/-u <url>]` | Add or update a server |
 | `iris remove <name>` | Remove a server |
 | `iris list` | List all configured servers |
-| `iris sync` | Sync to providers listed in `.iris.json` (`providers` field); falls back to all providers if the field is absent |
+| `iris sync` | Sync both global and local configs for all providers (or those listed in `.iris.json` `providers` field) |
 | `iris sync --provider/-p <name> ...` | Override the provider list for this sync |
+| `iris sync --global/-g` | Sync only home-directory (global) configs |
+| `iris sync --local/-l` | Sync only project-local configs |
+| `iris sync --interactive/-I` | Interactive wizard — select which providers and scope (global/local/both) to sync |
 | `iris status` | Show per-provider sync status |
 
 ## Canonical config format
