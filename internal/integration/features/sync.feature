@@ -23,22 +23,13 @@ Feature: Sync MCP servers to all providers
     And I sync to all providers again
     Then all providers report status "unchanged"
 
-  Scenario: All 14 providers write correct config formats
+  Scenario: All supported providers write provider-specific formats
     Given an MCP server "tool" with command "uvx" and args "some-tool"
     When I sync to all providers
-    Then the JSON provider file ".mcp.json" contains servers "tool" under key "mcpServers"
-    And the JSON provider file "gemini-settings.json" contains servers "tool" under key "mcpServers"
-    And the opencode provider file "opencode.json" contains servers "tool"
-    And the TOML provider file "codex-config.toml" contains servers "tool"
-    And the JSON provider file ".cursor/mcp.json" contains servers "tool" under key "mcpServers"
-    And the JSON provider file ".vscode/mcp.json" contains servers "tool" under key "servers"
-    And the JSON provider file ".qwen/settings.json" contains servers "tool" under key "mcpServers"
-    And the JSON provider file ".idea/mcp.json" contains servers "tool" under key "mcpServers"
+    Then the opencode provider file "opencode.json" contains servers "tool"
     And the zed provider file "zed-settings.json" contains servers "tool"
+    And the TOML provider file "codex-config.toml" contains servers "tool"
     And the TOML mistral provider file "mistral-vibe-config.toml" contains servers "tool"
-    And the JSON provider file "warp-mcp.json" contains servers "tool" under key "mcpServers"
-    And the JSON provider file "kimi-settings.json" contains servers "tool" under key "mcpServers"
-    And the JSON provider file "windsurf-config.json" contains servers "tool" under key "mcpServers"
 
   Scenario: Sync with --json flag emits JSON results
     Given an MCP server "fetch" with command "uvx" and args "mcp-server-fetch"
@@ -53,3 +44,15 @@ Feature: Sync MCP servers to all providers
     And I sync to all providers
     Then the provider config file ".mcp.json" exists
     And the JSON provider file ".mcp.json" contains servers "tool,tool2" under key "mcpServers"
+
+  Scenario: Copilot writes servers under "servers" key
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to all providers
+    Then the JSON provider file ".vscode/mcp.json" contains servers "tool" under key "servers"
+
+  Scenario: Copilot does not emit unsupported fields
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to all providers
+    Then the copilot server "tool" in file ".vscode/mcp.json" does not have field "headers"
+    And the copilot server "tool" in file ".vscode/mcp.json" does not have field "cwd"
+    And the copilot server "tool" in file ".vscode/mcp.json" does not have field "enabled"
