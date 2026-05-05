@@ -118,7 +118,7 @@ func CollectImportCandidates(projectRoot string, reg *registry.Registry) ([]Impo
 func readCandidates(p providers.Provider, projectRoot string, scope Scope) ([]ImportCandidate, error) {
 	ok, err := p.Exists(projectRoot)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("check exists: %w", err)
 	}
 	if !ok {
 		return nil, nil

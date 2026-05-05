@@ -355,7 +355,10 @@ func (s *scenarioCtx) irisConfigServerCount() (int, error) {
 // runInteractiveInit executes wizard.RunInit using a ScriptedRunner built from answers.
 func (s *scenarioCtx) runInteractiveInit(answers []string) error {
 	r := wizard.NewScriptedRunner(answers)
-	return wizard.RunInit(r, s.root, s.store, s.reg)
+	if err := wizard.RunInit(r, s.root, s.store, s.reg); err != nil {
+		return fmt.Errorf("RunInit: %w", err)
+	}
+	return nil
 }
 
 // buildIsolatedReg constructs a registry with only the providers needed for
@@ -385,7 +388,7 @@ func (s *scenarioCtx) iRunInteractiveInitAndCollectImportCandidates() error {
 	var err error
 	s.importCandidates, err = wizard.CollectImportCandidates(s.root, s.reg)
 	if err != nil {
-		return err
+		return fmt.Errorf("CollectImportCandidates: %w", err)
 	}
 	s.groupedCandidates = wizard.GroupImportCandidates(s.importCandidates)
 	return nil
@@ -569,7 +572,10 @@ func (s *scenarioCtx) theGroupedCandidateForServerListsProviders(serverName, p1,
 
 func (s *scenarioCtx) aMalformedClaudeCodeProjectConfigExists() error {
 	s.reg = buildIsolatedReg(s.root)
-	return os.WriteFile(filepath.Join(s.root, ".mcp.json"), []byte(`{"mcpServers": {`), 0o600)
+	if err := os.WriteFile(filepath.Join(s.root, ".mcp.json"), []byte(`{"mcpServers": {`), 0o600); err != nil {
+		return fmt.Errorf("write malformed config: %w", err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) aClaudeCodeProjectConfigExistsWithServer(serverName, command, rawArgs string) error {
@@ -579,9 +585,12 @@ func (s *scenarioCtx) aClaudeCodeProjectConfigExistsWithServer(serverName, comma
 	doc := map[string]any{"mcpServers": map[string]any{serverName: entry}}
 	data, err := json.Marshal(doc)
 	if err != nil {
-		return err
+		return fmt.Errorf("marshal claude config: %w", err)
 	}
-	return os.WriteFile(filepath.Join(s.root, ".mcp.json"), data, 0o600)
+	if err := os.WriteFile(filepath.Join(s.root, ".mcp.json"), data, 0o600); err != nil {
+		return fmt.Errorf("write claude config: %w", err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) aCursorProjectConfigExistsWithServer(serverName, command, rawArgs string) error {
@@ -592,13 +601,16 @@ func (s *scenarioCtx) aCursorProjectConfigExistsWithServer(serverName, command, 
 	doc := map[string]any{"mcpServers": map[string]any{serverName: entry}}
 	data, err := json.Marshal(doc)
 	if err != nil {
-		return err
+		return fmt.Errorf("marshal cursor config: %w", err)
 	}
 	cursorDir := filepath.Join(s.root, ".cursor")
 	if err := os.MkdirAll(cursorDir, 0o700); err != nil {
-		return err
+		return fmt.Errorf("mkdir cursor dir: %w", err)
 	}
-	return os.WriteFile(filepath.Join(cursorDir, "mcp.json"), data, 0o600)
+	if err := os.WriteFile(filepath.Join(cursorDir, "mcp.json"), data, 0o600); err != nil {
+		return fmt.Errorf("write cursor config: %w", err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) aGlobalGoogleGeminiConfigExistsWithServer(serverName, command, rawArgs string) error {
@@ -608,10 +620,13 @@ func (s *scenarioCtx) aGlobalGoogleGeminiConfigExistsWithServer(serverName, comm
 	doc := map[string]any{"mcpServers": map[string]any{serverName: entry}}
 	data, err := json.Marshal(doc)
 	if err != nil {
-		return err
+		return fmt.Errorf("marshal gemini config: %w", err)
 	}
 	globalPath := filepath.Join(s.root, "gemini-settings.json")
-	return os.WriteFile(globalPath, data, 0o600)
+	if err := os.WriteFile(globalPath, data, 0o600); err != nil {
+		return fmt.Errorf("write gemini config: %w", err)
+	}
+	return nil
 }
 
 func (s *scenarioCtx) theIrisConfigAlreadyExistsWithOneServer() error {
