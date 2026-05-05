@@ -9,6 +9,28 @@ import (
 	"github.com/pantheon-org/iris/internal/types"
 )
 
+func TestWarpProvider_Parse_withTestdata(t *testing.T) {
+	content, err := os.ReadFile("testdata/warp_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewWarpProviderWithPath(filepath.Join(tmp, "mcp.json"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["fetch"].Command != "uvx" {
+		t.Errorf("fetch.command = %q, want %q", parsed["fetch"].Command, "uvx")
+	}
+}
+
 func TestWarpProvider_Config(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewWarpProviderWithPath(filepath.Join(tmp, "mcp.json"))

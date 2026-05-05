@@ -102,6 +102,28 @@ func TestWindsurfProvider_Parse_acceptsServerUrlOrUrl(t *testing.T) {
 	}
 }
 
+func TestWindsurfProvider_Parse_withTestdata(t *testing.T) {
+	content, err := os.ReadFile("testdata/windsurf_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewWindsurfProviderWithPath(filepath.Join(tmp, "mcp_config.json"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
+		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
+	}
+}
+
 func TestWindsurfProvider_Exists(t *testing.T) {
 	tmp := t.TempDir()
 	path := filepath.Join(tmp, "mcp_config.json")

@@ -125,6 +125,50 @@ func TestMistralVibeProvider_Generate_httpTransport(t *testing.T) {
 	}
 }
 
+func TestMistralVibeProvider_Parse_withTestdata(t *testing.T) {
+	content, err := os.ReadFile("testdata/mistral_vibe_input.toml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["fetch"].Command != "uvx" {
+		t.Errorf("fetch.command = %q, want %q", parsed["fetch"].Command, "uvx")
+	}
+	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
+		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
+	}
+}
+
+func TestMistralVibeProvider_Generate_withTestdata_preservesTopLevelKeys(t *testing.T) {
+	content, err := os.ReadFile("testdata/mistral_vibe_input.toml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))
+	servers := map[string]types.MCPServer{
+		"fetch": {Transport: types.TransportStdio, Command: "uvx", Args: []string{"mcp-server-fetch"}},
+	}
+	out, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	if !strings.Contains(out, "model") {
+		t.Error("expected 'model' key to be preserved")
+	}
+	if !strings.Contains(out, "api_key_env") {
+		t.Error("expected 'api_key_env' key to be preserved")
+	}
+}
+
 func TestMistralVibeProvider_Parse_malformedInput_returnsError(t *testing.T) {
 	tmp := t.TempDir()
 	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))

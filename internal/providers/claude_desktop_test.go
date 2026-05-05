@@ -1,6 +1,7 @@
 package providers_test
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -40,6 +41,51 @@ func TestClaudeDesktopProvider_GenerateParse_roundtrip(t *testing.T) {
 	}
 	if parsed["memory"].Command != "npx" {
 		t.Fatalf("expected command %q, got %q", "npx", parsed["memory"].Command)
+	}
+}
+
+func TestClaudeDesktopProvider_Parse_withTestdata(t *testing.T) {
+	content, err := os.ReadFile("testdata/claude_desktop_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewClaudeDesktopProviderWithPath(filepath.Join(tmp, "claude_desktop_config.json"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["brave-search"].Env["BRAVE_API_KEY"] != "test-key" {
+		t.Errorf("brave-search env = %v, want BRAVE_API_KEY=test-key", parsed["brave-search"].Env)
+	}
+}
+
+func TestClaudeDesktopProvider_Generate_withTestdata_preservesGlobalShortcut(t *testing.T) {
+	content, err := os.ReadFile("testdata/claude_desktop_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewClaudeDesktopProviderWithPath(filepath.Join(tmp, "claude_desktop_config.json"))
+	servers := map[string]types.MCPServer{
+		"filesystem": {Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"}},
+	}
+	out, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(out), &doc); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+	if _, ok := doc["globalShortcut"]; !ok {
+		t.Error("expected 'globalShortcut' key to be preserved")
 	}
 }
 

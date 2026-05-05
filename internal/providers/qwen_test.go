@@ -133,6 +133,31 @@ func TestQwenProvider_Parse_httpUrl_setsTransportHTTP(t *testing.T) {
 	}
 }
 
+func TestQwenProvider_Parse_withTestdata(t *testing.T) {
+	content, err := os.ReadFile("testdata/qwen_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewQwenProviderWithPath(filepath.Join(tmp, "settings.json"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
+		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
+	}
+	if parsed["context7"].Transport != types.TransportHTTP {
+		t.Errorf("context7.transport = %q, want %q", parsed["context7"].Transport, types.TransportHTTP)
+	}
+}
+
 func TestQwenProvider_Generate_noTypeField(t *testing.T) {
 	p := providers.NewQwenProviderWithPath(t.TempDir() + "/settings.json")
 	servers := map[string]types.MCPServer{

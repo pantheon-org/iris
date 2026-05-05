@@ -60,6 +60,28 @@ func TestKimiProvider_GenerateParse_roundtrip(t *testing.T) {
 	}
 }
 
+func TestKimiProvider_Parse_withTestdata(t *testing.T) {
+	content, err := os.ReadFile("testdata/kimi_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewKimiProviderWithPath(filepath.Join(tmp, "mcp.json"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["chrome-devtools"].Command != "npx" {
+		t.Errorf("chrome-devtools.command = %q, want %q", parsed["chrome-devtools"].Command, "npx")
+	}
+	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
+		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
+	}
+}
+
 func TestKimiProvider_Exists(t *testing.T) {
 	tmp := t.TempDir()
 	path := filepath.Join(tmp, "mcp.json")
