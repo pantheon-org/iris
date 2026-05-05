@@ -20,7 +20,8 @@ Feature: Sync MCP servers to all providers
     Given an MCP server "filesystem" with command "npx" and args "-y,@modelcontextprotocol/server-filesystem,/tmp"
     And an MCP server "fetch" with command "uvx" and args "mcp-server-fetch"
     When I sync to all providers
-    And I sync to all providers again
+    Then all providers report status "created"
+    When I sync to all providers again
     Then all providers report status "unchanged"
 
   Scenario: All 14 providers write correct config formats
@@ -53,3 +54,10 @@ Feature: Sync MCP servers to all providers
     And I sync to all providers
     Then the provider config file ".mcp.json" exists
     And the JSON provider file ".mcp.json" contains servers "tool,tool2" under key "mcpServers"
+
+  Scenario: OpenCode writes correct field formats
+    Given an MCP server "myserver" with command "node" and args "server.js"
+    And an MCP server "myserver" with command "node" and env "MY_KEY=MY_VAL"
+    When I sync to all providers
+    Then the opencode provider file "opencode.json" contains servers "myserver"
+    And the opencode server "myserver" in file "opencode.json" has correct field format
