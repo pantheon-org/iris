@@ -56,3 +56,10 @@ Feature: Sync MCP servers to all providers
     Then the copilot server "tool" in file ".vscode/mcp.json" does not have field "headers"
     And the copilot server "tool" in file ".vscode/mcp.json" does not have field "cwd"
     And the copilot server "tool" in file ".vscode/mcp.json" does not have field "enabled"
+
+  Scenario: Env vars are written to JSON providers
+    Given an MCP server "envtool" with command "node" and args "server.js"
+    And the server "envtool" has env var "MY_KEY" set to "MY_VAL"
+    When I sync to all providers
+    Then the JSON provider file ".mcp.json" server "envtool" under key "mcpServers" has env var "MY_KEY"
+    And the JSON provider file "gemini-settings.json" server "envtool" under key "mcpServers" has env var "MY_KEY"
