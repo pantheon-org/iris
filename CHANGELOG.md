@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026.5.13](https://github.com/pantheon-org/iris/compare/v2026.5.12...v2026.5.13) (2026-05-05)
+
+
+### Features
+
+* add colour output to all CLI commands ([#122](https://github.com/pantheon-org/iris/issues/122)) ([f536574](https://github.com/pantheon-org/iris/commit/f536574494254d22b066cda38ed6d0a85ffa3719))
+* **status:** shorten paths, scope column, type-safe config paths, and fixture-based provider tests ([#126](https://github.com/pantheon-org/iris/issues/126)) ([9ccba9f](https://github.com/pantheon-org/iris/commit/9ccba9f64a98324ebc5e0e495980ac820ba456a0))
+* **status:** show both local and global rows, colour-code scope column ([#127](https://github.com/pantheon-org/iris/issues/127)) ([fbf9da9](https://github.com/pantheon-org/iris/commit/fbf9da902109ba79597070bf29b5990c065a623a))
+* **sync:** add --global/-g, --local/-l, --interactive/-I scope flags ([#128](https://github.com/pantheon-org/iris/issues/128)) ([be62775](https://github.com/pantheon-org/iris/commit/be62775af6e924eedc1c50a1c1e1d708edadf64b))
+
+
+### Bug Fixes
+
+* **cli:** fix column misalignment in list/status/sync table output ([#125](https://github.com/pantheon-org/iris/issues/125)) ([3b6bc2c](https://github.com/pantheon-org/iris/commit/3b6bc2cb54a9e438f0c2cd0c7fa3305795a30604))
+
 ## [2026.5.12](https://github.com/pantheon-org/iris/compare/v2026.5.11...v2026.5.12) (2026-05-05)
 
 
