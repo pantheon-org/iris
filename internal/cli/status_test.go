@@ -158,8 +158,10 @@ func TestRunStatus_jsonOutput_includesScope(t *testing.T) {
 	require.NoError(t, err)
 	var out cli.StatusOutput
 	require.NoError(t, json.NewDecoder(&buf).Decode(&out))
-	require.Len(t, out.Providers, 1)
+	// Gemini has both local and global configs — expect one row per scope.
+	require.Len(t, out.Providers, 2)
 	assert.Equal(t, "local", out.Providers[0].Scope)
+	assert.Equal(t, "global", out.Providers[1].Scope)
 }
 
 func TestShortenPath_replacesHomePrefix(t *testing.T) {
@@ -216,6 +218,9 @@ func TestRunStatus_jsonOutput_synced(t *testing.T) {
 
 	var out cli.StatusOutput
 	require.NoError(t, json.NewDecoder(&buf).Decode(&out))
-	require.Len(t, out.Providers, 1)
+	// Claude has both local and global configs — local (index 0) should be synced.
+	require.Len(t, out.Providers, 2)
+	assert.Equal(t, "local", out.Providers[0].Scope)
 	assert.Equal(t, "synced", out.Providers[0].Status)
+	assert.Equal(t, "global", out.Providers[1].Scope)
 }
