@@ -101,7 +101,7 @@ func TestDetect_BothProjectFilesPresent_BothDetected(t *testing.T) {
 	}
 	names := map[string]bool{}
 	for _, p := range got {
-		names[p.Config().Name] = true
+		names[string(p.Config().Name)] = true
 	}
 	if !names["claude"] {
 		t.Error("expected anthropic-claude-code in results")

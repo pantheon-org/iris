@@ -1,6 +1,10 @@
 package providers
 
-import "path/filepath"
+import (
+	"path/filepath"
+
+	"github.com/pantheon-org/iris/internal/types"
+)
 
 type IntelliJProvider struct {
 	baseJSONProvider
@@ -9,7 +13,7 @@ type IntelliJProvider struct {
 func NewIntelliJProvider() *IntelliJProvider {
 	p := &IntelliJProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameIntelliJIDEA,
+		Name:                  types.NameIntelliJIDEA,
 		DisplayName:           "IntelliJ IDEA",
 		LocalConfigPath:       strPtr(".idea/mcp.json"),
 		SupportsProjectConfig: true,

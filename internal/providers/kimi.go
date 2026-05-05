@@ -1,6 +1,9 @@
 package providers
 
-import "github.com/pantheon-org/iris/internal/io"
+import (
+	"github.com/pantheon-org/iris/internal/io"
+	"github.com/pantheon-org/iris/internal/types"
+)
 
 type KimiProvider struct {
 	baseJSONProvider
@@ -13,7 +16,7 @@ func NewKimiProvider() *KimiProvider {
 func newKimiProviderWithPath(path string) *KimiProvider {
 	p := &KimiProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameMoonshotKimi,
+		Name:                  types.NameMoonshotKimi,
 		DisplayName:           "Moonshot Kimi",
 		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,

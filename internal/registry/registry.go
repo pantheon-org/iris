@@ -16,7 +16,7 @@ func NewRegistry() *Registry {
 }
 
 func (r *Registry) Register(p providers.Provider) {
-	r.providers[p.Config().Name] = p
+	r.providers[string(p.Config().Name)] = p
 }
 
 func (r *Registry) Get(name string) (providers.Provider, error) {

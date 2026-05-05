@@ -355,7 +355,7 @@ func TestSyncAllProviders_scopeGlobal_skipsLocalOnlyProviders(t *testing.T) {
 	results := irisync.SyncAllProviders(dir, irisync.ScopeGlobal, reg, testServers)
 
 	require.Len(t, results, 1, "only claude has a global path")
-	assert.Equal(t, "claude", results[0].ProviderName)
+	assert.Equal(t, "claude", results[0].ProviderName.String())
 	assert.Equal(t, "global", results[0].Scope)
 	assert.Equal(t, claudeGlobalPath, results[0].Path)
 	assert.Equal(t, irisync.SyncStatusCreated, results[0].Status)
@@ -376,7 +376,7 @@ func TestSyncAllProviders_scopeLocal_skipsGlobalOnlyProviders(t *testing.T) {
 
 	byName := make(map[string]irisync.SyncResult, 2)
 	for _, r := range results {
-		byName[r.ProviderName] = r
+		byName[string(r.ProviderName)] = r
 	}
 
 	// Windsurf (global-only) falls back to primary path with empty scope tag.

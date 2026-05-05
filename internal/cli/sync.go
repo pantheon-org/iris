@@ -58,7 +58,7 @@ func RunSync(projectRoot string, cfg *types.IrisConfig, reg *registry.Registry, 
 		entries := make([]SyncResultEntry, 0, len(results))
 		for _, r := range results {
 			entry := SyncResultEntry{
-				Provider: r.ProviderName,
+				Provider: string(r.ProviderName),
 				Scope:    r.Scope,
 				Status:   string(r.Status),
 				Path:     r.Path,
@@ -87,16 +87,16 @@ func RunSync(projectRoot string, cfg *types.IrisConfig, reg *registry.Registry, 
 		if r.Err != nil {
 			pathCell := st.Muted.Render(displayPath) + "  " + st.Err.Render("("+r.Err.Error()+")")
 			if showScope {
-				t.Row(st.Accent.Render(r.ProviderName), scopeStyle(r.Scope, st), st.Err.Render(string(r.Status)), pathCell)
+				t.Row(st.Accent.Render(string(r.ProviderName)), scopeStyle(r.Scope, st), st.Err.Render(string(r.Status)), pathCell)
 			} else {
-				t.Row(st.Accent.Render(r.ProviderName), st.Err.Render(string(r.Status)), pathCell)
+				t.Row(st.Accent.Render(string(r.ProviderName)), st.Err.Render(string(r.Status)), pathCell)
 			}
 			hasErr = true
 		} else {
 			if showScope {
-				t.Row(st.Accent.Render(r.ProviderName), scopeStyle(r.Scope, st), st.Success.Render(string(r.Status)), st.Muted.Render(displayPath))
+				t.Row(st.Accent.Render(string(r.ProviderName)), scopeStyle(r.Scope, st), st.Success.Render(string(r.Status)), st.Muted.Render(displayPath))
 			} else {
-				t.Row(st.Accent.Render(r.ProviderName), st.Success.Render(string(r.Status)), st.Muted.Render(displayPath))
+				t.Row(st.Accent.Render(string(r.ProviderName)), st.Success.Render(string(r.Status)), st.Muted.Render(displayPath))
 			}
 		}
 	}

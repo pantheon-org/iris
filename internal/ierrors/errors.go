@@ -11,4 +11,5 @@ var (
 	ErrUnsupportedVersion = errors.New("unsupported config version")
 	ErrSymlinkNotAllowed  = errors.New("symlink target not allowed")
 	ErrUnsupportedFormat  = errors.New("unsupported config format")
+	ErrInvalidTransport   = errors.New("invalid transport")
 )

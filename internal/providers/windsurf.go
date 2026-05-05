@@ -35,7 +35,7 @@ func windsurfConfigPath() string { return io.UserHomePath(".codeium", "windsurf"
 
 func (p *WindsurfProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  NameOpenAIWindsurf,
+		Name:                  types.NameOpenAIWindsurf,
 		DisplayName:           "OpenAI Windsurf",
 		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,

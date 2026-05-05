@@ -1,6 +1,10 @@
 package providers
 
-import "path/filepath"
+import (
+	"path/filepath"
+
+	"github.com/pantheon-org/iris/internal/types"
+)
 
 type CursorProvider struct {
 	baseJSONProvider
@@ -9,7 +13,7 @@ type CursorProvider struct {
 func NewCursorProvider() *CursorProvider {
 	p := &CursorProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameAnyspereCursor,
+		Name:                  types.NameAnysphereCursor,
 		DisplayName:           "Anysphere Cursor",
 		LocalConfigPath:       strPtr(".cursor/mcp.json"),
 		SupportsProjectConfig: true,

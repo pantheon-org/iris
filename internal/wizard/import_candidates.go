@@ -14,19 +14,13 @@ import (
 )
 
 // Scope indicates whether a provider config was found at the project or global level.
-type Scope string
-
-const (
-	ScopeProject Scope = "project"
-	ScopeGlobal  Scope = "global"
-)
 
 // ImportCandidate is a single MCP server discovered in an existing provider config.
 type ImportCandidate struct {
 	ServerName   string
 	Server       types.MCPServer
-	ProviderName string
-	Scope        Scope
+	ProviderName types.ProviderName
+	Scope        types.Scope
 }
 
 // Label returns the display string shown in the multi-select prompt:
@@ -41,14 +35,14 @@ func (c ImportCandidate) Label() string {
 type GroupedCandidate struct {
 	ServerName string
 	Server     types.MCPServer
-	Providers  []string // ordered list of provider names that define this server
+	Providers  []types.ProviderName // ordered list of provider names that define this server
 }
 
 // Label returns the display string shown in the multi-select prompt:
 //
 //	"<server-name>  [<provider1> · <provider2> · ...]"
 func (g GroupedCandidate) Label() string {
-	return fmt.Sprintf("%s  [%s]", g.ServerName, strings.Join(g.Providers, " · "))
+	return fmt.Sprintf("%s  [%s]", g.ServerName, strings.Join(types.ProviderNames(g.Providers), " · "))
 }
 
 // GroupImportCandidates collapses a flat list of ImportCandidates into one entry per
@@ -77,7 +71,7 @@ func GroupImportCandidates(candidates []ImportCandidate) []GroupedCandidate {
 			result = append(result, GroupedCandidate{
 				ServerName: c.ServerName,
 				Server:     c.Server,
-				Providers:  []string{c.ProviderName},
+				Providers:  []types.ProviderName{c.ProviderName},
 			})
 		}
 	}
@@ -95,7 +89,7 @@ func CollectImportCandidates(projectRoot string, reg *registry.Registry) ([]Impo
 
 		// Project-scoped config.
 		if cfg.SupportsProjectConfig && projectRoot != "" {
-			cs, err := readCandidates(p, projectRoot, ScopeProject)
+			cs, err := readCandidates(p, projectRoot, types.ScopeProject)
 			if err != nil {
 				return nil, fmt.Errorf("read project config for %s: %w", cfg.Name, err)
 			}
@@ -106,7 +100,7 @@ func CollectImportCandidates(projectRoot string, reg *registry.Registry) ([]Impo
 		// ConfigFilePath("") returns an absolute path when the provider has a global
 		// config; project-only providers return a relative path (no root prefix).
 		if absGlobal := p.ConfigFilePath(""); filepath.IsAbs(absGlobal) {
-			cs, err := readCandidatesFromPath(p, absGlobal, cfg.Name, ScopeGlobal)
+			cs, err := readCandidatesFromPath(p, absGlobal, cfg.Name, types.ScopeGlobal)
 			if err != nil {
 				return nil, fmt.Errorf("read global config for %s: %w", cfg.Name, err)
 			}
@@ -118,7 +112,7 @@ func CollectImportCandidates(projectRoot string, reg *registry.Registry) ([]Impo
 }
 
 // readCandidates loads a provider's project-level config file and returns candidates.
-func readCandidates(p providers.Provider, projectRoot string, scope Scope) ([]ImportCandidate, error) {
+func readCandidates(p providers.Provider, projectRoot string, scope types.Scope) ([]ImportCandidate, error) {
 	ok, err := p.Exists(projectRoot)
 	if err != nil {
 		return nil, fmt.Errorf("check exists: %w", err)
@@ -130,7 +124,7 @@ func readCandidates(p providers.Provider, projectRoot string, scope Scope) ([]Im
 }
 
 // readCandidatesFromPath reads a config file at path, parses it, and returns candidates.
-func readCandidatesFromPath(p providers.Provider, path, providerName string, scope Scope) ([]ImportCandidate, error) {
+func readCandidatesFromPath(p providers.Provider, path string, providerName types.ProviderName, scope types.Scope) ([]ImportCandidate, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
