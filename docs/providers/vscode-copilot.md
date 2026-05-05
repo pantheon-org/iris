@@ -26,7 +26,27 @@ iris targets the project-level file. The global form embeds server definitions i
 }
 ```
 
-Root key: `servers` (not `mcpServers`). Each entry has a sibling `"type"` field (`"stdio"` or `"sse"`). iris preserves all existing top-level keys (e.g. `"inputs"`).
+Root key: `servers` (not `mcpServers`). Each entry has a sibling `"type"` field (`"stdio"`, `"sse"`, or `"http"`). iris preserves all existing top-level keys (e.g. `"inputs"`).
+
+## Supported server fields
+
+| Field     | Type               | Notes                                                                                    |
+|-----------|--------------------|------------------------------------------------------------------------------------------|
+| `type`    | string             | `"stdio"`, `"sse"`, or `"http"` (Streamable HTTP; tries HTTP, falls back to SSE)        |
+| `command` | string             | Executable path (stdio only)                                                             |
+| `args`    | array of strings   | CLI arguments (stdio only)                                                               |
+| `env`     | map of strings     | Environment variables                                                                    |
+| `url`     | string             | Server URL (sse/http only)                                                               |
+
+## Fields NOT supported
+
+The following iris `MCPServer` fields have no equivalent in the VS Code Copilot format and are **silently omitted** when iris generates `.vscode/mcp.json`:
+
+- `headers` — Copilot does not accept per-server HTTP headers
+- `cwd` — working-directory override is not supported
+- `enabled` — Copilot has no per-server enable/disable flag
+
+This is intentional and correct behaviour. The omission is achieved via struct mapping (`vscodeServer` in `internal/providers/vscode_copilot.go`) — no explicit stripping code is needed. Confirmed by source inspection (2026-05-05, wave 0b audit).
 
 ## References
 
