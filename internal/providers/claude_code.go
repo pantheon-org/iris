@@ -28,6 +28,7 @@ func newClaudeCodeProviderWithGlobalPath(globalPath string) *ClaudeCodeProvider 
 		LocalConfigPath:       strPtr(".mcp.json"),
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      homeRel(globalPath),
+		HasGlobalConfig:       true,
 	}
 	p.resolvedPath = func(projectRoot string) string {
 		if projectRoot != "" {

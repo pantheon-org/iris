@@ -97,7 +97,7 @@ func TestSyncAllProviders_multipleProviders_allResultsReturned(t *testing.T) {
 	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 
-	results := irisync.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, irisync.ScopeLocal, reg, testServers)
 
 	assert.Len(t, results, 2)
 }
@@ -112,7 +112,7 @@ func TestSyncAllProviders_oneErrors_errorCapturedInResult(t *testing.T) {
 	reg.Register(providers.NewClaudeCodeProvider())
 	reg.Register(providers.NewOpenCodeProvider())
 
-	results := irisync.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, irisync.ScopeLocal, reg, testServers)
 
 	require.Len(t, results, 2)
 
@@ -138,7 +138,7 @@ func TestSyncAllProviders_oneErrors_doesNotReturnError(t *testing.T) {
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProvider())
 
-	results := irisync.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, irisync.ScopeLocal, reg, testServers)
 
 	found := false
 	for _, r := range results {
@@ -173,7 +173,7 @@ func runSyncAllProvidersTC(t *testing.T, tc syncAllProvidersTC) {
 		reg.Register(p)
 	}
 
-	results := irisync.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, irisync.ScopeLocal, reg, testServers)
 
 	require.Len(t, results, tc.wantLen)
 
@@ -333,11 +333,89 @@ func TestSyncAllProviders_errorsAreContainedInResults_noPanic(t *testing.T) {
 	reg.Register(providers.NewOpenCodeProvider())
 	reg.Register(providers.NewCursorProvider())
 
-	results := irisync.SyncAllProviders(dir, reg, testServers)
+	results := irisync.SyncAllProviders(dir, irisync.ScopeLocal, reg, testServers)
 
 	require.Len(t, results, 3)
 	for _, r := range results {
 		assert.Equal(t, irisync.SyncStatusError, r.Status, "provider %q: expected SyncStatusError", r.ProviderName)
 		assert.NotNil(t, r.Err, "provider %q: expected non-nil Err", r.ProviderName)
 	}
+}
+
+func TestSyncAllProviders_scopeGlobal_skipsLocalOnlyProviders(t *testing.T) {
+	dir := t.TempDir()
+
+	// Cursor has LocalConfigPath but no GlobalConfigPath — must be skipped.
+	// Claude Code has both — only global should be synced.
+	claudeGlobalPath := filepath.Join(dir, "claude-global.json")
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(claudeGlobalPath))
+	reg.Register(providers.NewCursorProvider())
+
+	results := irisync.SyncAllProviders(dir, irisync.ScopeGlobal, reg, testServers)
+
+	require.Len(t, results, 1, "only claude has a global path")
+	assert.Equal(t, "claude", results[0].ProviderName)
+	assert.Equal(t, "global", results[0].Scope)
+	assert.Equal(t, claudeGlobalPath, results[0].Path)
+	assert.Equal(t, irisync.SyncStatusCreated, results[0].Status)
+}
+
+func TestSyncAllProviders_scopeLocal_skipsGlobalOnlyProviders(t *testing.T) {
+	dir := t.TempDir()
+
+	// Windsurf has GlobalConfigPath but no LocalConfigPath — must be skipped (falls back to primary path).
+	windsurfPath := filepath.Join(dir, "windsurf.json")
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewWindsurfProviderWithPath(windsurfPath))
+	reg.Register(providers.NewCursorProvider())
+
+	results := irisync.SyncAllProviders(dir, irisync.ScopeLocal, reg, testServers)
+
+	require.Len(t, results, 2, "both providers included: windsurf via fallback, cursor via local")
+
+	byName := make(map[string]irisync.SyncResult, 2)
+	for _, r := range results {
+		byName[r.ProviderName] = r
+	}
+
+	// Windsurf (global-only) falls back to primary path with empty scope tag.
+	assert.Equal(t, "", byName["windsurf"].Scope)
+	assert.Equal(t, windsurfPath, byName["windsurf"].Path)
+
+	// Cursor uses local path.
+	assert.Equal(t, "local", byName["cursor"].Scope)
+	assert.Equal(t, filepath.Join(dir, ".cursor", "mcp.json"), byName["cursor"].Path)
+}
+
+func TestSyncAllProviders_scopeAll_dualScopeProvider_syncsBothPaths(t *testing.T) {
+	dir := t.TempDir()
+
+	claudeGlobalPath := filepath.Join(dir, "claude-global.json")
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(claudeGlobalPath))
+
+	results := irisync.SyncAllProviders(dir, irisync.ScopeAll, reg, testServers)
+
+	// Claude Code has both global and local — expect 2 results.
+	require.Len(t, results, 2)
+
+	byScope := make(map[string]irisync.SyncResult, 2)
+	for _, r := range results {
+		byScope[r.Scope] = r
+	}
+
+	assert.Equal(t, claudeGlobalPath, byScope["global"].Path)
+	assert.Equal(t, filepath.Join(dir, ".mcp.json"), byScope["local"].Path)
+	assert.Equal(t, irisync.SyncStatusCreated, byScope["global"].Status)
+	assert.Equal(t, irisync.SyncStatusCreated, byScope["local"].Status)
+}
+
+func TestSyncResult_pathPopulated(t *testing.T) {
+	dir := t.TempDir()
+	p := providers.NewClaudeCodeProvider()
+
+	result := irisync.SyncProvider(dir, p, testServers)
+
+	assert.Equal(t, filepath.Join(dir, ".mcp.json"), result.Path)
 }

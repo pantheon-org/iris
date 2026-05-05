@@ -27,9 +27,10 @@ func buildRegistry(t *testing.T, root string) *registry.Registry {
 	warpPath := filepath.Join(root, "warp-mcp.json")
 	kimiPath := filepath.Join(root, "kimi-settings.json")
 	mistralVibePath := filepath.Join(root, "mistral-vibe-config.toml")
+	claudeCodeGlobalPath := filepath.Join(root, "claude-global.json")
 
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewClaudeCodeProvider())
+	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(claudeCodeGlobalPath))
 	reg.Register(providers.NewClaudeDesktopProviderWithPath(claudeDesktopPath))
 	reg.Register(providers.NewGoogleGeminiProviderWithPath(googleGeminiPath))
 	reg.Register(providers.NewOpenCodeProvider())
@@ -78,7 +79,7 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 
 	reg := buildRegistry(t, root)
 
-	if err := cli.RunSync(root, cfg, reg, io.Discard, false, noColourStyles()); err != nil {
+	if err := cli.RunSync(root, cfg, reg, io.Discard, irisync.ScopeLocal, false, noColourStyles()); err != nil {
 		t.Fatalf("RunSync (first): %v", err)
 	}
 
@@ -148,11 +149,11 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 	}
 
 	reg2 := buildRegistry(t, root)
-	if err := cli.RunSync(root, cfg, reg2, io.Discard, false, noColourStyles()); err != nil {
+	if err := cli.RunSync(root, cfg, reg2, io.Discard, irisync.ScopeLocal, false, noColourStyles()); err != nil {
 		t.Fatalf("RunSync (second): %v", err)
 	}
 
-	results := irisync.SyncAllProviders(root, reg2, cfg.Servers)
+	results := irisync.SyncAllProviders(root, irisync.ScopeLocal, reg2, cfg.Servers)
 	for _, r := range results {
 		if r.Err != nil {
 			t.Errorf("provider %s: unexpected error: %v", r.ProviderName, r.Err)

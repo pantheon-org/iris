@@ -52,7 +52,6 @@ func buildReg(root string) *registry.Registry {
 	warpPath := filepath.Join(root, "warp-mcp.json")
 	kimiPath := filepath.Join(root, "kimi-settings.json")
 	mistralVibePath := filepath.Join(root, "mistral-vibe-config.toml")
-
 	claudeCodeGlobalPath := filepath.Join(root, "claude-global.json")
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(claudeCodeGlobalPath))

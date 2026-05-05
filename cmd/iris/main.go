@@ -15,6 +15,7 @@ import (
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
+	irisync "github.com/pantheon-org/iris/internal/sync"
 	"github.com/pantheon-org/iris/internal/types"
 	"github.com/pantheon-org/iris/internal/version"
 	"github.com/pantheon-org/iris/internal/wizard"
@@ -210,6 +211,9 @@ func main() {
 			var (
 				providerNames []string
 				jsonOutput    bool
+				globalOnly    bool
+				localOnly     bool
+				interactive   bool
 			)
 			cmd := &cobra.Command{
 				Use:   "sync",
@@ -233,17 +237,42 @@ func main() {
 					if len(targetProviders) == 0 {
 						targetProviders = cfg.Providers
 					}
+
+					scope := irisync.ScopeAll
+					if globalOnly {
+						scope = irisync.ScopeGlobal
+					} else if localOnly {
+						scope = irisync.ScopeLocal
+					}
+
+					if interactive {
+						sel, err := wizard.RunSyncInteractive(wizard.NewTerminalRunner(), reg.Names())
+						if err != nil {
+							return fmt.Errorf("interactive sync: %w", err)
+						}
+						if len(sel.ProviderNames) > 0 {
+							targetProviders = sel.ProviderNames
+						}
+						scope = sel.Scope
+					}
+
 					if len(targetProviders) > 0 {
 						reg, err = reg.Filter(targetProviders)
 						if err != nil {
 							return fmt.Errorf("filter providers: %w", err)
 						}
 					}
-					return cli.RunSync(projectRoot, cfg, reg, os.Stdout, jsonOutput, cli.DefaultStyles())
+					return cli.RunSync(projectRoot, cfg, reg, os.Stdout, scope, jsonOutput, cli.DefaultStyles())
 				},
 			}
 			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, i18n.T("flag.provider"))
+			cmd.Flags().BoolVarP(&globalOnly, "global", "g", false, i18n.T("flag.global"))
+			cmd.Flags().BoolVarP(&localOnly, "local", "l", false, i18n.T("flag.local"))
+			cmd.Flags().BoolVarP(&interactive, "interactive", "I", false, i18n.T("flag.interactive"))
 			cmd.Flags().BoolVar(&jsonOutput, "json", false, i18n.T("flag.json"))
+			cmd.MarkFlagsMutuallyExclusive("global", "local")
+			cmd.MarkFlagsMutuallyExclusive("global", "interactive")
+			cmd.MarkFlagsMutuallyExclusive("local", "interactive")
 			return cmd
 		}(),
 		func() *cobra.Command {

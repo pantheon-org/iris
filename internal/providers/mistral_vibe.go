@@ -42,6 +42,7 @@ func (p *MistralVibeProvider) Config() ProviderConfig {
 		LocalConfigPath:       strPtr(".vibe/config.toml"),
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      homeRel(p.configPath),
+		HasGlobalConfig:       true,
 	}
 }
 

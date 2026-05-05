@@ -14,6 +14,7 @@ type ProviderConfig struct {
 	LocalConfigPath       *string // project-relative path (e.g. ".mcp.json"); nil = project config not supported
 	SupportsProjectConfig bool
 	GlobalConfigPath      *string // home-relative path (e.g. ".config/tool/config.json"); nil = no global config
+	HasGlobalConfig       bool    // true when the provider has a global config path (even if GlobalConfigPath is nil due to non-home path)
 }
 
 func strPtr(s string) *string { return &s }

@@ -39,6 +39,7 @@ func (p *OpenaiCodexProvider) Config() ProviderConfig {
 		LocalConfigPath:       strPtr(".codex/config.toml"),
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      homeRel(p.configPath),
+		HasGlobalConfig:       true,
 	}
 }
 
