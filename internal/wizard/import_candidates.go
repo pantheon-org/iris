@@ -4,10 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
-	irio "github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
@@ -103,8 +103,9 @@ func CollectImportCandidates(projectRoot string, reg *registry.Registry) ([]Impo
 		}
 
 		// Global config (when provider exposes one).
-		if cfg.GlobalConfigPath != nil {
-			absGlobal := irio.UserHomePath(*cfg.GlobalConfigPath)
+		// ConfigFilePath("") returns an absolute path when the provider has a global
+		// config; project-only providers return a relative path (no root prefix).
+		if absGlobal := p.ConfigFilePath(""); filepath.IsAbs(absGlobal) {
 			cs, err := readCandidatesFromPath(p, absGlobal, cfg.Name, ScopeGlobal)
 			if err != nil {
 				return nil, fmt.Errorf("read global config for %s: %w", cfg.Name, err)
