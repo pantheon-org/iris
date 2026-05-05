@@ -24,7 +24,7 @@ func TestRunInitNonInteractive_noExistingFile_createsConfig(t *testing.T) {
 	store := newEmptyStore(t)
 	var buf bytes.Buffer
 
-	if err := cli.RunInitNonInteractive(store, &buf); err != nil {
+	if err := cli.RunInitNonInteractive(store, &buf, noColourStyles()); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
@@ -48,12 +48,12 @@ func TestRunInitNonInteractive_existingFile_skips(t *testing.T) {
 	store := newEmptyStore(t)
 	var buf bytes.Buffer
 
-	if err := cli.RunInitNonInteractive(store, &buf); err != nil {
+	if err := cli.RunInitNonInteractive(store, &buf, noColourStyles()); err != nil {
 		t.Fatalf("first call failed: %v", err)
 	}
 	buf.Reset()
 
-	if err := cli.RunInitNonInteractive(store, &buf); err != nil {
+	if err := cli.RunInitNonInteractive(store, &buf, noColourStyles()); err != nil {
 		t.Fatalf("second call failed: %v", err)
 	}
 

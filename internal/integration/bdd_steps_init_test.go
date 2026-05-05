@@ -20,7 +20,7 @@ import (
 
 func (s *scenarioCtx) iRunInit() error {
 	s.output.Reset()
-	if err := cli.RunInitNonInteractive(s.store, s.output); err != nil {
+	if err := cli.RunInitNonInteractive(s.store, s.output, noColourStyles()); err != nil {
 		return fmt.Errorf("init: %w", err)
 	}
 	return nil
@@ -134,7 +134,7 @@ func (s *scenarioCtx) theIrisConfigAlreadyExistsWithOneServer() error {
 	if err := cli.RunAdd(s.cfg, s.store, "existing", types.MCPServer{
 		Transport: types.TransportStdio,
 		Command:   "existing-cmd",
-	}); err != nil {
+	}, nil, nil); err != nil {
 		return fmt.Errorf("add existing: %w", err)
 	}
 	return nil

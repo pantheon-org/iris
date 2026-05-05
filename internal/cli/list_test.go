@@ -16,7 +16,7 @@ func TestRunList_noServers_printsMessage(t *testing.T) {
 	cfg := &types.IrisConfig{Servers: map[string]types.MCPServer{}}
 	var buf bytes.Buffer
 
-	err := cli.RunList(cfg, &buf, false)
+	err := cli.RunList(cfg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	assert.Equal(t, "No servers configured.\n", buf.String())
@@ -30,7 +30,7 @@ func TestRunList_singleServer_correctFormat(t *testing.T) {
 	}
 	var buf bytes.Buffer
 
-	err := cli.RunList(cfg, &buf, false)
+	err := cli.RunList(cfg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -50,7 +50,7 @@ func TestRunList_multipleServers_sortedAlphabetically(t *testing.T) {
 	}
 	var buf bytes.Buffer
 
-	err := cli.RunList(cfg, &buf, false)
+	err := cli.RunList(cfg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -71,7 +71,7 @@ func TestRunList_jsonOutput_validJSON(t *testing.T) {
 	}
 	var buf bytes.Buffer
 
-	err := cli.RunList(cfg, &buf, true)
+	err := cli.RunList(cfg, &buf, true, noColourStyles())
 
 	require.NoError(t, err)
 
@@ -88,7 +88,7 @@ func TestRunList_jsonOutput_noServers_emptyArray(t *testing.T) {
 	cfg := &types.IrisConfig{Servers: map[string]types.MCPServer{}}
 	var buf bytes.Buffer
 
-	err := cli.RunList(cfg, &buf, true)
+	err := cli.RunList(cfg, &buf, true, noColourStyles())
 
 	require.NoError(t, err)
 
@@ -106,7 +106,7 @@ func TestRunList_jsonOutput_sortedAlphabetically(t *testing.T) {
 	}
 	var buf bytes.Buffer
 
-	err := cli.RunList(cfg, &buf, true)
+	err := cli.RunList(cfg, &buf, true, noColourStyles())
 
 	require.NoError(t, err)
 

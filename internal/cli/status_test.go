@@ -41,7 +41,7 @@ func TestRunStatus_allMissing_showsMissing(t *testing.T) {
 	cfg := minimalConfig()
 	var buf bytes.Buffer
 
-	err := cli.RunStatus(dir, cfg, reg, &buf, false)
+	err := cli.RunStatus(dir, cfg, reg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -64,7 +64,7 @@ func TestRunStatus_filePresent_synced(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(content), 0o644))
 
 	var buf bytes.Buffer
-	err = cli.RunStatus(dir, cfg, reg, &buf, false)
+	err = cli.RunStatus(dir, cfg, reg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "synced")
@@ -82,7 +82,7 @@ func TestRunStatus_filePresent_desync(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), stale, 0o644))
 
 	var buf bytes.Buffer
-	err := cli.RunStatus(dir, cfg, reg, &buf, false)
+	err := cli.RunStatus(dir, cfg, reg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "desync")
@@ -98,7 +98,7 @@ func TestRunStatus_readFailure_showsError(t *testing.T) {
 	require.NoError(t, os.Mkdir(filepath.Join(dir, ".mcp.json"), 0o755))
 
 	var buf bytes.Buffer
-	err := cli.RunStatus(dir, cfg, reg, &buf, false)
+	err := cli.RunStatus(dir, cfg, reg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "error")
@@ -112,7 +112,7 @@ func TestRunStatus_displaysResolvedProjectPaths(t *testing.T) {
 	reg.Register(providers.NewOpenaiCodexProvider())
 
 	var buf bytes.Buffer
-	err := cli.RunStatus(dir, minimalConfig(), reg, &buf, false)
+	err := cli.RunStatus(dir, minimalConfig(), reg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -128,7 +128,7 @@ func TestRunStatus_jsonOutput_validJSON(t *testing.T) {
 	cfg := minimalConfig()
 	var buf bytes.Buffer
 
-	err := cli.RunStatus(dir, cfg, reg, &buf, true)
+	err := cli.RunStatus(dir, cfg, reg, &buf, true, noColourStyles())
 
 	require.NoError(t, err)
 
@@ -153,7 +153,7 @@ func TestRunStatus_jsonOutput_synced(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(content), 0o644))
 
 	var buf bytes.Buffer
-	err = cli.RunStatus(dir, cfg, reg, &buf, true)
+	err = cli.RunStatus(dir, cfg, reg, &buf, true, noColourStyles())
 
 	require.NoError(t, err)
 

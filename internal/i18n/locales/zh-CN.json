@@ -26,5 +26,7 @@
   "wizard.command": "命令",
   "wizard.args": "参数（空格分隔，留空表示无）",
   "wizard.transport": "传输协议",
-  "wizard.select_import": "选择要导入的服务器（逗号分隔的数字，留空跳过）"
+  "wizard.select_import": "选择要导入的服务器（逗号分隔的数字，留空跳过）",
+  "add.added": "已添加 %s",
+  "remove.removed": "已删除 %s"
 }

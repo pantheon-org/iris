@@ -41,7 +41,7 @@ func TestRunSync_allCreated_printsCreatedStatus(t *testing.T) {
 	cfg := syncConfig()
 	var buf bytes.Buffer
 
-	err := cli.RunSync(dir, cfg, reg, &buf, false)
+	err := cli.RunSync(dir, cfg, reg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -53,10 +53,10 @@ func TestRunSync_unchanged_printsUnchangedStatus(t *testing.T) {
 	reg := buildSyncRegistry(t, dir)
 	cfg := syncConfig()
 
-	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, false))
+	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, false, noColourStyles()))
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, cfg, reg, &buf, false)
+	err := cli.RunSync(dir, cfg, reg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "unchanged")
@@ -68,7 +68,7 @@ func TestRunSync_updated_printsUpdatedStatus(t *testing.T) {
 	reg.Register(providers.NewClaudeCodeProvider())
 
 	cfg := syncConfig()
-	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, false))
+	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, false, noColourStyles()))
 
 	updatedCfg := &types.IrisConfig{
 		Version: 1,
@@ -79,7 +79,7 @@ func TestRunSync_updated_printsUpdatedStatus(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, updatedCfg, reg, &buf, false)
+	err := cli.RunSync(dir, updatedCfg, reg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "updated")
@@ -112,7 +112,7 @@ func TestRunSync_providerError_returnsError(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, cfg, reg, &buf, false)
+	err := cli.RunSync(dir, cfg, reg, &buf, false, noColourStyles())
 
 	require.Error(t, err)
 	assert.Contains(t, buf.String(), "error")
@@ -124,7 +124,7 @@ func TestRunSync_outputSortedAlphabetically(t *testing.T) {
 	cfg := syncConfig()
 	var buf bytes.Buffer
 
-	require.NoError(t, cli.RunSync(dir, cfg, reg, &buf, false))
+	require.NoError(t, cli.RunSync(dir, cfg, reg, &buf, false, noColourStyles()))
 
 	out := buf.String()
 	opencodeIdx := indexOf(out, "opencode")
@@ -144,7 +144,7 @@ func TestRunSync_displaysResolvedProjectPaths(t *testing.T) {
 	reg.Register(providers.NewOpenaiCodexProvider())
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, syncConfig(), reg, &buf, false)
+	err := cli.RunSync(dir, syncConfig(), reg, &buf, false, noColourStyles())
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -169,7 +169,7 @@ func TestRunSync_displaysPinnedProviderPathOnError(t *testing.T) {
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, syncConfig(), reg, &buf, false)
+	err := cli.RunSync(dir, syncConfig(), reg, &buf, false, noColourStyles())
 
 	require.Error(t, err)
 	assert.Contains(t, buf.String(), lockedFile)
@@ -182,7 +182,7 @@ func TestRunSync_jsonOutput_validJSON(t *testing.T) {
 	cfg := syncConfig()
 	var buf bytes.Buffer
 
-	err := cli.RunSync(dir, cfg, reg, &buf, true)
+	err := cli.RunSync(dir, cfg, reg, &buf, true, noColourStyles())
 
 	require.NoError(t, err)
 
@@ -209,7 +209,7 @@ func TestRunSync_jsonOutput_errorIncluded(t *testing.T) {
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, syncConfig(), reg, &buf, true)
+	err := cli.RunSync(dir, syncConfig(), reg, &buf, true, noColourStyles())
 
 	require.Error(t, err)
 

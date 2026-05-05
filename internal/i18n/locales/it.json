@@ -26,5 +26,7 @@
   "wizard.command": "Comando",
   "wizard.args": "Argomenti (separati da spazi, lasciare vuoto per nessuno)",
   "wizard.transport": "Trasporto",
-  "wizard.select_import": "Seleziona i server da importare (numeri separati da virgole, lascia vuoto per saltare)"
+  "wizard.select_import": "Seleziona i server da importare (numeri separati da virgole, lascia vuoto per saltare)",
+  "add.added": "Aggiunto %s",
+  "remove.removed": "Rimosso %s"
 }
