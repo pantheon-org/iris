@@ -19,12 +19,13 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 | Command | Description |
 |---|---|
 | `iris init` | Scaffold `.iris.json` in the current project |
-| `iris init --interactive/-I` | Interactive wizard — scans all provider configs (global + project), shows a numbered multi-select to pick servers to import, then lets you add more manually |
+| `iris init --interactive/-I` | Interactive wizard — scans all provider configs (global + project), shows a TUI multi-select to pick servers to import (grouped by server name), then lets you add more manually. Saves detected providers to `.iris.json` so `iris sync` knows where to sync by default |
 | `iris init --provider/-p <name> ...` | Limit init to specific providers |
 | `iris add <name> --command/-c <cmd> [--args/-a ...] [--env/-e KEY=VAL ...] [--transport/-t stdio\|sse] [--url/-u <url>]` | Add or update a server |
 | `iris remove <name>` | Remove a server |
 | `iris list` | List all configured servers |
-| `iris sync` | Sync all provider config files |
+| `iris sync` | Sync to providers listed in `.iris.json` (`providers` field); falls back to all providers if the field is absent |
+| `iris sync --provider/-p <name> ...` | Override the provider list for this sync |
 | `iris status` | Show per-provider sync status |
 
 ## Canonical config format
@@ -34,6 +35,7 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
 ```json
 {
   "version": 1,
+  "providers": ["claude", "cursor"],
   "servers": {
     "filesystem": {
       "transport": "stdio",
@@ -48,6 +50,8 @@ Then add `dist/iris` to your `$PATH`, or run it directly.
   }
 }
 ```
+
+The `providers` field is written automatically by `iris init -I` and tells `iris sync` which providers to target by default. You can edit it by hand to add or remove providers between init runs. Omitting it (or running non-interactive init) falls back to syncing all providers.
 
 ## Supported providers
 
