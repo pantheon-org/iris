@@ -99,11 +99,20 @@ func TestRunStatus_readFailure_showsError(t *testing.T) {
 	require.NoError(t, os.Mkdir(filepath.Join(dir, ".mcp.json"), 0o755))
 
 	var buf bytes.Buffer
-	err := cli.RunStatus(dir, cfg, reg, &buf, false, noColourStyles())
+	err := cli.RunStatus(dir, cfg, reg, &buf, true, noColourStyles())
 
 	require.NoError(t, err)
-	assert.Contains(t, buf.String(), "error")
-	assert.NotContains(t, buf.String(), "missing")
+	var out cli.StatusOutput
+	require.NoError(t, json.NewDecoder(&buf).Decode(&out))
+	// The local entry must report "error" (directory, not missing), not "missing".
+	for _, e := range out.Providers {
+		if e.Scope == "local" {
+			assert.Equal(t, "error", e.Status)
+			assert.NotEqual(t, "missing", e.Status)
+			return
+		}
+	}
+	t.Fatal("no local entry found for claude")
 }
 
 func TestRunStatus_displaysResolvedProjectPaths(t *testing.T) {
