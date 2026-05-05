@@ -220,9 +220,8 @@ func (s *scenarioCtx) iRunListWithJSONOutput() error {
 // ── sync steps ────────────────────────────────────────────────────────────────
 
 func (s *scenarioCtx) iSyncToAllProviders() error {
-	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false); err != nil {
-		return fmt.Errorf("sync: %w", err)
-	}
+	s.reg = buildReg(s.root)
+	s.syncResults = irisync.SyncAllProviders(s.root, s.reg, s.cfg.Servers)
 	return nil
 }
 
@@ -239,15 +238,6 @@ func (s *scenarioCtx) iSyncToAllProvidersWithJSONOutput() error {
 	s.output.Reset()
 	if err := cli.RunSync(s.root, s.cfg, s.reg, s.output, true); err != nil {
 		return fmt.Errorf("sync json: %w", err)
-	}
-	return nil
-}
-
-// iSyncToAllProvidersAgainAsWhen is a second sync without capturing results — used in update scenario.
-func (s *scenarioCtx) iSyncToAllProvidersAsWhen() error {
-	s.reg = buildReg(s.root)
-	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false); err != nil {
-		return fmt.Errorf("sync: %w", err)
 	}
 	return nil
 }
