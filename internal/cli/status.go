@@ -50,6 +50,13 @@ func providerScope(resolvedPath string, globalConfigPath *string) string {
 	return i18n.T("status.scope.local")
 }
 
+func scopeStyle(scope string, st *Styles) string {
+	if scope == i18n.T("status.scope.global") {
+		return st.ScopeGlobal.Render(scope)
+	}
+	return st.ScopeLocal.Render(scope)
+}
+
 // StatusOutput is the JSON representation of RunStatus output.
 type StatusOutput struct {
 	Providers []StatusEntry `json:"providers"`
@@ -138,14 +145,14 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 				if errors.Is(err, os.ErrNotExist) {
 					statusWord = i18n.T("status.missing")
 				}
-				t.Row(st.Accent.Render(name), st.Err.Render(statusWord), st.Muted.Render(pp.scope), st.Muted.Render(displayPath))
+				t.Row(st.Accent.Render(name), st.Err.Render(statusWord), scopeStyle(pp.scope, st), st.Muted.Render(displayPath))
 				continue
 			}
 
 			existing := string(data)
 			generated, err := p.Generate(cfg.Servers, existing)
 			if err != nil {
-				t.Row(st.Accent.Render(name), st.Err.Render(i18n.T("status.error")), st.Muted.Render(pp.scope), st.Muted.Render(displayPath))
+				t.Row(st.Accent.Render(name), st.Err.Render(i18n.T("status.error")), scopeStyle(pp.scope, st), st.Muted.Render(displayPath))
 				continue
 			}
 
@@ -155,7 +162,7 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 				statusWord = i18n.T("status.desync")
 				statusStyled = st.Warning.Render(statusWord)
 			}
-			t.Row(st.Accent.Render(name), statusStyled, st.Muted.Render(pp.scope), st.Muted.Render(displayPath))
+			t.Row(st.Accent.Render(name), statusStyled, scopeStyle(pp.scope, st), st.Muted.Render(displayPath))
 		}
 	}
 	fmt.Fprintln(w, t.Render())
