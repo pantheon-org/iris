@@ -34,11 +34,11 @@ type scenarioCtx struct {
 	reg       *registry.Registry
 
 	// captured output / results
-	lastErr          error
-	output           *bytes.Buffer
-	syncResults      []irisync.SyncResult
-	reloadedCfg      *types.IrisConfig
-	importCandidates []wizard.ImportCandidate
+	lastErr           error
+	output            *bytes.Buffer
+	syncResults       []irisync.SyncResult
+	reloadedCfg       *types.IrisConfig
+	importCandidates  []wizard.ImportCandidate
 	groupedCandidates []wizard.GroupedCandidate
 }
 
@@ -452,13 +452,13 @@ func (s *scenarioCtx) iRunInteractiveInitImportServerAndManuallyAddServer(import
 	}
 	argList := strings.Fields(args)
 	answers := []string{
-		fmt.Sprintf("%d", idx), // PromptMultiSelect: select import
-		"yes",                  // Add a server?
-		manualName,             // Server name
-		"stdio",                // Transport
-		command,                // Command
+		fmt.Sprintf("%d", idx),     // PromptMultiSelect: select import
+		"yes",                      // Add a server?
+		manualName,                 // Server name
+		"stdio",                    // Transport
+		command,                    // Command
 		strings.Join(argList, " "), // Args
-		"no",                   // Add a server?
+		"no",                       // Add a server?
 	}
 	return s.runInteractiveInit(answers)
 }
