@@ -25,6 +25,12 @@ run = "go test -race ./..."
 [tasks.lint]
 run = "golangci-lint run ./..."
 
+[tasks.fmt]
+run = "gofmt -s -w ."
+
+[tasks.vet]
+run = "go vet ./..."
+
 [tasks."ai:setup"]
 run = """
     rtk init -g --gemini;
