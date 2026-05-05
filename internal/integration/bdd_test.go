@@ -885,8 +885,6 @@ func parseEnvPairs(raw string) map[string]string {
 	return env
 }
 
-
-
 // ── suite wiring ──────────────────────────────────────────────────────────────
 
 func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
