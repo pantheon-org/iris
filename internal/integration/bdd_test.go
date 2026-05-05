@@ -116,6 +116,18 @@ func (s *scenarioCtx) anMCPServerWithCommandAndNoArgs(name, command string) erro
 	return nil
 }
 
+func (s *scenarioCtx) anMCPServerWithCommandAndEnv(name, command, rawEnv string) error {
+	env := parseEnvPairs(rawEnv)
+	if err := cli.RunAdd(s.cfg, s.store, name, types.MCPServer{
+		Transport: types.TransportStdio,
+		Command:   command,
+		Env:       env,
+	}); err != nil {
+		return fmt.Errorf("add server %s: %w", name, err)
+	}
+	return nil
+}
+
 func (s *scenarioCtx) iAddAStdioServerWithCommandAndArgs(name, command, rawArgs string) error {
 	args := splitArgs(rawArgs)
 	s.lastErr = cli.RunAdd(s.cfg, s.store, name, types.MCPServer{
@@ -457,6 +469,43 @@ func (s *scenarioCtx) theOpencodeProviderFileContainsServers(filename, rawServer
 	return nil
 }
 
+func (s *scenarioCtx) theOpencodeServerHasCorrectFieldFormat(serverName, filename string) error {
+	path := filepath.Join(s.root, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+	var doc struct {
+		MCP map[string]struct {
+			Command     json.RawMessage   `json:"command"`
+			Type        string            `json:"type"`
+			Environment map[string]string `json:"environment"`
+			Env         map[string]string `json:"env"`
+		} `json:"mcp"`
+	}
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return fmt.Errorf("parse %s: %w", path, err)
+	}
+	entry, ok := doc.MCP[serverName]
+	if !ok {
+		return fmt.Errorf("opencode: missing server %q", serverName)
+	}
+	// command must be a JSON array, not a string
+	var cmdSlice []string
+	if err := json.Unmarshal(entry.Command, &cmdSlice); err != nil {
+		return fmt.Errorf("opencode server %q: command must be a JSON array, got: %s", serverName, entry.Command)
+	}
+	// type must be "local" (not "stdio")
+	if entry.Type != "local" {
+		return fmt.Errorf("opencode server %q: type must be %q, got %q", serverName, "local", entry.Type)
+	}
+	// env key must not exist; environment key used instead
+	if entry.Env != nil {
+		return fmt.Errorf("opencode server %q: must use \"environment\" key, not \"env\"", serverName)
+	}
+	return nil
+}
+
 func (s *scenarioCtx) theTOMLProviderFileContainsServers(filename, rawServers string) error {
 	path := filepath.Join(s.root, filename)
 	data, err := os.ReadFile(path)
@@ -715,6 +764,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		// add — Given form (no error capture)
 		sc.Step(`^an MCP server "([^"]+)" with command "([^"]+)" and args "([^"]+)"$`, s.anMCPServerWithCommandAndArgs)
 		sc.Step(`^an MCP server "([^"]+)" with command "([^"]+)" and no args$`, s.anMCPServerWithCommandAndNoArgs)
+		sc.Step(`^an MCP server "([^"]+)" with command "([^"]+)" and env "([^"]+)"$`, s.anMCPServerWithCommandAndEnv)
 
 		// add — When form (error capture)
 		sc.Step(`^I add a stdio server "([^"]+)" with command "([^"]+)" and args "([^"]+)"$`, s.iAddAStdioServerWithCommandAndArgs)
@@ -768,6 +818,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^the provider config file "([^"]+)" exists$`, s.theProviderConfigFileExists)
 		sc.Step(`^the JSON provider file "([^"]+)" contains servers "([^"]+)" under key "([^"]+)"$`, s.theJSONProviderFileContainsServersUnderKey)
 		sc.Step(`^the opencode provider file "([^"]+)" contains servers "([^"]+)"$`, s.theOpencodeProviderFileContainsServers)
+		sc.Step(`^the opencode server "([^"]+)" in file "([^"]+)" has correct field format$`, s.theOpencodeServerHasCorrectFieldFormat)
 		sc.Step(`^the TOML provider file "([^"]+)" contains servers "([^"]+)"$`, s.theTOMLProviderFileContainsServers)
 		sc.Step(`^the zed provider file "([^"]+)" contains servers "([^"]+)"$`, s.theZedProviderFileContainsServers)
 		sc.Step(`^the TOML mistral provider file "([^"]+)" contains servers "([^"]+)"$`, s.theTOMLMistralProviderFileContainsServers)
