@@ -221,9 +221,6 @@ func (s *scenarioCtx) iRunListWithJSONOutput() error {
 
 func (s *scenarioCtx) iSyncToAllProviders() error {
 	s.reg = buildReg(s.root)
-	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false); err != nil {
-		return fmt.Errorf("sync: %w", err)
-	}
 	s.syncResults = irisync.SyncAllProviders(s.root, s.reg, s.cfg.Servers)
 	return nil
 }
