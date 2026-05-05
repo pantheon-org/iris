@@ -597,6 +597,53 @@ func (s *scenarioCtx) theCopilotServerDoesNotHaveField(serverName, filename, fie
 	return nil
 }
 
+// --- env var mutations ---
+
+func (s *scenarioCtx) theServerHasEnvVarSetTo(name, key, value string) error {
+	srv, ok := s.cfg.Servers[name]
+	if !ok {
+		return fmt.Errorf("server %q not found", name)
+	}
+	if srv.Env == nil {
+		srv.Env = make(map[string]string)
+	}
+	srv.Env[key] = value
+	s.cfg.Servers[name] = srv
+	if err := s.store.Save(s.cfg); err != nil {
+		return fmt.Errorf("save config: %w", err)
+	}
+	return nil
+}
+
+// theJSONProviderServerHasEnvVar asserts that a named server in a JSON provider
+// file (under sectionKey → serverName → env) contains the given env key.
+// Regex capture order: filename, serverName, sectionKey, envKey.
+func (s *scenarioCtx) theJSONProviderServerHasEnvVar(filename, serverName, sectionKey, envKey string) error {
+	path := filepath.Join(s.root, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+	var doc map[string]map[string]struct {
+		Env map[string]string `json:"env"`
+	}
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return fmt.Errorf("parse %s: %w", path, err)
+	}
+	section, ok := doc[sectionKey]
+	if !ok {
+		return fmt.Errorf("%s: missing key %q", filename, sectionKey)
+	}
+	srv, ok := section[serverName]
+	if !ok {
+		return fmt.Errorf("%s: missing server %q under %q", filename, serverName, sectionKey)
+	}
+	if _, exists := srv.Env[envKey]; !exists {
+		return fmt.Errorf("%s: server %q env missing key %q", filename, serverName, envKey)
+	}
+	return nil
+}
+
 // --- sync result assertions ---
 
 func (s *scenarioCtx) allProvidersReportStatus(expectedStatus string) error {
@@ -821,6 +868,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^an MCP server "([^"]+)" with command "([^"]+)" and no args$`, s.anMCPServerWithCommandAndNoArgs)
 		sc.Step(`^an MCP server "([^"]+)" with command "([^"]+)" and env "([^"]+)"$`, s.anMCPServerWithCommandAndEnv)
 		sc.Step(`^an SSE server "([^"]+)" with URL "([^"]+)"$`, s.anSSEServerWithURL)
+		sc.Step(`^the server "([^"]+)" has env var "([^"]+)" set to "([^"]+)"$`, s.theServerHasEnvVarSetTo)
 
 		// add — When form (error capture)
 		sc.Step(`^I add a stdio server "([^"]+)" with command "([^"]+)" and args "([^"]+)"$`, s.iAddAStdioServerWithCommandAndArgs)
@@ -880,6 +928,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^the zed provider file "([^"]+)" contains servers "([^"]+)"$`, s.theZedProviderFileContainsServers)
 		sc.Step(`^the TOML mistral provider file "([^"]+)" contains servers "([^"]+)"$`, s.theTOMLMistralProviderFileContainsServers)
 		sc.Step(`^the copilot server "([^"]+)" in file "([^"]+)" does not have field "([^"]+)"$`, s.theCopilotServerDoesNotHaveField)
+		sc.Step(`^the JSON provider file "([^"]+)" server "([^"]+)" under key "([^"]+)" has env var "([^"]+)"$`, s.theJSONProviderServerHasEnvVar)
 
 		// assertions — sync results
 		sc.Step(`^all providers report status "([^"]+)"$`, s.allProvidersReportStatus)
