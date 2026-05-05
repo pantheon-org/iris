@@ -93,7 +93,7 @@ func TestGoogleGeminiProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *t
 func TestGoogleGeminiProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *testing.T) {
 	p := providers.NewGoogleGeminiProvider()
 
-	input, err := os.ReadFile("testdata/google_gemini_input.json")
+	input, err := os.ReadFile("fixtures/google_gemini_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +127,7 @@ func TestGoogleGeminiProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t
 func TestGoogleGeminiProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	p := providers.NewGoogleGeminiProvider()
 
-	content, err := os.ReadFile("testdata/google_gemini_input.json")
+	content, err := os.ReadFile("fixtures/google_gemini_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}

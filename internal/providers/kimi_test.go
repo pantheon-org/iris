@@ -22,7 +22,7 @@ func TestKimiProvider_Config(t *testing.T) {
 }
 
 func TestKimiProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
-	content, err := os.ReadFile("testdata/kimi_input.json")
+	content, err := os.ReadFile("fixtures/kimi_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func TestKimiProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 }
 
 func TestKimiProvider_Generate_FixtureMatch(t *testing.T) {
-	content, err := os.ReadFile("testdata/kimi_input.json")
+	content, err := os.ReadFile("fixtures/kimi_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +61,7 @@ func TestKimiProvider_Generate_FixtureMatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	expected, err := os.ReadFile("testdata/kimi_expected.json")
+	expected, err := os.ReadFile("fixtures/kimi_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}

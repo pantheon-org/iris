@@ -30,7 +30,7 @@ func TestCursorProvider_ConfigFilePath(t *testing.T) {
 }
 
 func TestCursorProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
-	content, err := os.ReadFile("testdata/cursor_input.json")
+	content, err := os.ReadFile("fixtures/cursor_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +54,7 @@ func TestCursorProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 }
 
 func TestCursorProvider_Generate_FixtureMatch(t *testing.T) {
-	content, err := os.ReadFile("testdata/cursor_input.json")
+	content, err := os.ReadFile("fixtures/cursor_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestCursorProvider_Generate_FixtureMatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	expected, err := os.ReadFile("testdata/cursor_expected.json")
+	expected, err := os.ReadFile("fixtures/cursor_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}

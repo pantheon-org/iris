@@ -1,8 +1,11 @@
 {
   "mcpServers": {
     "memory": {
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
       "type": "stdio"
     }
   },
