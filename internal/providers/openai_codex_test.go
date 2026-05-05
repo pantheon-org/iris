@@ -22,9 +22,8 @@ func TestOpenAICodexProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	assert.Equal(t, "OpenAI Codex", cfg.DisplayName)
 	assert.True(t, cfg.SupportsProjectConfig)
 
-	home, err := os.UserHomeDir()
-	require.NoError(t, err)
-	assert.Equal(t, filepath.Join(home, ".codex", "config.toml"), cfg.GlobalConfigPath)
+	require.NotNil(t, cfg.GlobalConfigPath)
+	assert.Equal(t, filepath.Join(".codex", "config.toml"), *cfg.GlobalConfigPath)
 }
 
 func TestOpenAICodexProvider_ConfigFilePath_WithProjectRoot_ReturnsProjectPath(t *testing.T) {

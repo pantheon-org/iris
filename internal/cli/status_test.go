@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/pantheon-org/iris/internal/cli"
+	irio "github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
@@ -107,6 +108,7 @@ func TestRunStatus_readFailure_showsError(t *testing.T) {
 
 func TestRunStatus_displaysResolvedProjectPaths(t *testing.T) {
 	dir := t.TempDir()
+	home := irio.UserHomeDir()
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewGoogleGeminiProvider())
 	reg.Register(providers.NewOpenaiCodexProvider())
@@ -116,9 +118,64 @@ func TestRunStatus_displaysResolvedProjectPaths(t *testing.T) {
 
 	require.NoError(t, err)
 	out := buf.String()
-	assert.Contains(t, out, filepath.Join(dir, ".gemini", "settings.json"))
-	assert.Contains(t, out, filepath.Join(dir, ".codex", "config.toml"))
-	assert.NotContains(t, out, "~/.gemini/settings.json")
+	assert.Contains(t, out, cli.ShortenPath(filepath.Join(dir, ".gemini", "settings.json"), home))
+	assert.Contains(t, out, cli.ShortenPath(filepath.Join(dir, ".codex", "config.toml"), home))
+}
+
+func TestRunStatus_showsLocalScope_forProjectPath(t *testing.T) {
+	dir := t.TempDir()
+	reg := registry.NewRegistry()
+	// Gemini resolves to project path when projectRoot is set → scope = local.
+	reg.Register(providers.NewGoogleGeminiProvider())
+
+	var buf bytes.Buffer
+	err := cli.RunStatus(dir, minimalConfig(), reg, &buf, false, noColourStyles())
+
+	require.NoError(t, err)
+	assert.Contains(t, buf.String(), "local")
+}
+
+func TestRunStatus_showsGlobalScope_whenNoProjectRoot(t *testing.T) {
+	reg := registry.NewRegistry()
+	// Empty projectRoot → Gemini resolves to its global config path → scope = global.
+	reg.Register(providers.NewGoogleGeminiProvider())
+
+	var buf bytes.Buffer
+	err := cli.RunStatus("", minimalConfig(), reg, &buf, false, noColourStyles())
+
+	require.NoError(t, err)
+	assert.Contains(t, buf.String(), "global")
+}
+
+func TestRunStatus_jsonOutput_includesScope(t *testing.T) {
+	dir := t.TempDir()
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewGoogleGeminiProvider())
+	var buf bytes.Buffer
+
+	err := cli.RunStatus(dir, minimalConfig(), reg, &buf, true, noColourStyles())
+
+	require.NoError(t, err)
+	var out cli.StatusOutput
+	require.NoError(t, json.NewDecoder(&buf).Decode(&out))
+	require.Len(t, out.Providers, 1)
+	assert.Equal(t, "local", out.Providers[0].Scope)
+}
+
+func TestShortenPath_replacesHomePrefix(t *testing.T) {
+	tests := []struct {
+		path, home, want string
+	}{
+		{"/home/user/.config/foo", "/home/user", "~/.config/foo"},
+		{"/home/user", "/home/user", "~"},
+		{"/tmp/foo", "/home/user", "/tmp/foo"},
+		{"/home/user/.config/foo", "", "/home/user/.config/foo"},
+		{"/home/user/.config/foo", ".", "/home/user/.config/foo"},
+	}
+	for _, tc := range tests {
+		got := cli.ShortenPath(tc.path, tc.home)
+		assert.Equal(t, tc.want, got, "path=%q home=%q", tc.path, tc.home)
+	}
 }
 
 func TestRunStatus_jsonOutput_validJSON(t *testing.T) {

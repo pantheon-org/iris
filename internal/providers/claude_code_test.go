@@ -26,8 +26,8 @@ func TestClaudeCodeProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	if !cfg.SupportsProjectConfig {
 		t.Error("SupportsProjectConfig = false, want true")
 	}
-	if cfg.ConfigPath != ".mcp.json" {
-		t.Errorf("ConfigPath = %q, want %q", cfg.ConfigPath, ".mcp.json")
+	if cfg.LocalConfigPath == nil || *cfg.LocalConfigPath != ".mcp.json" {
+		t.Errorf("LocalConfigPath = %v, want %q", cfg.LocalConfigPath, ".mcp.json")
 	}
 }
 

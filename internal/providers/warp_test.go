@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/pantheon-org/iris/internal/providers"
-	"github.com/pantheon-org/iris/internal/types"
 )
 
 func TestWarpProvider_Config(t *testing.T) {
@@ -21,26 +20,48 @@ func TestWarpProvider_Config(t *testing.T) {
 	}
 }
 
-func TestWarpProvider_GenerateParse_roundtrip(t *testing.T) {
+func TestWarpProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+	content, err := os.ReadFile("testdata/warp_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
 	tmp := t.TempDir()
-	path := filepath.Join(tmp, "mcp.json")
-	p := providers.NewWarpProviderWithPath(path)
-
-	servers := map[string]types.MCPServer{
-		"brave": {Transport: types.TransportStdio, Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-brave-search"}, Env: map[string]string{"BRAVE_API_KEY": "key"}},
+	p := providers.NewWarpProviderWithPath(filepath.Join(tmp, "mcp.json"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	out, err := p.Generate(servers, "")
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["fetch"].Command != "uvx" {
+		t.Errorf("fetch.command = %q, want %q", parsed["fetch"].Command, "uvx")
+	}
+}
+
+func TestWarpProvider_Generate_FixtureMatch(t *testing.T) {
+	content, err := os.ReadFile("testdata/warp_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	parsed, err := p.Parse(out)
+	tmp := t.TempDir()
+	p := providers.NewWarpProviderWithPath(filepath.Join(tmp, "mcp.json"))
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	got, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	expected, err := os.ReadFile("testdata/warp_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if parsed["brave"].Env["BRAVE_API_KEY"] != "key" {
-		t.Fatalf("expected env var, got %v", parsed["brave"].Env)
-	}
+	requireJSONEqual(t, string(expected), got)
 }
 
 func TestWarpProvider_Exists(t *testing.T) {

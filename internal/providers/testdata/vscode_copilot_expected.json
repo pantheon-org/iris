@@ -1,0 +1,24 @@
+{
+  "inputs": [
+    {
+      "description": "Anthropic API Key",
+      "id": "anthropic-api-key",
+      "type": "promptString"
+    }
+  ],
+  "servers": {
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "filesystem": {
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/tmp"
+      ],
+      "command": "npx",
+      "type": "stdio"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "buffer_font_size": 14,
+  "context_servers": {
+    "context7": {
+      "headers": {
+        "CONTEXT7_API_KEY": "your-key"
+      },
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "filesystem": {
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/tmp"
+      ],
+      "command": "npx",
+      "env": {
+        "PATH_PREFIX": "/workspace"
+      }
+    }
+  },
+  "theme": "One Dark"
+}

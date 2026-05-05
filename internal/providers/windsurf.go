@@ -37,9 +37,9 @@ func (p *WindsurfProvider) Config() ProviderConfig {
 	return ProviderConfig{
 		Name:                  NameOpenAIWindsurf,
 		DisplayName:           "OpenAI Windsurf",
-		ConfigPath:            "~/.codeium/windsurf/mcp_config.json",
+		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,
-		GlobalConfigPath:      p.configPath,
+		GlobalConfigPath:      homeRel(p.configPath),
 	}
 }
 

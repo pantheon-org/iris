@@ -1,0 +1,16 @@
+model = "codestral-latest"
+api_key_env = "MISTRAL_API_KEY"
+[[mcp_servers]]
+  name = "context7"
+  transport = "http"
+  url = "https://mcp.context7.com/mcp"
+  [mcp_servers.headers]
+    CONTEXT7_API_KEY = "your-key"
+
+[[mcp_servers]]
+  name = "fetch"
+  transport = "stdio"
+  command = "uvx"
+  args = ["mcp-server-fetch"]
+  [mcp_servers.env]
+    DEBUG = "1"

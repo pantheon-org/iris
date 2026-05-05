@@ -25,8 +25,8 @@ func TestIntelliJProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	if !cfg.SupportsProjectConfig {
 		t.Error("SupportsProjectConfig = false, want true")
 	}
-	if cfg.ConfigPath != ".idea/mcp.json" {
-		t.Errorf("ConfigPath = %q, want %q", cfg.ConfigPath, ".idea/mcp.json")
+	if cfg.LocalConfigPath == nil || *cfg.LocalConfigPath != ".idea/mcp.json" {
+		t.Errorf("LocalConfigPath = %v, want %q", cfg.LocalConfigPath, ".idea/mcp.json")
 	}
 }
 
@@ -150,6 +150,27 @@ func TestIntelliJProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	if fs.Command != "npx" {
 		t.Errorf("filesystem.Command = %q, want %q", fs.Command, "npx")
 	}
+}
+
+func TestIntelliJProvider_Generate_FixtureMatch(t *testing.T) {
+	p := providers.NewIntelliJProvider()
+	content, err := os.ReadFile("testdata/intellij_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	got, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	expected, err := os.ReadFile("testdata/intellij_expected.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	requireJSONEqual(t, string(expected), got)
 }
 
 func TestIntelliJProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *testing.T) {

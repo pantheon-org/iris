@@ -1,7 +1,6 @@
 package providers_test
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -44,26 +43,51 @@ func TestQwenProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.
 	}
 }
 
-func TestQwenProvider_GenerateParse_roundtrip(t *testing.T) {
+func TestQwenProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+	content, err := os.ReadFile("testdata/qwen_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
 	tmp := t.TempDir()
-	path := filepath.Join(tmp, "settings.json")
-	p := providers.NewQwenProviderWithPath(path)
-
-	servers := map[string]types.MCPServer{
-		"fs": {Transport: types.TransportStdio, Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"}},
+	p := providers.NewQwenProviderWithPath(filepath.Join(tmp, "settings.json"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	out, err := p.Generate(servers, "")
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
+		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
+	}
+	if parsed["context7"].Transport != types.TransportHTTP {
+		t.Errorf("context7.transport = %q, want %q", parsed["context7"].Transport, types.TransportHTTP)
+	}
+}
+
+func TestQwenProvider_Generate_FixtureMatch(t *testing.T) {
+	content, err := os.ReadFile("testdata/qwen_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	parsed, err := p.Parse(out)
+	tmp := t.TempDir()
+	p := providers.NewQwenProviderWithPath(filepath.Join(tmp, "settings.json"))
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	got, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	expected, err := os.ReadFile("testdata/qwen_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if parsed["fs"].Command != "npx" {
-		t.Fatalf("expected command %q, got %q", "npx", parsed["fs"].Command)
-	}
+	requireJSONEqual(t, string(expected), got)
 }
 
 func TestQwenProvider_Exists(t *testing.T) {
@@ -87,70 +111,5 @@ func TestQwenProvider_Exists(t *testing.T) {
 	}
 	if !ok {
 		t.Fatal("should exist after file is created")
-	}
-}
-
-func TestQwenProvider_Generate_HTTPServer_writesHttpUrl(t *testing.T) {
-	p := providers.NewQwenProviderWithPath(t.TempDir() + "/settings.json")
-	servers := map[string]types.MCPServer{
-		"remote": {Transport: types.TransportHTTP, URL: "https://api.example.com/mcp"},
-	}
-	out, err := p.Generate(servers, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var doc struct {
-		MCPServers map[string]struct {
-			URL     string `json:"url"`
-			HTTPUrl string `json:"httpUrl"`
-		} `json:"mcpServers"`
-	}
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v", err)
-	}
-	entry := doc.MCPServers["remote"]
-	if entry.HTTPUrl != "https://api.example.com/mcp" {
-		t.Fatalf("expected httpUrl=%q, got %q", "https://api.example.com/mcp", entry.HTTPUrl)
-	}
-	if entry.URL != "" {
-		t.Fatalf("expected url to be empty, got %q", entry.URL)
-	}
-}
-
-func TestQwenProvider_Parse_httpUrl_setsTransportHTTP(t *testing.T) {
-	p := providers.NewQwenProviderWithPath(t.TempDir() + "/settings.json")
-	input := `{"mcpServers":{"remote":{"httpUrl":"https://api.example.com/mcp"}}}`
-	parsed, err := p.Parse(input)
-	if err != nil {
-		t.Fatalf("Parse: %v", err)
-	}
-	srv := parsed["remote"]
-	if srv.Transport != types.TransportHTTP {
-		t.Fatalf("expected TransportHTTP, got %q", srv.Transport)
-	}
-	if srv.URL != "https://api.example.com/mcp" {
-		t.Fatalf("expected URL=%q, got %q", "https://api.example.com/mcp", srv.URL)
-	}
-}
-
-func TestQwenProvider_Generate_noTypeField(t *testing.T) {
-	p := providers.NewQwenProviderWithPath(t.TempDir() + "/settings.json")
-	servers := map[string]types.MCPServer{
-		"local": {Transport: types.TransportStdio, Command: "npx"},
-	}
-	out, err := p.Generate(servers, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var doc struct {
-		MCPServers map[string]struct {
-			Type string `json:"type"`
-		} `json:"mcpServers"`
-	}
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v", err)
-	}
-	if doc.MCPServers["local"].Type != "" {
-		t.Fatalf("expected no type field, got %q", doc.MCPServers["local"].Type)
 	}
 }

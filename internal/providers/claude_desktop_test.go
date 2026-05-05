@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/pantheon-org/iris/internal/providers"
-	"github.com/pantheon-org/iris/internal/types"
 )
 
 func TestClaudeDesktopProvider_Config(t *testing.T) {
@@ -21,26 +20,48 @@ func TestClaudeDesktopProvider_Config(t *testing.T) {
 	}
 }
 
-func TestClaudeDesktopProvider_GenerateParse_roundtrip(t *testing.T) {
+func TestClaudeDesktopProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+	content, err := os.ReadFile("testdata/claude_desktop_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
 	tmp := t.TempDir()
-	path := filepath.Join(tmp, "claude_desktop_config.json")
-	p := providers.NewClaudeDesktopProviderWithPath(path)
-
-	servers := map[string]types.MCPServer{
-		"memory": {Transport: types.TransportStdio, Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-memory"}},
+	p := providers.NewClaudeDesktopProviderWithPath(filepath.Join(tmp, "claude_desktop_config.json"))
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	out, err := p.Generate(servers, "")
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["brave-search"].Env["BRAVE_API_KEY"] != "test-key" {
+		t.Errorf("brave-search env = %v, want BRAVE_API_KEY=test-key", parsed["brave-search"].Env)
+	}
+}
+
+func TestClaudeDesktopProvider_Generate_FixtureMatch(t *testing.T) {
+	content, err := os.ReadFile("testdata/claude_desktop_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	parsed, err := p.Parse(out)
+	tmp := t.TempDir()
+	p := providers.NewClaudeDesktopProviderWithPath(filepath.Join(tmp, "claude_desktop_config.json"))
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	got, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	expected, err := os.ReadFile("testdata/claude_desktop_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if parsed["memory"].Command != "npx" {
-		t.Fatalf("expected command %q, got %q", "npx", parsed["memory"].Command)
-	}
+	requireJSONEqual(t, string(expected), got)
 }
 
 func TestClaudeDesktopProvider_Exists(t *testing.T) {

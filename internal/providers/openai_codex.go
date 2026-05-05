@@ -36,8 +36,9 @@ func (p *OpenaiCodexProvider) Config() ProviderConfig {
 	return ProviderConfig{
 		Name:                  NameOpenAICodex,
 		DisplayName:           "OpenAI Codex",
+		LocalConfigPath:       strPtr(".codex/config.toml"),
 		SupportsProjectConfig: true,
-		GlobalConfigPath:      p.configPath,
+		GlobalConfigPath:      homeRel(p.configPath),
 	}
 }
 

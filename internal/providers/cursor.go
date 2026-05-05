@@ -11,7 +11,7 @@ func NewCursorProvider() *CursorProvider {
 	p.config = ProviderConfig{
 		Name:                  NameAnyspereCursor,
 		DisplayName:           "Anysphere Cursor",
-		ConfigPath:            ".cursor/mcp.json",
+		LocalConfigPath:       strPtr(".cursor/mcp.json"),
 		SupportsProjectConfig: true,
 	}
 	p.resolvedPath = func(projectRoot string) string {

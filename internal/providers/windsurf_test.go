@@ -1,7 +1,6 @@
 package providers_test
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -22,84 +21,51 @@ func TestWindsurfProvider_Config(t *testing.T) {
 	}
 }
 
-func TestWindsurfProvider_GenerateParse_roundtrip(t *testing.T) {
+func TestWindsurfProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+	content, err := os.ReadFile("testdata/windsurf_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
 	tmp := t.TempDir()
-	path := filepath.Join(tmp, "mcp_config.json")
-	p := providers.NewWindsurfProviderWithPath(path)
-
-	servers := map[string]types.MCPServer{
-		"fetch": {Transport: types.TransportStdio, Command: "uvx", Args: []string{"mcp-server-fetch"}},
-	}
-	out, err := p.Generate(servers, "")
+	p := providers.NewWindsurfProviderWithPath(filepath.Join(tmp, "mcp_config.json"))
+	parsed, err := p.Parse(string(content))
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Parse: %v", err)
 	}
-
-	parsed, err := p.Parse(out)
-	if err != nil {
-		t.Fatal(err)
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
 	}
-	if parsed["fetch"].Command != "uvx" {
-		t.Fatalf("expected command %q, got %q", "uvx", parsed["fetch"].Command)
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
 	}
-	if len(parsed["fetch"].Args) != 1 || parsed["fetch"].Args[0] != "mcp-server-fetch" {
-		t.Fatalf("unexpected args: %v", parsed["fetch"].Args)
+	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
+		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
+	}
+	if parsed["context7"].Transport != types.TransportSSE {
+		t.Errorf("context7.transport = %q, want sse", parsed["context7"].Transport)
 	}
 }
 
-func TestWindsurfProvider_Generate_remoteServer_writesServerUrl(t *testing.T) {
-	p := providers.NewWindsurfProviderWithPath(t.TempDir() + "/mcp_config.json")
-	servers := map[string]types.MCPServer{
-		"remote": {Transport: types.TransportSSE, URL: "https://example.com/mcp"},
-	}
-	out, err := p.Generate(servers, "")
+func TestWindsurfProvider_Generate_FixtureMatch(t *testing.T) {
+	content, err := os.ReadFile("testdata/windsurf_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	var doc struct {
-		MCPServers map[string]struct {
-			ServerURL string `json:"serverUrl"`
-			URL       string `json:"url"`
-		} `json:"mcpServers"`
-	}
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v", err)
-	}
-	entry := doc.MCPServers["remote"]
-	if entry.ServerURL != "https://example.com/mcp" {
-		t.Fatalf("expected serverUrl=%q, got %q", "https://example.com/mcp", entry.ServerURL)
-	}
-	if entry.URL != "" {
-		t.Fatalf("expected url to be empty, got %q", entry.URL)
-	}
-}
-
-func TestWindsurfProvider_Parse_acceptsServerUrlOrUrl(t *testing.T) {
-	p := providers.NewWindsurfProviderWithPath(t.TempDir() + "/mcp_config.json")
-
-	// Test serverUrl (primary field)
-	withServerURL := `{"mcpServers":{"remote":{"serverUrl":"https://example.com/mcp"}}}`
-	parsed, err := p.Parse(withServerURL)
+	tmp := t.TempDir()
+	p := providers.NewWindsurfProviderWithPath(filepath.Join(tmp, "mcp_config.json"))
+	servers, err := p.Parse(string(content))
 	if err != nil {
-		t.Fatalf("Parse(serverUrl): %v", err)
+		t.Fatalf("Parse: %v", err)
 	}
-	if parsed["remote"].URL != "https://example.com/mcp" {
-		t.Fatalf("serverUrl: expected URL=%q, got %q", "https://example.com/mcp", parsed["remote"].URL)
-	}
-	if parsed["remote"].Transport != types.TransportSSE {
-		t.Fatalf("serverUrl: expected TransportSSE, got %q", parsed["remote"].Transport)
-	}
-
-	// Test fallback url field
-	withURL := `{"mcpServers":{"remote":{"url":"https://fallback.com/mcp"}}}`
-	parsed, err = p.Parse(withURL)
+	got, err := p.Generate(servers, string(content))
 	if err != nil {
-		t.Fatalf("Parse(url): %v", err)
+		t.Fatalf("Generate: %v", err)
 	}
-	if parsed["remote"].URL != "https://fallback.com/mcp" {
-		t.Fatalf("url: expected URL=%q, got %q", "https://fallback.com/mcp", parsed["remote"].URL)
+	expected, err := os.ReadFile("testdata/windsurf_expected.json")
+	if err != nil {
+		t.Fatal(err)
 	}
+	requireJSONEqual(t, string(expected), got)
 }
 
 func TestWindsurfProvider_Exists(t *testing.T) {

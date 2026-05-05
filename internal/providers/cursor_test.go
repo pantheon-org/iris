@@ -1,7 +1,6 @@
 package providers_test
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -30,33 +29,49 @@ func TestCursorProvider_ConfigFilePath(t *testing.T) {
 	}
 }
 
-func TestCursorProvider_GenerateParse_roundtrip(t *testing.T) {
+func TestCursorProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+	content, err := os.ReadFile("testdata/cursor_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
 	p := providers.NewCursorProvider()
-	servers := map[string]types.MCPServer{
-		"fs": {Transport: types.TransportStdio, Command: "node", Args: []string{"server.js"}},
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	out, err := p.Generate(servers, "")
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
+	}
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["filesystem"].Transport != types.TransportStdio {
+		t.Errorf("filesystem.transport = %q, want stdio", parsed["filesystem"].Transport)
+	}
+	if parsed["brave-search"].Env["BRAVE_API_KEY"] != "test-key" {
+		t.Errorf("brave-search env = %v, want BRAVE_API_KEY=test-key", parsed["brave-search"].Env)
+	}
+}
+
+func TestCursorProvider_Generate_FixtureMatch(t *testing.T) {
+	content, err := os.ReadFile("testdata/cursor_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	var doc struct {
-		MCPServers map[string]json.RawMessage `json:"mcpServers"`
+	p := providers.NewCursorProvider()
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v\n%s", err, out)
+	got, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
 	}
-	if _, ok := doc.MCPServers["fs"]; !ok {
-		t.Fatalf("expected mcpServers.fs in output")
-	}
-
-	parsed, err := p.Parse(out)
+	expected, err := os.ReadFile("testdata/cursor_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if parsed["fs"].Command != "node" {
-		t.Fatalf("expected command %q, got %q", "node", parsed["fs"].Command)
-	}
+	requireJSONEqual(t, string(expected), got)
 }
 
 func TestCursorProvider_Exists(t *testing.T) {

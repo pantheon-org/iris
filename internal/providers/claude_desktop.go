@@ -19,9 +19,9 @@ func newClaudeDesktopProviderWithPath(path string) *ClaudeDesktopProvider {
 	p.config = ProviderConfig{
 		Name:                  NameAnthropicClaudeDesktop,
 		DisplayName:           "Anthropic Claude Desktop",
-		ConfigPath:            "~/Library/Application Support/Claude/claude_desktop_config.json",
+		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,
-		GlobalConfigPath:      path,
+		GlobalConfigPath:      homeRel(path),
 	}
 	p.resolvedPath = func(_ string) string {
 		return path

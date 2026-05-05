@@ -11,7 +11,7 @@ func NewIntelliJProvider() *IntelliJProvider {
 	p.config = ProviderConfig{
 		Name:                  NameIntelliJIDEA,
 		DisplayName:           "IntelliJ IDEA",
-		ConfigPath:            ".idea/mcp.json",
+		LocalConfigPath:       strPtr(".idea/mcp.json"),
 		SupportsProjectConfig: true,
 	}
 	p.resolvedPath = func(projectRoot string) string {

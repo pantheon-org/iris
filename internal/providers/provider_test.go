@@ -1,14 +1,26 @@
 package providers_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 )
+
+// requireJSONEqual asserts that two JSON strings are semantically equal,
+// ignoring field ordering differences produced by different marshal paths.
+func requireJSONEqual(t *testing.T, want, got string) {
+	t.Helper()
+	var wantVal, gotVal any
+	require.NoError(t, json.Unmarshal([]byte(want), &wantVal), "want: invalid JSON")
+	require.NoError(t, json.Unmarshal([]byte(got), &gotVal), "got: invalid JSON")
+	assert.Equal(t, wantVal, gotVal)
+}
 
 func TestValidateProjectRoot_TraversalDotDot_ReturnsErrPathTraversal(t *testing.T) {
 	err := providers.ValidateProjectRoot("/some/project/../../etc")
@@ -69,14 +81,14 @@ func TestClaudeProvider_SafeConfigFilePath_CleanRoot_ReturnsPath(t *testing.T) {
 
 func TestOpenCodeProvider_Config_UsesExpectedConfigFileName(t *testing.T) {
 	cfg := providers.NewOpenCodeProvider().Config()
-	assert.NotEmpty(t, cfg.GlobalConfigPath)
-	assert.Contains(t, cfg.GlobalConfigPath, "opencode")
-	assert.Contains(t, cfg.GlobalConfigPath, "opencode.json")
+	require.NotNil(t, cfg.GlobalConfigPath)
+	assert.Contains(t, *cfg.GlobalConfigPath, "opencode")
+	assert.Contains(t, *cfg.GlobalConfigPath, "opencode.json")
 }
 
 func TestClaudeDesktopProvider_Config_UsesExpectedConfigFileName(t *testing.T) {
 	cfg := providers.NewClaudeDesktopProvider().Config()
-	assert.NotEmpty(t, cfg.GlobalConfigPath)
-	assert.Contains(t, cfg.GlobalConfigPath, "Claude")
-	assert.Contains(t, cfg.GlobalConfigPath, "claude_desktop_config.json")
+	require.NotNil(t, cfg.GlobalConfigPath)
+	assert.Contains(t, *cfg.GlobalConfigPath, "Claude")
+	assert.Contains(t, *cfg.GlobalConfigPath, "claude_desktop_config.json")
 }

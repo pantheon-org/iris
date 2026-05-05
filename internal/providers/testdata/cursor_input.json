@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "brave-search": {
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "command": "npx",
+      "env": {
+        "BRAVE_API_KEY": "test-key"
+      },
+      "type": "stdio"
+    },
+    "filesystem": {
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/tmp"
+      ],
+      "command": "npx",
+      "type": "stdio"
+    }
+  }
+}

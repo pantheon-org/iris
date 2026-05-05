@@ -39,6 +39,17 @@ internal/
 - Global providers (Gemini, Codex) expose `NewXxxProviderWithPath(path string)` constructors for test isolation — use them instead of mutating `HOME`.
 - For `gh` CLI commands, always prefix with `dotenvx run --` to load `GH_TOKEN`.
 
+## Provider testdata fixtures
+
+Every provider has two canonical fixture files in `internal/providers/testdata/`:
+
+- `<provider>_input.{json,toml}` — realistic on-disk config; source of truth for `Parse` tests.
+- `<provider>_expected.{json,toml}` — exact iris output from `Parse(_input) → Generate(servers, _input)`; source of truth for `Generate` tests.
+
+Do not use inline JSON/TOML strings in provider tests — always reference fixture files.
+When adding a new provider, create both fixture files before writing the tests.
+To regenerate `_expected` files after a deliberate format change: run the build-tagged generator (see CONTRIBUTING.md).
+
 @RTK.md
 
 @CODE_REVIEW_GRAPH.md

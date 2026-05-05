@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "args": [
+        "chrome-devtools-mcp@latest"
+      ],
+      "command": "npx",
+      "env": {
+        "SOME_VAR": "value"
+      }
+    },
+    "context7": {
+      "headers": {
+        "CONTEXT7_API_KEY": "your-key"
+      },
+      "url": "https://mcp.context7.com/mcp"
+    }
+  }
+}
