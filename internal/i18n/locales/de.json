@@ -26,5 +26,7 @@
   "wizard.command": "Befehl",
   "wizard.args": "Argumente (leerzeichen-getrennt, leer lassen für keine)",
   "wizard.transport": "Transport",
-  "wizard.select_import": "Server zum Importieren auswählen (kommagetrennte Zahlen, leer lassen zum Überspringen)"
+  "wizard.select_import": "Server zum Importieren auswählen (kommagetrennte Zahlen, leer lassen zum Überspringen)",
+  "add.added": "%s hinzugefügt",
+  "remove.removed": "%s entfernt"
 }

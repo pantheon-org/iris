@@ -11,10 +11,10 @@ import (
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-func RunInitNonInteractive(store *config.Store, w io.Writer) error {
+func RunInitNonInteractive(store *config.Store, w io.Writer, st *Styles) error {
 	_, err := store.Load()
 	if err == nil {
-		fmt.Fprintln(w, i18n.T("init.already_exists", store.Path()))
+		fmt.Fprintln(w, st.Warning.Render(i18n.T("init.already_exists", store.Path())))
 		return nil
 	}
 	if !errors.Is(err, os.ErrNotExist) {
@@ -28,6 +28,6 @@ func RunInitNonInteractive(store *config.Store, w io.Writer) error {
 	if err := store.Save(cfg); err != nil {
 		return fmt.Errorf("save config: %w", err)
 	}
-	fmt.Fprintln(w, i18n.T("init.initialized", store.Path()))
+	fmt.Fprintln(w, st.Success.Render(i18n.T("init.initialized", store.Path())))
 	return nil
 }

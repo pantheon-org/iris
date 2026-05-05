@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"bytes"
 	"errors"
 	"os"
 	"path/filepath"
@@ -35,7 +36,7 @@ func TestRunAdd_newServer_savedToDisk(t *testing.T) {
 	require.NoError(t, err)
 
 	srv := types.MCPServer{Transport: types.TransportStdio, Command: "uvx", Args: []string{"mcp-server-fetch"}}
-	err = cli.RunAdd(cfg, store, "fetch", srv)
+	err = cli.RunAdd(cfg, store, "fetch", srv, nil, nil)
 	require.NoError(t, err)
 
 	reloadStore, err := config.NewStore(path)
@@ -55,13 +56,13 @@ func TestRunAdd_existingServer_overwritten(t *testing.T) {
 	require.NoError(t, err)
 
 	first := types.MCPServer{Transport: types.TransportStdio, Command: "old-cmd"}
-	require.NoError(t, cli.RunAdd(cfg, store, "myserver", first))
+	require.NoError(t, cli.RunAdd(cfg, store, "myserver", first, nil, nil))
 
 	cfg, err = store.Load()
 	require.NoError(t, err)
 
 	second := types.MCPServer{Transport: types.TransportStdio, Command: "new-cmd", Args: []string{"--flag"}}
-	require.NoError(t, cli.RunAdd(cfg, store, "myserver", second))
+	require.NoError(t, cli.RunAdd(cfg, store, "myserver", second, nil, nil))
 
 	reloadStore, err := config.NewStore(path)
 	require.NoError(t, err)
@@ -73,6 +74,18 @@ func TestRunAdd_existingServer_overwritten(t *testing.T) {
 	assert.Equal(t, []string{"--flag"}, got.Args)
 }
 
+func TestRunAdd_withWriter_printsSuccess(t *testing.T) {
+	store, _ := newTempStore(t)
+	cfg, err := store.Load()
+	require.NoError(t, err)
+
+	var buf bytes.Buffer
+	srv := types.MCPServer{Transport: types.TransportStdio, Command: "uvx"}
+	err = cli.RunAdd(cfg, store, "fetch", srv, &buf, noColourStyles())
+	require.NoError(t, err)
+	assert.Contains(t, buf.String(), "fetch")
+}
+
 func TestRunAdd_saveFails_returnsError(t *testing.T) {
 	store, path := newTempStore(t)
 	cfg, err := store.Load()
@@ -82,7 +95,7 @@ func TestRunAdd_saveFails_returnsError(t *testing.T) {
 	t.Cleanup(func() { _ = os.Chmod(filepath.Dir(path), 0o755) })
 
 	srv := types.MCPServer{Transport: types.TransportStdio, Command: "uvx"}
-	err = cli.RunAdd(cfg, store, "fetch", srv)
+	err = cli.RunAdd(cfg, store, "fetch", srv, nil, nil)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ierrors.ErrConfigPermission))
 }

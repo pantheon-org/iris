@@ -24,7 +24,7 @@ type SyncOutput struct {
 	Results []SyncResultEntry `json:"results"`
 }
 
-func RunSync(projectRoot string, cfg *types.IrisConfig, registry *registry.Registry, w io.Writer, jsonOutput bool) error {
+func RunSync(projectRoot string, cfg *types.IrisConfig, registry *registry.Registry, w io.Writer, jsonOutput bool, st *Styles) error {
 	results := irisync.SyncAllProviders(projectRoot, registry, cfg.Servers)
 
 	sort.Slice(results, func(i, j int) bool {
@@ -78,10 +78,20 @@ func RunSync(projectRoot string, cfg *types.IrisConfig, registry *registry.Regis
 		}
 
 		if r.Err != nil {
-			fmt.Fprintf(w, fmtStrErr, r.ProviderName, string(r.Status), displayPath, r.Err)
+			fmt.Fprintf(w, fmtStrErr,
+				st.Accent.Render(r.ProviderName),
+				st.Err.Render(string(r.Status)),
+				st.Muted.Render(displayPath),
+				st.Err.Render(r.Err.Error()),
+			)
 			hasErr = true
 		} else {
-			fmt.Fprintf(w, fmtStr, r.ProviderName, string(r.Status), displayPath)
+			statusStyled := st.Success.Render(string(r.Status))
+			fmt.Fprintf(w, fmtStr,
+				st.Accent.Render(r.ProviderName),
+				statusStyled,
+				st.Muted.Render(displayPath),
+			)
 		}
 	}
 

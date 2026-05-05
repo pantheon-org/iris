@@ -30,7 +30,7 @@ func (s *scenarioCtx) iSyncToAllProviders() error {
 
 func (s *scenarioCtx) iSyncToAllProvidersAgain() error {
 	s.reg = buildReg(s.root)
-	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false); err != nil {
+	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false, noColourStyles()); err != nil {
 		return fmt.Errorf("sync: %w", err)
 	}
 	s.syncResults = irisync.SyncAllProviders(s.root, s.reg, s.cfg.Servers)
@@ -39,7 +39,7 @@ func (s *scenarioCtx) iSyncToAllProvidersAgain() error {
 
 func (s *scenarioCtx) iSyncToAllProvidersWithJSONOutput() error {
 	s.output.Reset()
-	if err := cli.RunSync(s.root, s.cfg, s.reg, s.output, true); err != nil {
+	if err := cli.RunSync(s.root, s.cfg, s.reg, s.output, true, noColourStyles()); err != nil {
 		return fmt.Errorf("sync json: %w", err)
 	}
 	return nil

@@ -26,5 +26,7 @@
   "wizard.command": "Komut",
   "wizard.args": "Argümanlar (boşlukla ayrılmış, hiçbiri için boş bırakın)",
   "wizard.transport": "Aktarım",
-  "wizard.select_import": "İçe aktarılacak sunucuları seçin (virgülle ayrılmış sayılar, atlamak için boş bırakın)"
+  "wizard.select_import": "İçe aktarılacak sunucuları seçin (virgülle ayrılmış sayılar, atlamak için boş bırakın)",
+  "add.added": "%s eklendi",
+  "remove.removed": "%s kaldırıldı"
 }

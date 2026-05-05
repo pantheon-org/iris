@@ -120,7 +120,7 @@ func main() {
 						projectRoot := filepath.Dir(store.Path())
 						return wizard.RunInit(wizard.NewTerminalRunner(), projectRoot, store, reg)
 					}
-					return cli.RunInitNonInteractive(store, os.Stdout)
+					return cli.RunInitNonInteractive(store, os.Stdout, cli.DefaultStyles())
 				},
 			}
 			cmd.Flags().BoolVarP(&interactive, "interactive", "I", false, i18n.T("flag.interactive"))
@@ -160,7 +160,7 @@ func main() {
 						Env:       envMap,
 						URL:       url,
 					}
-					return cli.RunAdd(cfg, store, args[0], srv)
+					return cli.RunAdd(cfg, store, args[0], srv, os.Stdout, cli.DefaultStyles())
 				},
 			}
 			cmd.Flags().StringVarP(&command, "command", "c", "", "command to run (required for stdio)")
@@ -183,7 +183,7 @@ func main() {
 				if err != nil {
 					return fmt.Errorf("load config: %w", err)
 				}
-				return cli.RunRemove(cfg, store, args[0])
+				return cli.RunRemove(cfg, store, args[0], os.Stdout, cli.DefaultStyles())
 			},
 		},
 		func() *cobra.Command {
@@ -200,7 +200,7 @@ func main() {
 					if err != nil {
 						return fmt.Errorf("load config: %w", err)
 					}
-					return cli.RunList(cfg, os.Stdout, jsonOutput)
+					return cli.RunList(cfg, os.Stdout, jsonOutput, cli.DefaultStyles())
 				},
 			}
 			cmd.Flags().BoolVar(&jsonOutput, "json", false, i18n.T("flag.json"))
@@ -239,7 +239,7 @@ func main() {
 							return fmt.Errorf("filter providers: %w", err)
 						}
 					}
-					return cli.RunSync(projectRoot, cfg, reg, os.Stdout, jsonOutput)
+					return cli.RunSync(projectRoot, cfg, reg, os.Stdout, jsonOutput, cli.DefaultStyles())
 				},
 			}
 			cmd.Flags().StringArrayVarP(&providerNames, "provider", "p", nil, i18n.T("flag.provider"))
@@ -264,7 +264,7 @@ func main() {
 					if err != nil {
 						return fmt.Errorf("load config: %w", err)
 					}
-					return cli.RunStatus(projectRoot, cfg, buildRegistry(), os.Stdout, jsonOutput)
+					return cli.RunStatus(projectRoot, cfg, buildRegistry(), os.Stdout, jsonOutput, cli.DefaultStyles())
 				},
 			}
 			cmd.Flags().BoolVar(&jsonOutput, "json", false, i18n.T("flag.json"))

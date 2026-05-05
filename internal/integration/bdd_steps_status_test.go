@@ -14,7 +14,7 @@ import (
 
 func (s *scenarioCtx) iRunStatus() error {
 	s.output.Reset()
-	if err := cli.RunStatus(s.root, s.cfg, s.reg, s.output, false); err != nil {
+	if err := cli.RunStatus(s.root, s.cfg, s.reg, s.output, false, noColourStyles()); err != nil {
 		return fmt.Errorf("status: %w", err)
 	}
 	return nil
@@ -22,7 +22,7 @@ func (s *scenarioCtx) iRunStatus() error {
 
 func (s *scenarioCtx) iRunStatusWithJSONOutput() error {
 	s.output.Reset()
-	if err := cli.RunStatus(s.root, s.cfg, s.reg, s.output, true); err != nil {
+	if err := cli.RunStatus(s.root, s.cfg, s.reg, s.output, true, noColourStyles()); err != nil {
 		return fmt.Errorf("status json: %w", err)
 	}
 	return nil

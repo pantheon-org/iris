@@ -26,5 +26,7 @@
   "wizard.command": "Opdracht",
   "wizard.args": "Argumenten (spatie-gescheiden, leeg laten voor geen)",
   "wizard.transport": "Transport",
-  "wizard.select_import": "Selecteer servers om te importeren (kommagescheiden nummers, leeg laten om over te slaan)"
+  "wizard.select_import": "Selecteer servers om te importeren (kommagescheiden nummers, leeg laten om over te slaan)",
+  "add.added": "%s toegevoegd",
+  "remove.removed": "%s verwijderd"
 }

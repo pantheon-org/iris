@@ -25,7 +25,7 @@ type StatusOutput struct {
 	Providers []StatusEntry `json:"providers"`
 }
 
-func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Registry, w io.Writer, jsonOutput bool) error {
+func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Registry, w io.Writer, jsonOutput bool, st *Styles) error {
 	all := registry.All()
 	sort.Slice(all, func(i, j int) bool {
 		return all[i].Config().Name < all[j].Config().Name
@@ -66,7 +66,7 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 		return nil
 	}
 
-	fmt.Fprint(w, "Provider Status:\n")
+	fmt.Fprint(w, st.Bold.Render("Provider Status:")+"\n")
 	maxWidth := 12 // minimum
 	for _, p := range all {
 		if len(p.Config().Name) > maxWidth {
@@ -81,26 +81,30 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 
 		data, err := os.ReadFile(path)
 		if err != nil {
-			status := i18n.T("status.error")
+			statusWord := i18n.T("status.error")
+			statusStyled := st.Err.Render(statusWord)
 			if errors.Is(err, os.ErrNotExist) {
-				status = i18n.T("status.missing")
+				statusWord = i18n.T("status.missing")
+				statusStyled = st.Err.Render(statusWord)
 			}
-			fmt.Fprintf(w, fmtStr, name, status, displayPath)
+			fmt.Fprintf(w, fmtStr, st.Accent.Render(name), statusStyled, st.Muted.Render(displayPath))
 			continue
 		}
 
 		existing := string(data)
 		generated, err := p.Generate(cfg.Servers, existing)
 		if err != nil {
-			fmt.Fprintf(w, fmtStr, name, i18n.T("status.error"), displayPath)
+			fmt.Fprintf(w, fmtStr, st.Accent.Render(name), st.Err.Render(i18n.T("status.error")), st.Muted.Render(displayPath))
 			continue
 		}
 
 		status := i18n.T("status.synced")
+		statusStyled := st.Success.Render(status)
 		if generated != existing {
 			status = i18n.T("status.desync")
+			statusStyled = st.Warning.Render(status)
 		}
-		fmt.Fprintf(w, fmtStr, name, status, displayPath)
+		fmt.Fprintf(w, fmtStr, st.Accent.Render(name), statusStyled, st.Muted.Render(displayPath))
 	}
 	return nil
 }

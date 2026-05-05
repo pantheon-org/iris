@@ -11,7 +11,7 @@ import (
 
 func (s *scenarioCtx) iRunList() error {
 	s.output.Reset()
-	if err := cli.RunList(s.cfg, s.output, false); err != nil {
+	if err := cli.RunList(s.cfg, s.output, false, noColourStyles()); err != nil {
 		return fmt.Errorf("list: %w", err)
 	}
 	return nil
@@ -19,7 +19,7 @@ func (s *scenarioCtx) iRunList() error {
 
 func (s *scenarioCtx) iRunListWithJSONOutput() error {
 	s.output.Reset()
-	if err := cli.RunList(s.cfg, s.output, true); err != nil {
+	if err := cli.RunList(s.cfg, s.output, true, noColourStyles()); err != nil {
 		return fmt.Errorf("list json: %w", err)
 	}
 	return nil

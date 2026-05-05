@@ -26,5 +26,7 @@
   "wizard.command": "コマンド",
   "wizard.args": "引数（スペース区切り、なければ空白のまま）",
   "wizard.transport": "トランスポート",
-  "wizard.select_import": "インポートするサーバーを選択してください（カンマ区切りの番号、スキップする場合は空白のまま）"
+  "wizard.select_import": "インポートするサーバーを選択してください（カンマ区切りの番号、スキップする場合は空白のまま）",
+  "add.added": "%s を追加しました",
+  "remove.removed": "%s を削除しました"
 }

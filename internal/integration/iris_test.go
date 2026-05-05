@@ -64,7 +64,7 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 		Transport: types.TransportStdio,
 		Command:   "npx",
 		Args:      []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"},
-	}); err != nil {
+	}, nil, nil); err != nil {
 		t.Fatalf("RunAdd filesystem: %v", err)
 	}
 
@@ -72,13 +72,13 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 		Transport: types.TransportStdio,
 		Command:   "uvx",
 		Args:      []string{"mcp-server-fetch"},
-	}); err != nil {
+	}, nil, nil); err != nil {
 		t.Fatalf("RunAdd fetch: %v", err)
 	}
 
 	reg := buildRegistry(t, root)
 
-	if err := cli.RunSync(root, cfg, reg, io.Discard, false); err != nil {
+	if err := cli.RunSync(root, cfg, reg, io.Discard, false, noColourStyles()); err != nil {
 		t.Fatalf("RunSync (first): %v", err)
 	}
 
@@ -148,7 +148,7 @@ func TestIris_fullPipeline_syncAllProviders(t *testing.T) {
 	}
 
 	reg2 := buildRegistry(t, root)
-	if err := cli.RunSync(root, cfg, reg2, io.Discard, false); err != nil {
+	if err := cli.RunSync(root, cfg, reg2, io.Discard, false, noColourStyles()); err != nil {
 		t.Fatalf("RunSync (second): %v", err)
 	}
 
@@ -183,12 +183,12 @@ func TestIris_addRemove_persistsCorrectly(t *testing.T) {
 		"gamma": {Transport: types.TransportStdio, Command: "cmd-gamma"},
 	}
 	for name, srv := range servers {
-		if err := cli.RunAdd(cfg, store, name, srv); err != nil {
+		if err := cli.RunAdd(cfg, store, name, srv, nil, nil); err != nil {
 			t.Fatalf("RunAdd %s: %v", name, err)
 		}
 	}
 
-	if err := cli.RunRemove(cfg, store, "gamma"); err != nil {
+	if err := cli.RunRemove(cfg, store, "gamma", nil, nil); err != nil {
 		t.Fatalf("RunRemove gamma: %v", err)
 	}
 

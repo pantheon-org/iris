@@ -1,6 +1,7 @@
 package cli_test
 
 import (
+	"bytes"
 	"errors"
 	"os"
 	"path/filepath"
@@ -21,12 +22,12 @@ func TestRunRemove_existingServer_removedFromDisk(t *testing.T) {
 	require.NoError(t, err)
 
 	srv := types.MCPServer{Transport: types.TransportStdio, Command: "uvx"}
-	require.NoError(t, cli.RunAdd(cfg, store, "fetch", srv))
+	require.NoError(t, cli.RunAdd(cfg, store, "fetch", srv, nil, nil))
 
 	cfg, err = store.Load()
 	require.NoError(t, err)
 
-	err = cli.RunRemove(cfg, store, "fetch")
+	err = cli.RunRemove(cfg, store, "fetch", nil, nil)
 	require.NoError(t, err)
 
 	reloadStore, err := config.NewStore(path)
@@ -43,9 +44,26 @@ func TestRunRemove_missingServer_returnsErrServerNotFound(t *testing.T) {
 	cfg, err := store.Load()
 	require.NoError(t, err)
 
-	err = cli.RunRemove(cfg, store, "nonexistent")
+	err = cli.RunRemove(cfg, store, "nonexistent", nil, nil)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ierrors.ErrServerNotFound))
+}
+
+func TestRunRemove_withWriter_printsSuccess(t *testing.T) {
+	store, _ := newTempStore(t)
+	cfg, err := store.Load()
+	require.NoError(t, err)
+
+	srv := types.MCPServer{Transport: types.TransportStdio, Command: "uvx"}
+	require.NoError(t, cli.RunAdd(cfg, store, "fetch", srv, nil, nil))
+
+	cfg, err = store.Load()
+	require.NoError(t, err)
+
+	var buf bytes.Buffer
+	err = cli.RunRemove(cfg, store, "fetch", &buf, noColourStyles())
+	require.NoError(t, err)
+	assert.Contains(t, buf.String(), "fetch")
 }
 
 func TestRunRemove_saveFails_returnsError(t *testing.T) {
@@ -54,7 +72,7 @@ func TestRunRemove_saveFails_returnsError(t *testing.T) {
 	require.NoError(t, err)
 
 	srv := types.MCPServer{Transport: types.TransportStdio, Command: "uvx"}
-	require.NoError(t, cli.RunAdd(cfg, store, "fetch", srv))
+	require.NoError(t, cli.RunAdd(cfg, store, "fetch", srv, nil, nil))
 
 	cfg, err = store.Load()
 	require.NoError(t, err)
@@ -62,7 +80,7 @@ func TestRunRemove_saveFails_returnsError(t *testing.T) {
 	require.NoError(t, os.Chmod(filepath.Dir(path), 0o555))
 	t.Cleanup(func() { _ = os.Chmod(filepath.Dir(path), 0o755) })
 
-	err = cli.RunRemove(cfg, store, "fetch")
+	err = cli.RunRemove(cfg, store, "fetch", nil, nil)
 	require.Error(t, err)
 	assert.True(t, errors.Is(err, ierrors.ErrConfigPermission))
 }

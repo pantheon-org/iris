@@ -26,7 +26,7 @@ type ListOutput struct {
 	Servers []ListServerEntry `json:"servers"`
 }
 
-func RunList(cfg *types.IrisConfig, w io.Writer, jsonOutput bool) error {
+func RunList(cfg *types.IrisConfig, w io.Writer, jsonOutput bool, st *Styles) error {
 	names := make([]string, 0, len(cfg.Servers))
 	for name := range cfg.Servers {
 		names = append(names, name)
@@ -61,7 +61,7 @@ func RunList(cfg *types.IrisConfig, w io.Writer, jsonOutput bool) error {
 		return nil
 	}
 
-	fmt.Fprintln(w, i18n.T("list.servers_count", len(names)))
+	fmt.Fprintln(w, st.Bold.Render(i18n.T("list.servers_count", len(names))))
 	for _, name := range names {
 		srv := cfg.Servers[name]
 		transport := string(srv.Transport)
@@ -76,7 +76,11 @@ func RunList(cfg *types.IrisConfig, w io.Writer, jsonOutput bool) error {
 		parts = append(parts, srv.Args...)
 		cmdLine := strings.Join(parts, " ")
 
-		fmt.Fprintf(w, "  %-12s  %-6s  %s\n", name, transport, cmdLine)
+		fmt.Fprintf(w, "  %-12s  %-6s  %s\n",
+			st.Accent.Render(name),
+			st.Muted.Render(transport),
+			st.Muted.Render(cmdLine),
+		)
 	}
 	return nil
 }
