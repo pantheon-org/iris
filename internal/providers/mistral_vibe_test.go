@@ -4,12 +4,10 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
-	"github.com/pantheon-org/iris/internal/types"
 )
 
 func TestMistralVibeProvider_Config(t *testing.T) {
@@ -46,86 +44,7 @@ func TestMistralVibeProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *t
 	}
 }
 
-func TestMistralVibeProvider_GenerateParse_roundtrip(t *testing.T) {
-	tmp := t.TempDir()
-	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))
-
-	servers := map[string]types.MCPServer{
-		"fetch": {
-			Transport: types.TransportStdio,
-			Command:   "uvx",
-			Args:      []string{"mcp-server-fetch"},
-			Env:       map[string]string{"DEBUG": "1"},
-		},
-	}
-	out, err := p.Generate(servers, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if !strings.Contains(out, "[[mcp_servers]]") {
-		t.Fatalf("expected [[mcp_servers]] block, got:\n%s", out)
-	}
-
-	parsed, err := p.Parse(out)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if parsed["fetch"].Command != "uvx" {
-		t.Fatalf("expected command %q, got %q", "uvx", parsed["fetch"].Command)
-	}
-	if parsed["fetch"].Env["DEBUG"] != "1" {
-		t.Fatalf("expected env var, got %v", parsed["fetch"].Env)
-	}
-}
-
-func TestMistralVibeProvider_Generate_preservesExistingKeys(t *testing.T) {
-	tmp := t.TempDir()
-	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))
-
-	existing := `model = "codestral-latest"
-api_key_env = "MISTRAL_API_KEY"
-`
-	servers := map[string]types.MCPServer{
-		"fetch": {Transport: types.TransportStdio, Command: "uvx", Args: []string{"mcp-server-fetch"}},
-	}
-	out, err := p.Generate(servers, existing)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(out, "model") {
-		t.Fatalf("expected existing 'model' key to be preserved, got:\n%s", out)
-	}
-	if !strings.Contains(out, "[[mcp_servers]]") {
-		t.Fatalf("expected [[mcp_servers]] block, got:\n%s", out)
-	}
-}
-
-func TestMistralVibeProvider_Generate_httpTransport(t *testing.T) {
-	tmp := t.TempDir()
-	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))
-
-	servers := map[string]types.MCPServer{
-		"context7": {
-			Transport: types.TransportSSE,
-			URL:       "https://mcp.context7.com/mcp",
-		},
-	}
-	out, err := p.Generate(servers, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	parsed, err := p.Parse(out)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
-		t.Fatalf("expected URL, got %q", parsed["context7"].URL)
-	}
-}
-
-func TestMistralVibeProvider_Parse_withTestdata(t *testing.T) {
+func TestMistralVibeProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	content, err := os.ReadFile("testdata/mistral_vibe_input.toml")
 	if err != nil {
 		t.Fatal(err)
@@ -147,25 +66,27 @@ func TestMistralVibeProvider_Parse_withTestdata(t *testing.T) {
 	}
 }
 
-func TestMistralVibeProvider_Generate_withTestdata_preservesTopLevelKeys(t *testing.T) {
+func TestMistralVibeProvider_Generate_FixtureMatch(t *testing.T) {
 	content, err := os.ReadFile("testdata/mistral_vibe_input.toml")
 	if err != nil {
 		t.Fatal(err)
 	}
 	tmp := t.TempDir()
 	p := providers.NewMistralVibeProviderWithPath(filepath.Join(tmp, "config.toml"))
-	servers := map[string]types.MCPServer{
-		"fetch": {Transport: types.TransportStdio, Command: "uvx", Args: []string{"mcp-server-fetch"}},
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	out, err := p.Generate(servers, string(content))
+	got, err := p.Generate(servers, string(content))
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	if !strings.Contains(out, "model") {
-		t.Error("expected 'model' key to be preserved")
+	expected, err := os.ReadFile("testdata/mistral_vibe_expected.toml")
+	if err != nil {
+		t.Fatal(err)
 	}
-	if !strings.Contains(out, "api_key_env") {
-		t.Error("expected 'api_key_env' key to be preserved")
+	if got != string(expected) {
+		t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, expected)
 	}
 }
 

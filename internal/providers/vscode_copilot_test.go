@@ -32,83 +32,50 @@ func TestVSCodeCopilotProvider_ConfigFilePath(t *testing.T) {
 	}
 }
 
-func TestVSCodeCopilotProvider_Generate_usesServersKey(t *testing.T) {
-	p := providers.NewVSCodeCopilotProvider()
-	servers := map[string]types.MCPServer{
-		"fs": {Transport: types.TransportStdio, Command: "node", Args: []string{"server.js"}},
-	}
-	out, err := p.Generate(servers, "")
+func TestVSCodeCopilotProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
+	content, err := os.ReadFile("testdata/vscode_copilot_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	var doc map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v\n%s", err, out)
+	p := providers.NewVSCodeCopilotProvider()
+	parsed, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	if _, ok := doc["servers"]; !ok {
-		t.Fatalf("expected top-level 'servers' key, got keys: %v", keysOf(doc))
+	if len(parsed) != 2 {
+		t.Fatalf("expected 2 servers, got %d", len(parsed))
 	}
-	if _, ok := doc["mcpServers"]; ok {
-		t.Fatal("should NOT have 'mcpServers' key")
+	if parsed["filesystem"].Command != "npx" {
+		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
+	}
+	if parsed["filesystem"].Transport != types.TransportStdio {
+		t.Errorf("filesystem.transport = %q, want stdio", parsed["filesystem"].Transport)
+	}
+	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
+		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
 	}
 }
 
-func TestVSCodeCopilotProvider_Generate_hasTypeField(t *testing.T) {
-	p := providers.NewVSCodeCopilotProvider()
-	servers := map[string]types.MCPServer{
-		"fs": {Transport: types.TransportStdio, Command: "node"},
-	}
-	out, err := p.Generate(servers, "")
+func TestVSCodeCopilotProvider_Generate_FixtureMatch(t *testing.T) {
+	content, err := os.ReadFile("testdata/vscode_copilot_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	var doc struct {
-		Servers map[string]struct {
-			Type string `json:"type"`
-		} `json:"servers"`
-	}
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatal(err)
-	}
-	if doc.Servers["fs"].Type != "stdio" {
-		t.Fatalf("expected type=stdio, got %q", doc.Servers["fs"].Type)
-	}
-}
-
-func TestVSCodeCopilotProvider_Parse(t *testing.T) {
 	p := providers.NewVSCodeCopilotProvider()
-	input := `{"servers":{"fs":{"type":"stdio","command":"node","args":["server.js"]}}}`
-	parsed, err := p.Parse(input)
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	got, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	expected, err := os.ReadFile("testdata/vscode_copilot_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if parsed["fs"].Command != "node" {
-		t.Fatalf("expected command %q, got %q", "node", parsed["fs"].Command)
-	}
-	if parsed["fs"].Transport != types.TransportStdio {
-		t.Fatalf("expected transport stdio, got %q", parsed["fs"].Transport)
-	}
-}
-
-func TestVSCodeCopilotProvider_GenerateParse_preservesExistingKeys(t *testing.T) {
-	p := providers.NewVSCodeCopilotProvider()
-	existing := `{"inputs":[],"servers":{}}`
-	servers := map[string]types.MCPServer{
-		"fs": {Transport: types.TransportStdio, Command: "node"},
-	}
-	out, err := p.Generate(servers, existing)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var doc map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatal(err)
-	}
-	if _, ok := doc["inputs"]; !ok {
-		t.Fatal("expected 'inputs' key to be preserved")
+	if got != string(expected) {
+		t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, expected)
 	}
 }
 
@@ -157,81 +124,4 @@ func keysOf(m map[string]json.RawMessage) []string {
 		keys = append(keys, k)
 	}
 	return keys
-}
-
-func TestVSCodeCopilotProvider_Parse_withTestdata(t *testing.T) {
-	content, err := os.ReadFile("testdata/vscode_copilot_input.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	p := providers.NewVSCodeCopilotProvider()
-	parsed, err := p.Parse(string(content))
-	if err != nil {
-		t.Fatalf("Parse: %v", err)
-	}
-	if len(parsed) != 2 {
-		t.Fatalf("expected 2 servers, got %d", len(parsed))
-	}
-	if parsed["filesystem"].Command != "npx" {
-		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
-	}
-	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
-		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
-	}
-}
-
-func TestVSCodeCopilotProvider_Generate_withTestdata_preservesInputs(t *testing.T) {
-	content, err := os.ReadFile("testdata/vscode_copilot_input.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	p := providers.NewVSCodeCopilotProvider()
-	servers := map[string]types.MCPServer{
-		"filesystem": {Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"}},
-	}
-	out, err := p.Generate(servers, string(content))
-	if err != nil {
-		t.Fatalf("Generate: %v", err)
-	}
-	var doc map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v", err)
-	}
-	if _, ok := doc["inputs"]; !ok {
-		t.Error("expected 'inputs' key to be preserved")
-	}
-}
-
-func TestVSCodeCopilotProvider_Generate_httpTransport_writesHttpType(t *testing.T) {
-	p := providers.NewVSCodeCopilotProvider()
-	servers := map[string]types.MCPServer{
-		"remote": {Transport: types.TransportHTTP, URL: "https://api.githubcopilot.com/mcp"},
-	}
-	out, err := p.Generate(servers, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-	var doc struct {
-		Servers map[string]struct {
-			Type string `json:"type"`
-		} `json:"servers"`
-	}
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v", err)
-	}
-	if doc.Servers["remote"].Type != "http" {
-		t.Fatalf("expected type=%q, got %q", "http", doc.Servers["remote"].Type)
-	}
-}
-
-func TestVSCodeCopilotProvider_Parse_httpType_setsTransportHTTP(t *testing.T) {
-	p := providers.NewVSCodeCopilotProvider()
-	input := `{"servers":{"remote":{"type":"http","url":"https://api.githubcopilot.com/mcp"}}}`
-	parsed, err := p.Parse(input)
-	if err != nil {
-		t.Fatalf("Parse: %v", err)
-	}
-	if parsed["remote"].Transport != types.TransportHTTP {
-		t.Fatalf("expected TransportHTTP, got %q", parsed["remote"].Transport)
-	}
 }

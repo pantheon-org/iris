@@ -152,6 +152,29 @@ func TestIntelliJProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	}
 }
 
+func TestIntelliJProvider_Generate_FixtureMatch(t *testing.T) {
+	p := providers.NewIntelliJProvider()
+	content, err := os.ReadFile("testdata/intellij_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	got, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	expected, err := os.ReadFile("testdata/intellij_expected.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != string(expected) {
+		t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, expected)
+	}
+}
+
 func TestIntelliJProvider_Parse_MalformedJSON_ReturnsErrMalformedConfig(t *testing.T) {
 	p := providers.NewIntelliJProvider()
 	_, err := p.Parse("{not valid json")

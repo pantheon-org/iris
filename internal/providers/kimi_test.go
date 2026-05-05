@@ -21,46 +21,7 @@ func TestKimiProvider_Config(t *testing.T) {
 	}
 }
 
-func TestKimiProvider_GenerateParse_roundtrip(t *testing.T) {
-	tmp := t.TempDir()
-	p := providers.NewKimiProviderWithPath(filepath.Join(tmp, "mcp.json"))
-
-	servers := map[string]types.MCPServer{
-		"context7": {
-			Transport: types.TransportSSE,
-			URL:       "https://mcp.context7.com/mcp",
-			Headers:   map[string]string{"CONTEXT7_API_KEY": "key"},
-		},
-		"chrome": {
-			Transport: types.TransportStdio,
-			Command:   "npx",
-			Args:      []string{"chrome-devtools-mcp@latest"},
-		},
-	}
-	out, err := p.Generate(servers, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	parsed, err := p.Parse(out)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if parsed["chrome"].Command != "npx" {
-		t.Fatalf("expected command %q, got %q", "npx", parsed["chrome"].Command)
-	}
-	if parsed["context7"].Transport != types.TransportSSE {
-		t.Fatalf("expected transport %q, got %q", types.TransportSSE, parsed["context7"].Transport)
-	}
-	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
-		t.Fatalf("expected URL to roundtrip, got %q", parsed["context7"].URL)
-	}
-	if parsed["context7"].Headers["CONTEXT7_API_KEY"] != "key" {
-		t.Fatalf("expected headers to roundtrip, got %v", parsed["context7"].Headers)
-	}
-}
-
-func TestKimiProvider_Parse_withTestdata(t *testing.T) {
+func TestKimiProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	content, err := os.ReadFile("testdata/kimi_input.json")
 	if err != nil {
 		t.Fatal(err)
@@ -79,6 +40,33 @@ func TestKimiProvider_Parse_withTestdata(t *testing.T) {
 	}
 	if parsed["context7"].URL != "https://mcp.context7.com/mcp" {
 		t.Errorf("context7.url = %q, want URL", parsed["context7"].URL)
+	}
+	if parsed["context7"].Transport != types.TransportSSE {
+		t.Errorf("context7.transport = %q, want sse", parsed["context7"].Transport)
+	}
+}
+
+func TestKimiProvider_Generate_FixtureMatch(t *testing.T) {
+	content, err := os.ReadFile("testdata/kimi_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tmp := t.TempDir()
+	p := providers.NewKimiProviderWithPath(filepath.Join(tmp, "mcp.json"))
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	got, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
+	}
+	expected, err := os.ReadFile("testdata/kimi_expected.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != string(expected) {
+		t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, expected)
 	}
 }
 

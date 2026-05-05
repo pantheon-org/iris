@@ -1,7 +1,6 @@
 package providers_test
 
 import (
-	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
-	"github.com/pantheon-org/iris/internal/types"
 )
 
 func TestZedProvider_Config(t *testing.T) {
@@ -24,40 +22,7 @@ func TestZedProvider_Config(t *testing.T) {
 	}
 }
 
-func TestZedProvider_Generate_usesContextServersKey(t *testing.T) {
-	tmp := t.TempDir()
-	p := providers.NewZedProviderWithPath(filepath.Join(tmp, "settings.json"))
-	servers := map[string]types.MCPServer{
-		"fs": {Transport: types.TransportStdio, Command: "node", Args: []string{"server.js"}},
-	}
-	out, err := p.Generate(servers, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var doc map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v\n%s", err, out)
-	}
-	if _, ok := doc["context_servers"]; !ok {
-		t.Fatalf("expected 'context_servers' key, got keys: %v", keysOf(doc))
-	}
-}
-
-func TestZedProvider_Parse(t *testing.T) {
-	tmp := t.TempDir()
-	p := providers.NewZedProviderWithPath(filepath.Join(tmp, "settings.json"))
-	input := `{"context_servers":{"fs":{"command":"node","args":["server.js"],"env":{}}}}`
-	parsed, err := p.Parse(input)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if parsed["fs"].Command != "node" {
-		t.Fatalf("expected command %q, got %q", "node", parsed["fs"].Command)
-	}
-}
-
-func TestZedProvider_Parse_withTestdata(t *testing.T) {
+func TestZedProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	content, err := os.ReadFile("testdata/zed_input.json")
 	if err != nil {
 		t.Fatal(err)
@@ -79,50 +44,27 @@ func TestZedProvider_Parse_withTestdata(t *testing.T) {
 	}
 }
 
-func TestZedProvider_GenerateParse_preservesExistingKeys(t *testing.T) {
-	tmp := t.TempDir()
-	p := providers.NewZedProviderWithPath(filepath.Join(tmp, "settings.json"))
-	existing := `{"theme":"One Dark","context_servers":{}}`
-	servers := map[string]types.MCPServer{
-		"fs": {Transport: types.TransportStdio, Command: "node"},
-	}
-	out, err := p.Generate(servers, existing)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var doc map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatal(err)
-	}
-	if _, ok := doc["theme"]; !ok {
-		t.Fatal("expected 'theme' key to be preserved")
-	}
-}
-
-func TestZedProvider_Generate_withTestdata_preservesZedSettings(t *testing.T) {
+func TestZedProvider_Generate_FixtureMatch(t *testing.T) {
 	content, err := os.ReadFile("testdata/zed_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	tmp := t.TempDir()
 	p := providers.NewZedProviderWithPath(filepath.Join(tmp, "settings.json"))
-	servers := map[string]types.MCPServer{
-		"filesystem": {Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"}},
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	out, err := p.Generate(servers, string(content))
+	got, err := p.Generate(servers, string(content))
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	var doc map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v", err)
+	expected, err := os.ReadFile("testdata/zed_expected.json")
+	if err != nil {
+		t.Fatal(err)
 	}
-	if _, ok := doc["theme"]; !ok {
-		t.Error("expected 'theme' key to be preserved")
-	}
-	if _, ok := doc["buffer_font_size"]; !ok {
-		t.Error("expected 'buffer_font_size' key to be preserved")
+	if got != string(expected) {
+		t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, expected)
 	}
 }
 

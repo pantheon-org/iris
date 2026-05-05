@@ -6,10 +6,21 @@ import (
 	"testing"
 
 	"github.com/pantheon-org/iris/internal/providers"
-	"github.com/pantheon-org/iris/internal/types"
 )
 
-func TestWarpProvider_Parse_withTestdata(t *testing.T) {
+func TestWarpProvider_Config(t *testing.T) {
+	tmp := t.TempDir()
+	p := providers.NewWarpProviderWithPath(filepath.Join(tmp, "mcp.json"))
+	cfg := p.Config()
+	if cfg.Name != "warp" {
+		t.Fatalf("expected name %q, got %q", "warp", cfg.Name)
+	}
+	if cfg.SupportsProjectConfig {
+		t.Fatal("expected SupportsProjectConfig=false")
+	}
+}
+
+func TestWarpProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	content, err := os.ReadFile("testdata/warp_input.json")
 	if err != nil {
 		t.Fatal(err)
@@ -31,37 +42,27 @@ func TestWarpProvider_Parse_withTestdata(t *testing.T) {
 	}
 }
 
-func TestWarpProvider_Config(t *testing.T) {
+func TestWarpProvider_Generate_FixtureMatch(t *testing.T) {
+	content, err := os.ReadFile("testdata/warp_input.json")
+	if err != nil {
+		t.Fatal(err)
+	}
 	tmp := t.TempDir()
 	p := providers.NewWarpProviderWithPath(filepath.Join(tmp, "mcp.json"))
-	cfg := p.Config()
-	if cfg.Name != "warp" {
-		t.Fatalf("expected name %q, got %q", "warp", cfg.Name)
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	if cfg.SupportsProjectConfig {
-		t.Fatal("expected SupportsProjectConfig=false")
+	got, err := p.Generate(servers, string(content))
+	if err != nil {
+		t.Fatalf("Generate: %v", err)
 	}
-}
-
-func TestWarpProvider_GenerateParse_roundtrip(t *testing.T) {
-	tmp := t.TempDir()
-	path := filepath.Join(tmp, "mcp.json")
-	p := providers.NewWarpProviderWithPath(path)
-
-	servers := map[string]types.MCPServer{
-		"brave": {Transport: types.TransportStdio, Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-brave-search"}, Env: map[string]string{"BRAVE_API_KEY": "key"}},
-	}
-	out, err := p.Generate(servers, "")
+	expected, err := os.ReadFile("testdata/warp_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	parsed, err := p.Parse(out)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if parsed["brave"].Env["BRAVE_API_KEY"] != "key" {
-		t.Fatalf("expected env var, got %v", parsed["brave"].Env)
+	if got != string(expected) {
+		t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, expected)
 	}
 }
 

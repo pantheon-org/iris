@@ -1,7 +1,6 @@
 package providers_test
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -30,36 +29,7 @@ func TestCursorProvider_ConfigFilePath(t *testing.T) {
 	}
 }
 
-func TestCursorProvider_GenerateParse_roundtrip(t *testing.T) {
-	p := providers.NewCursorProvider()
-	servers := map[string]types.MCPServer{
-		"fs": {Transport: types.TransportStdio, Command: "node", Args: []string{"server.js"}},
-	}
-	out, err := p.Generate(servers, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var doc struct {
-		MCPServers map[string]json.RawMessage `json:"mcpServers"`
-	}
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v\n%s", err, out)
-	}
-	if _, ok := doc.MCPServers["fs"]; !ok {
-		t.Fatalf("expected mcpServers.fs in output")
-	}
-
-	parsed, err := p.Parse(out)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if parsed["fs"].Command != "node" {
-		t.Fatalf("expected command %q, got %q", "node", parsed["fs"].Command)
-	}
-}
-
-func TestCursorProvider_Parse_withTestdata(t *testing.T) {
+func TestCursorProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	content, err := os.ReadFile("testdata/cursor_input.json")
 	if err != nil {
 		t.Fatal(err)
@@ -75,34 +45,34 @@ func TestCursorProvider_Parse_withTestdata(t *testing.T) {
 	if parsed["filesystem"].Command != "npx" {
 		t.Errorf("filesystem.command = %q, want %q", parsed["filesystem"].Command, "npx")
 	}
+	if parsed["filesystem"].Transport != types.TransportStdio {
+		t.Errorf("filesystem.transport = %q, want stdio", parsed["filesystem"].Transport)
+	}
 	if parsed["brave-search"].Env["BRAVE_API_KEY"] != "test-key" {
 		t.Errorf("brave-search env = %v, want BRAVE_API_KEY=test-key", parsed["brave-search"].Env)
 	}
 }
 
-func TestCursorProvider_Generate_stripsTypeField(t *testing.T) {
+func TestCursorProvider_Generate_FixtureMatch(t *testing.T) {
 	content, err := os.ReadFile("testdata/cursor_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	p := providers.NewCursorProvider()
-	servers := map[string]types.MCPServer{
-		"filesystem": {Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"}},
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	out, err := p.Generate(servers, string(content))
+	got, err := p.Generate(servers, string(content))
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	var doc struct {
-		MCPServers map[string]struct {
-			Type string `json:"type"`
-		} `json:"mcpServers"`
+	expected, err := os.ReadFile("testdata/cursor_expected.json")
+	if err != nil {
+		t.Fatal(err)
 	}
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v", err)
-	}
-	if doc.MCPServers["filesystem"].Type != "" {
-		t.Errorf("expected type field to be stripped on generate, got %q", doc.MCPServers["filesystem"].Type)
+	if got != string(expected) {
+		t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, expected)
 	}
 }
 

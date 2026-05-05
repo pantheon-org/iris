@@ -1,13 +1,11 @@
 package providers_test
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/pantheon-org/iris/internal/providers"
-	"github.com/pantheon-org/iris/internal/types"
 )
 
 func TestClaudeDesktopProvider_Config(t *testing.T) {
@@ -22,29 +20,7 @@ func TestClaudeDesktopProvider_Config(t *testing.T) {
 	}
 }
 
-func TestClaudeDesktopProvider_GenerateParse_roundtrip(t *testing.T) {
-	tmp := t.TempDir()
-	path := filepath.Join(tmp, "claude_desktop_config.json")
-	p := providers.NewClaudeDesktopProviderWithPath(path)
-
-	servers := map[string]types.MCPServer{
-		"memory": {Transport: types.TransportStdio, Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-memory"}},
-	}
-	out, err := p.Generate(servers, "")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	parsed, err := p.Parse(out)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if parsed["memory"].Command != "npx" {
-		t.Fatalf("expected command %q, got %q", "npx", parsed["memory"].Command)
-	}
-}
-
-func TestClaudeDesktopProvider_Parse_withTestdata(t *testing.T) {
+func TestClaudeDesktopProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	content, err := os.ReadFile("testdata/claude_desktop_input.json")
 	if err != nil {
 		t.Fatal(err)
@@ -66,26 +42,27 @@ func TestClaudeDesktopProvider_Parse_withTestdata(t *testing.T) {
 	}
 }
 
-func TestClaudeDesktopProvider_Generate_withTestdata_preservesGlobalShortcut(t *testing.T) {
+func TestClaudeDesktopProvider_Generate_FixtureMatch(t *testing.T) {
 	content, err := os.ReadFile("testdata/claude_desktop_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
 	tmp := t.TempDir()
 	p := providers.NewClaudeDesktopProviderWithPath(filepath.Join(tmp, "claude_desktop_config.json"))
-	servers := map[string]types.MCPServer{
-		"filesystem": {Command: "npx", Args: []string{"-y", "@modelcontextprotocol/server-filesystem", "/tmp"}},
+	servers, err := p.Parse(string(content))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
 	}
-	out, err := p.Generate(servers, string(content))
+	got, err := p.Generate(servers, string(content))
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	var doc map[string]json.RawMessage
-	if err := json.Unmarshal([]byte(out), &doc); err != nil {
-		t.Fatalf("invalid JSON: %v", err)
+	expected, err := os.ReadFile("testdata/claude_desktop_expected.json")
+	if err != nil {
+		t.Fatal(err)
 	}
-	if _, ok := doc["globalShortcut"]; !ok {
-		t.Error("expected 'globalShortcut' key to be preserved")
+	if got != string(expected) {
+		t.Errorf("output mismatch:\ngot:\n%s\nwant:\n%s", got, expected)
 	}
 }
 
