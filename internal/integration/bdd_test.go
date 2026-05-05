@@ -266,6 +266,40 @@ func (s *scenarioCtx) iCorruptTheProviderConfigFile(filename string) error {
 	return nil
 }
 
+// ── round-trip steps ──────────────────────────────────────────────────────────
+
+func (s *scenarioCtx) aProviderFileExistsWithExtraKey(filename, key, value string) error {
+	path := filepath.Join(s.root, filename)
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return fmt.Errorf("mkdir: %w", err)
+	}
+	content := map[string]interface{}{key: value}
+	data, err := json.MarshalIndent(content, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal: %w", err)
+	}
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		return fmt.Errorf("write %s: %w", path, err)
+	}
+	return nil
+}
+
+func (s *scenarioCtx) theJSONProviderFileStillHasKey(filename, key string) error {
+	path := filepath.Join(s.root, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+	var doc map[string]json.RawMessage
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return fmt.Errorf("parse %s: %w", path, err)
+	}
+	if _, ok := doc[key]; !ok {
+		return fmt.Errorf("%s: key %q was not preserved", filename, key)
+	}
+	return nil
+}
+
 // ── init steps ────────────────────────────────────────────────────────────────
 
 func (s *scenarioCtx) iRunInit() error {
@@ -701,6 +735,53 @@ func parseEnvPairs(raw string) map[string]string {
 	return env
 }
 
+// theServerHasEnvVarSetTo sets an env var on an existing server in s.cfg and
+// persists it to the store. Used as a Given/And step in sync scenarios.
+func (s *scenarioCtx) theServerHasEnvVarSetTo(name, key, value string) error {
+	srv, ok := s.cfg.Servers[name]
+	if !ok {
+		return fmt.Errorf("server %q not found", name)
+	}
+	if srv.Env == nil {
+		srv.Env = make(map[string]string)
+	}
+	srv.Env[key] = value
+	s.cfg.Servers[name] = srv
+	if err := s.store.Save(s.cfg); err != nil {
+		return fmt.Errorf("save config: %w", err)
+	}
+	return nil
+}
+
+// theJSONProviderServerHasEnvVar asserts that a named server entry inside a
+// JSON provider file contains the given env key.
+// Regex capture order: filename, serverName, sectionKey, envKey.
+func (s *scenarioCtx) theJSONProviderServerHasEnvVar(filename, serverName, sectionKey, envKey string) error {
+	path := filepath.Join(s.root, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+	var doc map[string]map[string]struct {
+		Env map[string]string `json:"env"`
+	}
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return fmt.Errorf("parse %s: %w", path, err)
+	}
+	section, ok := doc[sectionKey]
+	if !ok {
+		return fmt.Errorf("%s: missing key %q", filename, sectionKey)
+	}
+	srv, ok := section[serverName]
+	if !ok {
+		return fmt.Errorf("%s: missing server %q under %q", filename, serverName, sectionKey)
+	}
+	if _, exists := srv.Env[envKey]; !exists {
+		return fmt.Errorf("%s: server %q env missing key %q", filename, serverName, envKey)
+	}
+	return nil
+}
+
 // ── suite wiring ──────────────────────────────────────────────────────────────
 
 func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
@@ -716,6 +797,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		// add — Given form (no error capture)
 		sc.Step(`^an MCP server "([^"]+)" with command "([^"]+)" and args "([^"]+)"$`, s.anMCPServerWithCommandAndArgs)
 		sc.Step(`^an MCP server "([^"]+)" with command "([^"]+)" and no args$`, s.anMCPServerWithCommandAndNoArgs)
+		sc.Step(`^the server "([^"]+)" has env var "([^"]+)" set to "([^"]+)"$`, s.theServerHasEnvVarSetTo)
 
 		// add — When form (error capture)
 		sc.Step(`^I add a stdio server "([^"]+)" with command "([^"]+)" and args "([^"]+)"$`, s.iAddAStdioServerWithCommandAndArgs)
@@ -772,6 +854,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^the TOML provider file "([^"]+)" contains servers "([^"]+)"$`, s.theTOMLProviderFileContainsServers)
 		sc.Step(`^the zed provider file "([^"]+)" contains servers "([^"]+)"$`, s.theZedProviderFileContainsServers)
 		sc.Step(`^the TOML mistral provider file "([^"]+)" contains servers "([^"]+)"$`, s.theTOMLMistralProviderFileContainsServers)
+		sc.Step(`^the JSON provider file "([^"]+)" server "([^"]+)" under key "([^"]+)" has env var "([^"]+)"$`, s.theJSONProviderServerHasEnvVar)
 
 		// assertions — sync results
 		sc.Step(`^all providers report status "([^"]+)"$`, s.allProvidersReportStatus)
