@@ -147,6 +147,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^I sync to all providers$`, s.iSyncToAllProviders)
 		sc.Step(`^I sync to all providers again$`, s.iSyncToAllProvidersAgain)
 		sc.Step(`^I sync to all providers with JSON output$`, s.iSyncToAllProvidersWithJSONOutput)
+		sc.Step(`^I sync to provider "([^"]+)" with "([^"]+)" scope$`, s.iSyncToProviderWithScope)
 
 		// status
 		sc.Step(`^I run status$`, s.iRunStatus)

@@ -45,6 +45,23 @@ func (s *scenarioCtx) iSyncToAllProvidersWithJSONOutput() error {
 	return nil
 }
 
+func (s *scenarioCtx) iSyncToProviderWithScope(providerName, scopeName string) error {
+	reg := buildReg(s.root)
+	filtered, err := reg.Filter([]string{providerName})
+	if err != nil {
+		return fmt.Errorf("filter provider %q: %w", providerName, err)
+	}
+	scope := irisync.ScopeAll
+	switch scopeName {
+	case "global":
+		scope = irisync.ScopeGlobal
+	case "local":
+		scope = irisync.ScopeLocal
+	}
+	s.syncResults = irisync.SyncAllProviders(s.root, scope, filtered, s.cfg.Servers)
+	return nil
+}
+
 // ── provider file assertions ───────────────────────────────────────────────────
 
 func (s *scenarioCtx) theProviderConfigFileExists(filename string) error {
