@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.5.12](https://github.com/pantheon-org/iris/compare/v2026.5.11...v2026.5.12) (2026-05-05)
+
+
+### Features
+
+* **wizard:** interactive multi-select init with provider detection and sync default ([#120](https://github.com/pantheon-org/iris/issues/120)) ([ebbd9b4](https://github.com/pantheon-org/iris/commit/ebbd9b415b1d6d72765378cab037d29a0d357d14))
+
 ## [2026.5.11](https://github.com/pantheon-org/iris/compare/v2026.5.10...v2026.5.11) (2026-05-04)
 
 
