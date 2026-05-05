@@ -1,93 +1,74 @@
 package wizard
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strconv"
-	"strings"
+
+	"github.com/charmbracelet/huh"
 )
 
-// TerminalRunner is the production terminal UI runner.
-type TerminalRunner struct {
-	scanner *bufio.Scanner
-}
+// TerminalRunner is the production terminal UI runner, backed by charmbracelet/huh.
+type TerminalRunner struct{}
 
 func NewTerminalRunner() *TerminalRunner {
-	return &TerminalRunner{scanner: bufio.NewScanner(os.Stdin)}
-}
-
-func (b *TerminalRunner) prompt(label, hint string) (string, error) {
-	if hint != "" {
-		fmt.Fprintf(os.Stderr, "%s [%s]: ", label, hint)
-	} else {
-		fmt.Fprintf(os.Stderr, "%s: ", label)
-	}
-	if !b.scanner.Scan() {
-		if err := b.scanner.Err(); err != nil {
-			return "", fmt.Errorf("scan %q: %w", label, err)
-		}
-		return "", fmt.Errorf("unexpected EOF reading %q", label)
-	}
-	return strings.TrimSpace(b.scanner.Text()), nil
+	return &TerminalRunner{}
 }
 
 func (b *TerminalRunner) PromptText(label, placeholder string) (string, error) {
-	return b.prompt(label, placeholder)
+	var val string
+	err := huh.NewInput().
+		Title(label).
+		Placeholder(placeholder).
+		Value(&val).
+		Run()
+	if err != nil {
+		return "", fmt.Errorf("input %q: %w", label, err)
+	}
+	return val, nil
 }
 
 func (b *TerminalRunner) PromptSelect(label string, options []string) (string, error) {
-	hint := strings.Join(options, "/")
-	return b.prompt(label, hint)
+	opts := make([]huh.Option[string], len(options))
+	for i, o := range options {
+		opts[i] = huh.NewOption(o, o)
+	}
+	var val string
+	err := huh.NewSelect[string]().
+		Title(label).
+		Options(opts...).
+		Value(&val).
+		Run()
+	if err != nil {
+		return "", fmt.Errorf("select %q: %w", label, err)
+	}
+	return val, nil
 }
 
 func (b *TerminalRunner) PromptConfirm(label string) (bool, error) {
-	ans, err := b.prompt(label, "yes/no")
+	var val bool
+	err := huh.NewConfirm().
+		Title(label).
+		Value(&val).
+		Run()
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("confirm %q: %w", label, err)
 	}
-	switch strings.ToLower(ans) {
-	case "true", "yes", "y", "1":
-		return true, nil
-	default:
-		return false, nil
-	}
+	return val, nil
 }
 
-// PromptMultiSelect prints a numbered list to stderr, then reads a comma-separated
-// list of 0-based indices. Enter with no input selects nothing.
+// PromptMultiSelect presents a checkbox list and returns the 0-based indices of chosen items.
 func (b *TerminalRunner) PromptMultiSelect(label string, options []string) ([]int, error) {
-	fmt.Fprintf(os.Stderr, "\n%s\n", label)
+	huhOpts := make([]huh.Option[int], len(options))
 	for i, o := range options {
-		fmt.Fprintf(os.Stderr, "  [%d] %s\n", i, o)
+		huhOpts[i] = huh.NewOption(o, i)
 	}
-	fmt.Fprintf(os.Stderr, "Enter numbers separated by commas (or leave empty to skip): ")
-
-	if !b.scanner.Scan() {
-		if err := b.scanner.Err(); err != nil {
-			return nil, fmt.Errorf("scan multi-select: %w", err)
-		}
-		return nil, nil
+	var selected []int
+	err := huh.NewMultiSelect[int]().
+		Title(label).
+		Options(huhOpts...).
+		Value(&selected).
+		Run()
+	if err != nil {
+		return nil, fmt.Errorf("multi-select %q: %w", label, err)
 	}
-	raw := strings.TrimSpace(b.scanner.Text())
-	if raw == "" {
-		return nil, nil
-	}
-
-	var result []int
-	for _, part := range strings.Split(raw, ",") {
-		part = strings.TrimSpace(part)
-		if part == "" {
-			continue
-		}
-		i, err := strconv.Atoi(part)
-		if err != nil {
-			return nil, fmt.Errorf("invalid selection %q: %w", part, err)
-		}
-		if i < 0 || i >= len(options) {
-			return nil, fmt.Errorf("selection %d out of range [0, %d)", i, len(options))
-		}
-		result = append(result, i)
-	}
-	return result, nil
+	return selected, nil
 }
