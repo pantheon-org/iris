@@ -6,6 +6,9 @@ import (
 	"io"
 	"sort"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
+
 	"github.com/pantheon-org/iris/internal/registry"
 	irisync "github.com/pantheon-org/iris/internal/sync"
 	"github.com/pantheon-org/iris/internal/types"
@@ -62,14 +65,10 @@ func RunSync(projectRoot string, cfg *types.IrisConfig, registry *registry.Regis
 		return nil
 	}
 
-	maxWidth := 12 // minimum
-	for _, r := range results {
-		if len(r.ProviderName) > maxWidth {
-			maxWidth = len(r.ProviderName)
-		}
-	}
-	fmtStr := fmt.Sprintf("  %%-%ds  %%-9s  %%s\n", maxWidth)
-	fmtStrErr := fmt.Sprintf("  %%-%ds  %%-9s  %%s  (%%s)\n", maxWidth)
+	t := table.New().
+		Border(lipgloss.HiddenBorder()).
+		BorderTop(false).
+		BorderBottom(false)
 	for _, r := range results {
 		p, err := registry.Get(r.ProviderName)
 		displayPath := r.ProviderName
@@ -78,22 +77,14 @@ func RunSync(projectRoot string, cfg *types.IrisConfig, registry *registry.Regis
 		}
 
 		if r.Err != nil {
-			fmt.Fprintf(w, fmtStrErr,
-				st.Accent.Render(r.ProviderName),
-				st.Err.Render(string(r.Status)),
-				st.Muted.Render(displayPath),
-				st.Err.Render(r.Err.Error()),
-			)
+			pathCell := st.Muted.Render(displayPath) + "  " + st.Err.Render("("+r.Err.Error()+")")
+			t.Row(st.Accent.Render(r.ProviderName), st.Err.Render(string(r.Status)), pathCell)
 			hasErr = true
 		} else {
-			statusStyled := st.Success.Render(string(r.Status))
-			fmt.Fprintf(w, fmtStr,
-				st.Accent.Render(r.ProviderName),
-				statusStyled,
-				st.Muted.Render(displayPath),
-			)
+			t.Row(st.Accent.Render(r.ProviderName), st.Success.Render(string(r.Status)), st.Muted.Render(displayPath))
 		}
 	}
+	fmt.Fprintln(w, t.Render())
 
 	if hasErr {
 		return fmt.Errorf("sync completed with errors")

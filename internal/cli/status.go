@@ -8,6 +8,9 @@ import (
 	"os"
 	"sort"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
+
 	"github.com/pantheon-org/iris/internal/i18n"
 	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
@@ -67,44 +70,39 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 	}
 
 	fmt.Fprint(w, st.Bold.Render("Provider Status:")+"\n")
-	maxWidth := 12 // minimum
-	for _, p := range all {
-		if len(p.Config().Name) > maxWidth {
-			maxWidth = len(p.Config().Name)
-		}
-	}
-	fmtStr := fmt.Sprintf("  %%-%ds  %%-8s  %%s\n", maxWidth)
+	t := table.New().
+		Border(lipgloss.HiddenBorder()).
+		BorderTop(false).
+		BorderBottom(false)
 	for _, p := range all {
 		name := p.Config().Name
 		path := p.ConfigFilePath(projectRoot)
-		displayPath := path
 
 		data, err := os.ReadFile(path)
 		if err != nil {
 			statusWord := i18n.T("status.error")
-			statusStyled := st.Err.Render(statusWord)
 			if errors.Is(err, os.ErrNotExist) {
 				statusWord = i18n.T("status.missing")
-				statusStyled = st.Err.Render(statusWord)
 			}
-			fmt.Fprintf(w, fmtStr, st.Accent.Render(name), statusStyled, st.Muted.Render(displayPath))
+			t.Row(st.Accent.Render(name), st.Err.Render(statusWord), st.Muted.Render(path))
 			continue
 		}
 
 		existing := string(data)
 		generated, err := p.Generate(cfg.Servers, existing)
 		if err != nil {
-			fmt.Fprintf(w, fmtStr, st.Accent.Render(name), st.Err.Render(i18n.T("status.error")), st.Muted.Render(displayPath))
+			t.Row(st.Accent.Render(name), st.Err.Render(i18n.T("status.error")), st.Muted.Render(path))
 			continue
 		}
 
-		status := i18n.T("status.synced")
-		statusStyled := st.Success.Render(status)
+		statusWord := i18n.T("status.synced")
+		statusStyled := st.Success.Render(statusWord)
 		if generated != existing {
-			status = i18n.T("status.desync")
-			statusStyled = st.Warning.Render(status)
+			statusWord = i18n.T("status.desync")
+			statusStyled = st.Warning.Render(statusWord)
 		}
-		fmt.Fprintf(w, fmtStr, st.Accent.Render(name), statusStyled, st.Muted.Render(displayPath))
+		t.Row(st.Accent.Render(name), statusStyled, st.Muted.Render(path))
 	}
+	fmt.Fprintln(w, t.Render())
 	return nil
 }
