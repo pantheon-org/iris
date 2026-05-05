@@ -18,7 +18,7 @@ func TestOpenAICodexProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 	cfg := p.Config()
 
-	assert.Equal(t, "codex", cfg.Name.String())
+	assert.Equal(t, "codex", string(cfg.Name))
 	assert.Equal(t, "OpenAI Codex", cfg.DisplayName)
 	assert.True(t, cfg.SupportsProjectConfig)
 

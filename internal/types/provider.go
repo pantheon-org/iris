@@ -2,10 +2,6 @@ package types
 
 type ProviderName string
 
-func (p ProviderName) String() string {
-	return string(p)
-}
-
 func ProviderNames(n []ProviderName) []string {
 	result := make([]string, len(n))
 	for i, p := range n {

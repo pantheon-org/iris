@@ -43,7 +43,7 @@ func TestCollectImportCandidates_projectConfig_returnsProjectScopedCandidate(t *
 
 	require.Len(t, got, 1)
 	assert.Equal(t, "fmt", got[0].ServerName)
-	assert.Equal(t, "claude", got[0].ProviderName.String())
+	assert.Equal(t, "claude", string(got[0].ProviderName))
 	assert.Equal(t, types.ScopeProject, got[0].Scope)
 	assert.Equal(t, "npx", got[0].Server.Command)
 }
