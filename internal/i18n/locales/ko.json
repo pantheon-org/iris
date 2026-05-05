@@ -25,5 +25,6 @@
   "wizard.url": "URL",
   "wizard.command": "명령",
   "wizard.args": "인수 (공백으로 구분, 없으면 비워두세요)",
-  "wizard.transport": "전송"
+  "wizard.transport": "전송",
+  "wizard.select_import": "가져올 서버를 선택하세요 (쉼표로 구분된 번호, 건너뛰려면 빈 칸)"
 }

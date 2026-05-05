@@ -34,6 +34,26 @@ func fixture() types.IrisConfig {
 	}
 }
 
+func TestIrisConfig_Providers_roundTrip_JSON(t *testing.T) {
+	original := types.IrisConfig{
+		Version:   1,
+		Providers: []string{"claude", "cursor"},
+		Servers:   map[string]types.MCPServer{},
+	}
+	data, err := json.Marshal(original)
+	require.NoError(t, err)
+	var got types.IrisConfig
+	require.NoError(t, json.Unmarshal(data, &got))
+	assert.Equal(t, original.Providers, got.Providers)
+}
+
+func TestIrisConfig_Providers_absentField_backwardCompatible(t *testing.T) {
+	raw := `{"version":1,"servers":{}}`
+	var got types.IrisConfig
+	require.NoError(t, json.Unmarshal([]byte(raw), &got))
+	assert.Nil(t, got.Providers)
+}
+
 func TestNewIrisConfig_serversMap_isNonNil(t *testing.T) {
 	cfg := types.NewIrisConfig()
 	require.NotNil(t, cfg)

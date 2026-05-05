@@ -228,8 +228,13 @@ func main() {
 						return fmt.Errorf("load config: %w", err)
 					}
 					reg := buildRegistry()
-					if len(providerNames) > 0 {
-						reg, err = reg.Filter(providerNames)
+					// --provider flag takes precedence; fall back to providers saved in .iris.json.
+					targetProviders := providerNames
+					if len(targetProviders) == 0 {
+						targetProviders = cfg.Providers
+					}
+					if len(targetProviders) > 0 {
+						reg, err = reg.Filter(targetProviders)
 						if err != nil {
 							return fmt.Errorf("filter providers: %w", err)
 						}

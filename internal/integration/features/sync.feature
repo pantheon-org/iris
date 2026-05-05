@@ -100,6 +100,13 @@ Feature: Sync MCP servers to all providers
     Then the JSON provider file "zed-settings.json" still has key "vim_mode"
     And the zed provider file "zed-settings.json" contains servers "tool"
 
+  Scenario: Sync uses providers from .iris.json when no --provider flag is given
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    And the iris config providers list is set to "cursor"
+    When I sync to all providers
+    Then the provider config file ".cursor/mcp.json" exists
+    And the provider config file ".mcp.json" does not exist
+
   Scenario: Env vars are written to JSON providers
     Given an MCP server "envtool" with command "node" and args "server.js"
     And the server "envtool" has env var "MY_KEY" set to "MY_VAL"

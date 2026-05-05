@@ -25,5 +25,6 @@
   "wizard.url": "URL",
   "wizard.command": "命令",
   "wizard.args": "引數（空格分隔，留空表示無）",
-  "wizard.transport": "傳輸協定"
+  "wizard.transport": "傳輸協定",
+  "wizard.select_import": "選擇要匯入的伺服器（逗號分隔的數字，留空跳過）"
 }

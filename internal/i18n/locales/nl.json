@@ -25,5 +25,6 @@
   "wizard.url": "URL",
   "wizard.command": "Opdracht",
   "wizard.args": "Argumenten (spatie-gescheiden, leeg laten voor geen)",
-  "wizard.transport": "Transport"
+  "wizard.transport": "Transport",
+  "wizard.select_import": "Selecteer servers om te importeren (kommagescheiden nummers, leeg laten om over te slaan)"
 }
