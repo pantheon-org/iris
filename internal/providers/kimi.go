@@ -18,6 +18,7 @@ func newKimiProviderWithPath(path string) *KimiProvider {
 		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,
 		GlobalConfigPath:      homeRel(path),
+		HasGlobalConfig:       true,
 	}
 	p.resolvedPath = func(_ string) string {
 		return path

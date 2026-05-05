@@ -30,6 +30,7 @@ func newQwenProviderWithPath(path string) *QwenProvider {
 		LocalConfigPath:       strPtr(".qwen/settings.json"),
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      homeRel(path),
+		HasGlobalConfig:       true,
 	}
 	p.resolvedPath = func(projectRoot string) string {
 		if projectRoot != "" {
@@ -50,6 +51,7 @@ func NewQwenProviderWithPath(path string) *QwenProvider {
 		LocalConfigPath:       strPtr(".qwen/settings.json"),
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      homeRel(path),
+		HasGlobalConfig:       true,
 	}
 	p.resolvedPath = func(_ string) string {
 		return path

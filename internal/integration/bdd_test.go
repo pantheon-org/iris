@@ -52,7 +52,6 @@ func buildReg(root string) *registry.Registry {
 	warpPath := filepath.Join(root, "warp-mcp.json")
 	kimiPath := filepath.Join(root, "kimi-settings.json")
 	mistralVibePath := filepath.Join(root, "mistral-vibe-config.toml")
-
 	claudeCodeGlobalPath := filepath.Join(root, "claude-global.json")
 	reg := registry.NewRegistry()
 	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(claudeCodeGlobalPath))
@@ -148,6 +147,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^I sync to all providers$`, s.iSyncToAllProviders)
 		sc.Step(`^I sync to all providers again$`, s.iSyncToAllProvidersAgain)
 		sc.Step(`^I sync to all providers with JSON output$`, s.iSyncToAllProvidersWithJSONOutput)
+		sc.Step(`^I sync to provider "([^"]+)" with "([^"]+)" scope$`, s.iSyncToProviderWithScope)
 
 		// status
 		sc.Step(`^I run status$`, s.iRunStatus)

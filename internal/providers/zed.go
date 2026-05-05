@@ -38,6 +38,7 @@ func (p *ZedProvider) Config() ProviderConfig {
 		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,
 		GlobalConfigPath:      homeRel(p.configPath),
+		HasGlobalConfig:       true,
 	}
 }
 

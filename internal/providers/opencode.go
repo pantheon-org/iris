@@ -11,19 +11,31 @@ import (
 	"github.com/pantheon-org/iris/internal/types"
 )
 
-type OpenCodeProvider struct{}
+type OpenCodeProvider struct {
+	globalPath string // non-empty when pinned for tests
+}
 
 func NewOpenCodeProvider() *OpenCodeProvider {
 	return &OpenCodeProvider{}
 }
 
+// NewOpenCodeProviderWithPath pins the global config path. Intended for tests.
+func NewOpenCodeProviderWithPath(globalPath string) *OpenCodeProvider {
+	return &OpenCodeProvider{globalPath: globalPath}
+}
+
 func (p *OpenCodeProvider) Config() ProviderConfig {
+	globalPath := io.UserHomePath(".config", "opencode", "opencode.json")
+	if p.globalPath != "" {
+		globalPath = p.globalPath
+	}
 	return ProviderConfig{
 		Name:                  NameAnomalycoOpenCode,
 		DisplayName:           "Anomalyco OpenCode",
 		LocalConfigPath:       strPtr("opencode.json"),
 		SupportsProjectConfig: true,
-		GlobalConfigPath:      homeRel(io.UserHomePath(".config", "opencode", "opencode.json")),
+		GlobalConfigPath:      homeRel(globalPath),
+		HasGlobalConfig:       true,
 	}
 }
 

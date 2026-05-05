@@ -24,24 +24,41 @@ func (s *scenarioCtx) iSyncToAllProviders() error {
 		}
 		s.reg = filtered
 	}
-	s.syncResults = irisync.SyncAllProviders(s.root, s.reg, s.cfg.Servers)
+	s.syncResults = irisync.SyncAllProviders(s.root, irisync.ScopeLocal, s.reg, s.cfg.Servers)
 	return nil
 }
 
 func (s *scenarioCtx) iSyncToAllProvidersAgain() error {
 	s.reg = buildReg(s.root)
-	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, false, noColourStyles()); err != nil {
+	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, irisync.ScopeLocal, false, noColourStyles()); err != nil {
 		return fmt.Errorf("sync: %w", err)
 	}
-	s.syncResults = irisync.SyncAllProviders(s.root, s.reg, s.cfg.Servers)
+	s.syncResults = irisync.SyncAllProviders(s.root, irisync.ScopeLocal, s.reg, s.cfg.Servers)
 	return nil
 }
 
 func (s *scenarioCtx) iSyncToAllProvidersWithJSONOutput() error {
 	s.output.Reset()
-	if err := cli.RunSync(s.root, s.cfg, s.reg, s.output, true, noColourStyles()); err != nil {
+	if err := cli.RunSync(s.root, s.cfg, s.reg, s.output, irisync.ScopeLocal, true, noColourStyles()); err != nil {
 		return fmt.Errorf("sync json: %w", err)
 	}
+	return nil
+}
+
+func (s *scenarioCtx) iSyncToProviderWithScope(providerName, scopeName string) error {
+	reg := buildReg(s.root)
+	filtered, err := reg.Filter([]string{providerName})
+	if err != nil {
+		return fmt.Errorf("filter provider %q: %w", providerName, err)
+	}
+	scope := irisync.ScopeAll
+	switch scopeName {
+	case "global":
+		scope = irisync.ScopeGlobal
+	case "local":
+		scope = irisync.ScopeLocal
+	}
+	s.syncResults = irisync.SyncAllProviders(s.root, scope, filtered, s.cfg.Servers)
 	return nil
 }
 

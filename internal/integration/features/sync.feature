@@ -107,6 +107,18 @@ Feature: Sync MCP servers to all providers
     Then the provider config file ".cursor/mcp.json" exists
     And the provider config file ".mcp.json" does not exist
 
+  Scenario: --global and --provider can be combined to sync global config of one provider
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to provider "claude" with "global" scope
+    Then the provider config file "claude-global.json" exists
+    And the provider config file ".mcp.json" does not exist
+
+  Scenario: --local and --provider can be combined to sync local config of one provider
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to provider "claude" with "local" scope
+    Then the provider config file ".mcp.json" exists
+    And the provider config file "claude-global.json" does not exist
+
   Scenario: Env vars are written to JSON providers
     Given an MCP server "envtool" with command "node" and args "server.js"
     And the server "envtool" has env var "MY_KEY" set to "MY_VAL"

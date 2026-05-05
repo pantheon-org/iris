@@ -31,6 +31,7 @@ func newGoogleGeminiProviderWithPath(path string) *GoogleGeminiProvider {
 		LocalConfigPath:       strPtr(".gemini/settings.json"),
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      homeRel(path),
+		HasGlobalConfig:       true,
 	}
 	p.resolvedPath = func(projectRoot string) string {
 		if projectRoot != "" {
@@ -51,6 +52,7 @@ func NewGoogleGeminiProviderWithPath(path string) *GoogleGeminiProvider {
 		LocalConfigPath:       strPtr(".gemini/settings.json"),
 		SupportsProjectConfig: true,
 		GlobalConfigPath:      homeRel(path),
+		HasGlobalConfig:       true,
 	}
 	p.resolvedPath = func(_ string) string {
 		return path

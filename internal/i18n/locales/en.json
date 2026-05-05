@@ -8,9 +8,11 @@
   "cmd.status": "Show per-provider sync state",
   "cmd.sync": "Re-generate all active provider config files",
   "flag.config": "path to .iris.json config file",
+  "flag.global": "sync only global (home-directory) configs",
   "flag.interactive": "run interactive wizard",
   "flag.json": "output results as JSON",
   "flag.lang": "language override (e.g. fr, ja, zh-CN)",
+  "flag.local": "sync only project-local configs",
   "flag.provider": "limit to provider(s) by name (repeatable)",
   "init.already_exists": "Config already exists at %s",
   "init.initialized": "Initialized %s",
@@ -29,6 +31,11 @@
   "wizard.import_prompt": "Detected %s — import its servers?",
   "wizard.select_import": "Select servers to import (comma-separated numbers, leave empty to skip)",
   "wizard.server_name": "Server name",
+  "wizard.sync_providers": "Select providers to sync",
+  "wizard.sync_scope": "Select sync scope",
+  "wizard.sync_scope.both": "Both global and local",
+  "wizard.sync_scope.global": "Global only (home-directory configs)",
+  "wizard.sync_scope.local": "Local only (project configs)",
   "wizard.transport": "Transport",
   "wizard.url": "URL"
 }

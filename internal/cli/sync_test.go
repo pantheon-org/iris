@@ -13,6 +13,7 @@ import (
 	"github.com/pantheon-org/iris/internal/cli"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
+	irisync "github.com/pantheon-org/iris/internal/sync"
 	"github.com/pantheon-org/iris/internal/types"
 )
 
@@ -41,7 +42,7 @@ func TestRunSync_allCreated_printsCreatedStatus(t *testing.T) {
 	cfg := syncConfig()
 	var buf bytes.Buffer
 
-	err := cli.RunSync(dir, cfg, reg, &buf, false, noColourStyles())
+	err := cli.RunSync(dir, cfg, reg, &buf, irisync.ScopeLocal, false, noColourStyles())
 
 	require.NoError(t, err)
 	out := buf.String()
@@ -53,10 +54,10 @@ func TestRunSync_unchanged_printsUnchangedStatus(t *testing.T) {
 	reg := buildSyncRegistry(t, dir)
 	cfg := syncConfig()
 
-	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, false, noColourStyles()))
+	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, irisync.ScopeLocal, false, noColourStyles()))
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, cfg, reg, &buf, false, noColourStyles())
+	err := cli.RunSync(dir, cfg, reg, &buf, irisync.ScopeLocal, false, noColourStyles())
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "unchanged")
@@ -68,7 +69,7 @@ func TestRunSync_updated_printsUpdatedStatus(t *testing.T) {
 	reg.Register(providers.NewClaudeCodeProvider())
 
 	cfg := syncConfig()
-	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, false, noColourStyles()))
+	require.NoError(t, cli.RunSync(dir, cfg, reg, &bytes.Buffer{}, irisync.ScopeLocal, false, noColourStyles()))
 
 	updatedCfg := &types.IrisConfig{
 		Version: 1,
@@ -79,7 +80,7 @@ func TestRunSync_updated_printsUpdatedStatus(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, updatedCfg, reg, &buf, false, noColourStyles())
+	err := cli.RunSync(dir, updatedCfg, reg, &buf, irisync.ScopeLocal, false, noColourStyles())
 
 	require.NoError(t, err)
 	assert.Contains(t, buf.String(), "updated")
@@ -112,7 +113,7 @@ func TestRunSync_providerError_returnsError(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, cfg, reg, &buf, false, noColourStyles())
+	err := cli.RunSync(dir, cfg, reg, &buf, irisync.ScopeLocal, false, noColourStyles())
 
 	require.Error(t, err)
 	assert.Contains(t, buf.String(), "error")
@@ -124,7 +125,7 @@ func TestRunSync_outputSortedAlphabetically(t *testing.T) {
 	cfg := syncConfig()
 	var buf bytes.Buffer
 
-	require.NoError(t, cli.RunSync(dir, cfg, reg, &buf, false, noColourStyles()))
+	require.NoError(t, cli.RunSync(dir, cfg, reg, &buf, irisync.ScopeLocal, false, noColourStyles()))
 
 	out := buf.String()
 	opencodeIdx := indexOf(out, "opencode")
@@ -139,18 +140,22 @@ func TestRunSync_outputSortedAlphabetically(t *testing.T) {
 
 func TestRunSync_displaysResolvedProjectPaths(t *testing.T) {
 	dir := t.TempDir()
+	geminiPath := filepath.Join(dir, "gemini-settings.json")
+	codexPath := filepath.Join(dir, "codex.toml")
+
 	reg := registry.NewRegistry()
-	reg.Register(providers.NewGoogleGeminiProvider())
-	reg.Register(providers.NewOpenaiCodexProvider())
+	reg.Register(providers.NewGoogleGeminiProviderWithPath(geminiPath))
+	reg.Register(providers.NewOpenaiCodexProviderWithPath(codexPath))
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, syncConfig(), reg, &buf, false, noColourStyles())
+	err := cli.RunSync(dir, syncConfig(), reg, &buf, irisync.ScopeLocal, false, noColourStyles())
 
 	require.NoError(t, err)
 	out := buf.String()
-	assert.Contains(t, out, filepath.Join(dir, ".gemini", "settings.json"))
-	assert.Contains(t, out, filepath.Join(dir, ".codex", "config.toml"))
-	assert.NotContains(t, out, "~/.gemini/settings.json")
+	// Paths may be shortened to ~ when under the home directory.
+	home, _ := os.UserHomeDir()
+	assert.Contains(t, out, cli.ShortenPath(geminiPath, home))
+	assert.Contains(t, out, cli.ShortenPath(codexPath, home))
 }
 
 func TestRunSync_displaysPinnedProviderPathOnError(t *testing.T) {
@@ -169,7 +174,7 @@ func TestRunSync_displaysPinnedProviderPathOnError(t *testing.T) {
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, syncConfig(), reg, &buf, false, noColourStyles())
+	err := cli.RunSync(dir, syncConfig(), reg, &buf, irisync.ScopeLocal, false, noColourStyles())
 
 	require.Error(t, err)
 	assert.Contains(t, buf.String(), lockedFile)
@@ -182,7 +187,7 @@ func TestRunSync_jsonOutput_validJSON(t *testing.T) {
 	cfg := syncConfig()
 	var buf bytes.Buffer
 
-	err := cli.RunSync(dir, cfg, reg, &buf, true, noColourStyles())
+	err := cli.RunSync(dir, cfg, reg, &buf, irisync.ScopeLocal, true, noColourStyles())
 
 	require.NoError(t, err)
 
@@ -209,7 +214,7 @@ func TestRunSync_jsonOutput_errorIncluded(t *testing.T) {
 	reg.Register(providers.NewOpenaiCodexProviderWithPath(lockedFile))
 
 	var buf bytes.Buffer
-	err := cli.RunSync(dir, syncConfig(), reg, &buf, true, noColourStyles())
+	err := cli.RunSync(dir, syncConfig(), reg, &buf, irisync.ScopeLocal, true, noColourStyles())
 
 	require.Error(t, err)
 

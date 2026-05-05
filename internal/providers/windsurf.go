@@ -40,6 +40,7 @@ func (p *WindsurfProvider) Config() ProviderConfig {
 		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,
 		GlobalConfigPath:      homeRel(p.configPath),
+		HasGlobalConfig:       true,
 	}
 }
 
