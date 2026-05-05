@@ -67,3 +67,15 @@ Feature: Sync MCP servers to all providers
     When I sync to all providers
     Then the opencode provider file "opencode.json" contains servers "myserver"
     And the opencode server "myserver" in file "opencode.json" has correct field format
+
+  Scenario: Copilot writes servers under "servers" key
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to all providers
+    Then the JSON provider file ".vscode/mcp.json" contains servers "tool" under key "servers"
+
+  Scenario: Copilot does not emit unsupported fields
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to all providers
+    Then the copilot server "tool" in file ".vscode/mcp.json" does not have field "headers"
+    And the copilot server "tool" in file ".vscode/mcp.json" does not have field "cwd"
+    And the copilot server "tool" in file ".vscode/mcp.json" does not have field "enabled"

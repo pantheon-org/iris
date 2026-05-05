@@ -562,6 +562,30 @@ func (s *scenarioCtx) theTOMLMistralProviderFileContainsServers(filename, rawSer
 	return nil
 }
 
+// --- copilot-specific assertions ---
+
+func (s *scenarioCtx) theCopilotServerDoesNotHaveField(serverName, filename, field string) error {
+	path := filepath.Join(s.root, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+	var root struct {
+		Servers map[string]map[string]json.RawMessage `json:"servers"`
+	}
+	if err := json.Unmarshal(data, &root); err != nil {
+		return fmt.Errorf("parse copilot %s: %w", path, err)
+	}
+	srv, ok := root.Servers[serverName]
+	if !ok {
+		return fmt.Errorf("copilot %s: server %q not found", filename, serverName)
+	}
+	if _, exists := srv[field]; exists {
+		return fmt.Errorf("copilot %s: server %q unexpectedly has field %q", filename, serverName, field)
+	}
+	return nil
+}
+
 // --- sync result assertions ---
 
 func (s *scenarioCtx) allProvidersReportStatus(expectedStatus string) error {
@@ -812,6 +836,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		sc.Step(`^the TOML provider file "([^"]+)" contains servers "([^"]+)"$`, s.theTOMLProviderFileContainsServers)
 		sc.Step(`^the zed provider file "([^"]+)" contains servers "([^"]+)"$`, s.theZedProviderFileContainsServers)
 		sc.Step(`^the TOML mistral provider file "([^"]+)" contains servers "([^"]+)"$`, s.theTOMLMistralProviderFileContainsServers)
+		sc.Step(`^the copilot server "([^"]+)" in file "([^"]+)" does not have field "([^"]+)"$`, s.theCopilotServerDoesNotHaveField)
 
 		// assertions — sync results
 		sc.Step(`^all providers report status "([^"]+)"$`, s.allProvidersReportStatus)
