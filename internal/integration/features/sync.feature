@@ -53,3 +53,9 @@ Feature: Sync MCP servers to all providers
     And I sync to all providers
     Then the provider config file ".mcp.json" exists
     And the JSON provider file ".mcp.json" contains servers "tool,tool2" under key "mcpServers"
+
+  Scenario: SSE servers sync url field to JSON providers
+    Given an SSE server "remote" with URL "https://example.com/sse"
+    When I sync to all providers
+    Then the JSON provider file ".mcp.json" server "remote" under key "mcpServers" has field "url"
+    And the JSON provider file "gemini-settings.json" server "remote" under key "mcpServers" has field "url"

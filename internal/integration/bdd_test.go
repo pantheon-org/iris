@@ -160,6 +160,17 @@ func (s *scenarioCtx) iTryToAddAStdioServerWithNoCommand(name string) error {
 	return nil
 }
 
+// anSSEServerWithURL is a Given-form step (no error capture) for SSE servers.
+func (s *scenarioCtx) anSSEServerWithURL(name, url string) error {
+	if err := cli.RunAdd(s.cfg, s.store, name, types.MCPServer{
+		Transport: types.TransportSSE,
+		URL:       url,
+	}); err != nil {
+		return fmt.Errorf("add SSE server %s: %w", name, err)
+	}
+	return nil
+}
+
 // iAddAnMCPServerWithCommandAndArgs is a When-clause alias used in sync scenarios.
 func (s *scenarioCtx) iAddAnMCPServerWithCommandAndArgs(name, command, rawArgs string) error {
 	args := splitArgs(rawArgs)
@@ -681,6 +692,36 @@ func (s *scenarioCtx) theIrisConfigFileIsValidJSONWithVersion1() error {
 	return nil
 }
 
+// theJSONProviderServerHasField asserts a specific field exists in a server entry
+// inside a JSON provider file, under doc[key][serverName].
+func (s *scenarioCtx) theJSONProviderServerHasField(filename, serverName, key, field string) error {
+	path := filepath.Join(s.root, filename)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read %s: %w", path, err)
+	}
+	var doc map[string]map[string]json.RawMessage
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return fmt.Errorf("parse %s: %w", path, err)
+	}
+	section, ok := doc[key]
+	if !ok {
+		return fmt.Errorf("%s: missing key %q", filename, key)
+	}
+	raw, ok := section[serverName]
+	if !ok {
+		return fmt.Errorf("%s: missing server %q under key %q", filename, serverName, key)
+	}
+	var entry map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &entry); err != nil {
+		return fmt.Errorf("%s: parse server %q: %w", filename, serverName, err)
+	}
+	if _, ok := entry[field]; !ok {
+		return fmt.Errorf("%s: server %q under %q has no field %q (got: %v)", filename, serverName, key, field, entry)
+	}
+	return nil
+}
+
 // ── helpers ───────────────────────────────────────────────────────────────────
 
 func splitArgs(raw string) []string {
@@ -716,6 +757,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		// add — Given form (no error capture)
 		sc.Step(`^an MCP server "([^"]+)" with command "([^"]+)" and args "([^"]+)"$`, s.anMCPServerWithCommandAndArgs)
 		sc.Step(`^an MCP server "([^"]+)" with command "([^"]+)" and no args$`, s.anMCPServerWithCommandAndNoArgs)
+		sc.Step(`^an SSE server "([^"]+)" with URL "([^"]+)"$`, s.anSSEServerWithURL)
 
 		// add — When form (error capture)
 		sc.Step(`^I add a stdio server "([^"]+)" with command "([^"]+)" and args "([^"]+)"$`, s.iAddAStdioServerWithCommandAndArgs)
@@ -768,6 +810,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 		// assertions — provider files
 		sc.Step(`^the provider config file "([^"]+)" exists$`, s.theProviderConfigFileExists)
 		sc.Step(`^the JSON provider file "([^"]+)" contains servers "([^"]+)" under key "([^"]+)"$`, s.theJSONProviderFileContainsServersUnderKey)
+		sc.Step(`^the JSON provider file "([^"]+)" server "([^"]+)" under key "([^"]+)" has field "([^"]+)"$`, s.theJSONProviderServerHasField)
 		sc.Step(`^the opencode provider file "([^"]+)" contains servers "([^"]+)"$`, s.theOpencodeProviderFileContainsServers)
 		sc.Step(`^the TOML provider file "([^"]+)" contains servers "([^"]+)"$`, s.theTOMLProviderFileContainsServers)
 		sc.Step(`^the zed provider file "([^"]+)" contains servers "([^"]+)"$`, s.theZedProviderFileContainsServers)
