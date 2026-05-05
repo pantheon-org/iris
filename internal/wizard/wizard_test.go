@@ -164,6 +164,30 @@ func TestRunInit_duplicateName_overwritten(t *testing.T) {
 	assert.Equal(t, "uvx", cfg.Servers["my-srv"].Command)
 }
 
+func TestRunInit_malformedProviderConfig_skippedAndProceedsNormally(t *testing.T) {
+	dir := t.TempDir()
+	store, err := config.NewStore(filepath.Join(dir, ".iris.json"))
+	require.NoError(t, err)
+
+	// Write a malformed Claude Code config.
+	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(`{bad json}`), 0o600))
+
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewClaudeCodeProviderWithGlobalPath(filepath.Join(dir, "no-global.json")))
+
+	// No PromptMultiSelect call expected (malformed config yields zero candidates).
+	r := wizard.NewScriptedRunner([]string{
+		"no", // Add a server?
+	})
+
+	err = wizard.RunInit(r, dir, store, reg)
+	require.NoError(t, err, "malformed provider config must not abort init")
+
+	cfg, err := store.Load()
+	require.NoError(t, err)
+	assert.Empty(t, cfg.Servers)
+}
+
 func TestRunInit_unreadableExistingConfig_returnsError(t *testing.T) {
 	dir := t.TempDir()
 	cfgPath := filepath.Join(dir, ".iris.json")

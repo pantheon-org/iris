@@ -508,6 +508,11 @@ func (s *scenarioCtx) theImportCandidatesContainExactlyNEntriesForServer(n int, 
 
 // ── provider setup helpers ────────────────────────────────────────────────────
 
+func (s *scenarioCtx) aMalformedClaudeCodeProjectConfigExists() error {
+	s.reg = buildIsolatedReg(s.root)
+	return os.WriteFile(filepath.Join(s.root, ".mcp.json"), []byte(`{"mcpServers": {`), 0o600)
+}
+
 func (s *scenarioCtx) aClaudeCodeProjectConfigExistsWithServer(serverName, command, rawArgs string) error {
 	s.reg = buildIsolatedReg(s.root)
 	args := strings.Fields(rawArgs)
@@ -1162,6 +1167,7 @@ func initializeScenario(t *testing.T) func(ctx *godog.ScenarioContext) {
 
 		// init (interactive)
 		sc.Step(`^no provider config files exist$`, s.noProviderConfigFilesExist)
+		sc.Step(`^a malformed Claude Code project config exists$`, s.aMalformedClaudeCodeProjectConfigExists)
 		sc.Step(`^a Claude Code project config exists with server "([^"]+)" command "([^"]+)" args "([^"]+)"$`, s.aClaudeCodeProjectConfigExistsWithServer)
 		sc.Step(`^a Cursor project config exists with server "([^"]+)" command "([^"]+)" args "([^"]+)"$`, s.aCursorProjectConfigExistsWithServer)
 		sc.Step(`^a global Google Gemini config exists with server "([^"]+)" command "([^"]+)" args "([^"]+)"$`, s.aGlobalGoogleGeminiConfigExistsWithServer)

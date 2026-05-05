@@ -110,6 +110,54 @@ func TestCollectImportCandidates_sameServerInTwoProviders_returnsTwo(t *testing.
 	assert.Len(t, got, 2)
 }
 
+func TestCollectImportCandidates_malformedProjectConfig_skippedSilently(t *testing.T) {
+	dir := t.TempDir()
+	// Write a syntactically invalid JSON file where the provider config should be.
+	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(`{"mcpServers": {`), 0o600))
+
+	reg := registry.NewRegistry()
+	reg.Register(newIsolatedClaudeCodeProvider(dir))
+
+	got, err := wizard.CollectImportCandidates(dir, reg)
+	require.NoError(t, err, "malformed provider config must not abort init")
+	assert.Empty(t, got)
+}
+
+func TestCollectImportCandidates_malformedGlobalConfig_skippedSilently(t *testing.T) {
+	dir := t.TempDir()
+	globalPath := filepath.Join(dir, "gemini-settings.json")
+	require.NoError(t, os.WriteFile(globalPath, []byte(`{"mcpServers": {`), 0o600))
+
+	reg := registry.NewRegistry()
+	reg.Register(providers.NewGoogleGeminiProviderWithPath(globalPath))
+
+	got, err := wizard.CollectImportCandidates("", reg)
+	require.NoError(t, err, "malformed global config must not abort init")
+	assert.Empty(t, got)
+}
+
+func TestCollectImportCandidates_oneMalformedOneValid_returnsValid(t *testing.T) {
+	dir := t.TempDir()
+
+	// Claude Code — malformed.
+	require.NoError(t, os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(`{bad json}`), 0o600))
+
+	// Cursor — valid.
+	cursorDir := filepath.Join(dir, ".cursor")
+	require.NoError(t, os.MkdirAll(cursorDir, 0o700))
+	cursorJSON := `{"mcpServers":{"github":{"command":"uvx","args":["mcp-server-github"],"type":"stdio"}}}`
+	require.NoError(t, os.WriteFile(filepath.Join(cursorDir, "mcp.json"), []byte(cursorJSON), 0o600))
+
+	reg := registry.NewRegistry()
+	reg.Register(newIsolatedClaudeCodeProvider(dir))
+	reg.Register(providers.NewCursorProvider())
+
+	got, err := wizard.CollectImportCandidates(dir, reg)
+	require.NoError(t, err)
+	require.Len(t, got, 1)
+	assert.Equal(t, "github", got[0].ServerName)
+}
+
 func TestImportCandidate_Label_formatIsNameProviderScope(t *testing.T) {
 	c := wizard.ImportCandidate{
 		ServerName:   "fmt",

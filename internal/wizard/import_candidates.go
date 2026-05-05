@@ -1,9 +1,11 @@
 package wizard
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
+	"github.com/pantheon-org/iris/internal/ierrors"
 	"github.com/pantheon-org/iris/internal/providers"
 	"github.com/pantheon-org/iris/internal/registry"
 	"github.com/pantheon-org/iris/internal/types"
@@ -86,6 +88,10 @@ func readCandidatesFromPath(p providers.Provider, path, providerName string, sco
 	}
 	servers, err := p.Parse(string(data))
 	if err != nil {
+		// A malformed config is not fatal — skip this provider's file and continue.
+		if errors.Is(err, ierrors.ErrMalformedConfig) {
+			return nil, nil
+		}
 		return nil, fmt.Errorf("parse %s: %w", path, err)
 	}
 	var out []ImportCandidate

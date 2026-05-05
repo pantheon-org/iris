@@ -64,6 +64,19 @@ Feature: Init command
     Then the iris config contains 1 servers
     And the iris config contains server "manual-srv" with command "node"
 
+  Scenario: Interactive init gracefully skips a malformed provider config
+    Given a malformed Claude Code project config exists
+    When I run interactive init and select no servers
+    Then the iris config file exists on disk
+    And the iris config contains 0 servers
+
+  Scenario: Interactive init imports from valid providers even when one config is malformed
+    Given a malformed Claude Code project config exists
+    And a Cursor project config exists with server "github" command "uvx" args "mcp-server-github"
+    When I run interactive init and select all discovered servers
+    Then the iris config contains 1 servers
+    And the iris config contains server "github" with command "uvx"
+
   Scenario: Interactive init combines imported and manually added servers
     Given a Claude Code project config exists with server "fmt" command "npx" args "-y @modelcontextprotocol/server-filesystem /tmp"
     When I run interactive init, import server "fmt", and manually add server "extra" command "uvx" args "extra-tool"
