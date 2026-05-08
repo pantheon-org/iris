@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.5.14](https://github.com/pantheon-org/iris/compare/v2026.5.13...v2026.5.14) (2026-05-08)
+
+
+### Bug Fixes
+
+* **bdd:** testing gaps remediation ([#129](https://github.com/pantheon-org/iris/issues/129)) ([6743650](https://github.com/pantheon-org/iris/commit/6743650678f2f38adb3cab1b444ddcada39b10d5))
+
 ## [2026.5.13](https://github.com/pantheon-org/iris/compare/v2026.5.12...v2026.5.13) (2026-05-05)
 
 
