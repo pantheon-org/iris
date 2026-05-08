@@ -26,7 +26,7 @@ func NewGoogleGeminiProvider() *GoogleGeminiProvider {
 func newGoogleGeminiProviderWithPath(path string) *GoogleGeminiProvider {
 	p := &GoogleGeminiProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameGoogleGemini,
+		Name:                  types.NameGoogleGemini,
 		DisplayName:           "Google Gemini",
 		LocalConfigPath:       strPtr(".gemini/settings.json"),
 		SupportsProjectConfig: true,
@@ -47,7 +47,7 @@ func newGoogleGeminiProviderWithPath(path string) *GoogleGeminiProvider {
 func NewGoogleGeminiProviderWithPath(path string) *GoogleGeminiProvider {
 	p := &GoogleGeminiProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameGoogleGemini,
+		Name:                  types.NameGoogleGemini,
 		DisplayName:           "Google Gemini",
 		LocalConfigPath:       strPtr(".gemini/settings.json"),
 		SupportsProjectConfig: true,

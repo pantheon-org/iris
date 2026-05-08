@@ -5,11 +5,11 @@
         "uvx",
         "mcp-server-fetch"
       ],
-      "type": "local",
       "enabled": false,
       "environment": {
         "PROXY": "http://proxy:8080"
-      }
+      },
+      "type": "local"
     },
     "filesystem": {
       "command": [
@@ -18,9 +18,10 @@
         "@modelcontextprotocol/server-filesystem",
         "/tmp"
       ],
-      "type": "local",
       "enabled": true,
-      "environment": {}
+      "environment": {},
+      "type": "local"
     }
-  }
+  },
+  "theme": "dark"
 }

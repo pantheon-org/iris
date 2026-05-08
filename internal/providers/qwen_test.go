@@ -44,7 +44,7 @@ func TestQwenProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *testing.
 }
 
 func TestQwenProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
-	content, err := os.ReadFile("testdata/qwen_input.json")
+	content, err := os.ReadFile("fixtures/qwen_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -69,7 +69,7 @@ func TestQwenProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 }
 
 func TestQwenProvider_Generate_FixtureMatch(t *testing.T) {
-	content, err := os.ReadFile("testdata/qwen_input.json")
+	content, err := os.ReadFile("fixtures/qwen_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,7 +83,7 @@ func TestQwenProvider_Generate_FixtureMatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	expected, err := os.ReadFile("testdata/qwen_expected.json")
+	expected, err := os.ReadFile("fixtures/qwen_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}

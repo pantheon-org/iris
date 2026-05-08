@@ -33,7 +33,7 @@ const (
 )
 
 type SyncResult struct {
-	ProviderName string
+	ProviderName types.ProviderName
 	Scope        string // "global" | "local" | ""
 	Path         string // resolved config file path
 	Status       SyncStatus

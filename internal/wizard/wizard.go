@@ -114,14 +114,16 @@ func RunInit(r Runner, projectRoot string, store *config.Store, registry *regist
 
 	// Record which providers were detected on this machine so that `iris sync`
 	// can default to them without requiring an explicit --provider flag.
-	seen := make(map[string]struct{}, len(candidates))
+	seen := make(map[types.ProviderName]struct{}, len(candidates))
 	for _, c := range candidates {
 		seen[c.ProviderName] = struct{}{}
 	}
+
 	detectedProviders := make([]string, 0, len(seen))
 	for name := range seen {
-		detectedProviders = append(detectedProviders, name)
+		detectedProviders = append(detectedProviders, string(name))
 	}
+
 	sort.Strings(detectedProviders)
 	cfg.Providers = detectedProviders
 

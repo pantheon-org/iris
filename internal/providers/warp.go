@@ -1,6 +1,9 @@
 package providers
 
-import "github.com/pantheon-org/iris/internal/io"
+import (
+	"github.com/pantheon-org/iris/internal/io"
+	"github.com/pantheon-org/iris/internal/types"
+)
 
 type WarpProvider struct {
 	baseJSONProvider
@@ -13,7 +16,7 @@ func NewWarpProvider() *WarpProvider {
 func newWarpProviderWithPath(path string) *WarpProvider {
 	p := &WarpProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameWarpTerminal,
+		Name:                  types.NameWarpTerminal,
 		DisplayName:           "Warp Terminal",
 		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,

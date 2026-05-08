@@ -96,7 +96,7 @@ func TestIntelliJProvider_Generate_WithEmptyContent_ProducesCorrectJSON(t *testi
 func TestIntelliJProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *testing.T) {
 	p := providers.NewIntelliJProvider()
 
-	input, err := os.ReadFile("testdata/intellij_input.json")
+	input, err := os.ReadFile("fixtures/intellij_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func TestIntelliJProvider_Generate_WithExistingContent_PreservesNonMCPKeys(t *te
 func TestIntelliJProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	p := providers.NewIntelliJProvider()
 
-	content, err := os.ReadFile("testdata/intellij_input.json")
+	content, err := os.ReadFile("fixtures/intellij_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,7 +154,7 @@ func TestIntelliJProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 
 func TestIntelliJProvider_Generate_FixtureMatch(t *testing.T) {
 	p := providers.NewIntelliJProvider()
-	content, err := os.ReadFile("testdata/intellij_input.json")
+	content, err := os.ReadFile("fixtures/intellij_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,7 +166,7 @@ func TestIntelliJProvider_Generate_FixtureMatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	expected, err := os.ReadFile("testdata/intellij_expected.json")
+	expected, err := os.ReadFile("fixtures/intellij_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}

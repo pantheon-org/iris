@@ -28,6 +28,17 @@ internal/
   integration/            # end-to-end tests (full pipeline, no mocks)
 ```
 
+## Session discipline
+
+At the **start** of every session: run `mise run test` and record the baseline pass count and coverage (`go test -coverprofile=/tmp/cov.out ./... && go tool cover -func=/tmp/cov.out | grep total:`).
+
+At the **end** of every session: run `mise run test` and `mise run lint` again and confirm:
+1. Pass count is ≥ baseline.
+2. Coverage is ≥ baseline.
+3. Lint is clean.
+
+Never close a session with a regression in either metric.
+
 ## Rules
 
 - Always work on a feature branch; never commit directly to main.

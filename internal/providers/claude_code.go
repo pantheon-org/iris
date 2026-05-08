@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/pantheon-org/iris/internal/io"
+	"github.com/pantheon-org/iris/internal/types"
 )
 
 type ClaudeCodeProvider struct {
@@ -23,7 +24,7 @@ func NewClaudeCodeProviderWithGlobalPath(globalPath string) *ClaudeCodeProvider 
 func newClaudeCodeProviderWithGlobalPath(globalPath string) *ClaudeCodeProvider {
 	p := &ClaudeCodeProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameAnthropicClaudeCode,
+		Name:                  types.NameAnthropicClaudeCode,
 		DisplayName:           "Anthropic Claude Code",
 		LocalConfigPath:       strPtr(".mcp.json"),
 		SupportsProjectConfig: true,

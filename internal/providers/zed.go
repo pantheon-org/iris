@@ -33,7 +33,7 @@ func NewZedProviderWithPath(path string) *ZedProvider {
 
 func (p *ZedProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  NameZed,
+		Name:                  types.NameZed,
 		DisplayName:           "Zed",
 		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,

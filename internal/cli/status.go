@@ -105,14 +105,14 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 					if errors.Is(err, os.ErrNotExist) {
 						status = i18n.T("status.missing")
 					}
-					entries = append(entries, StatusEntry{Provider: name, Status: status, Scope: pp.scope, Path: pp.path})
+					entries = append(entries, StatusEntry{Provider: string(name), Status: status, Scope: pp.scope, Path: pp.path})
 					continue
 				}
 
 				existing := string(data)
 				generated, err := p.Generate(cfg.Servers, existing)
 				if err != nil {
-					entries = append(entries, StatusEntry{Provider: name, Status: i18n.T("status.error"), Scope: pp.scope, Path: pp.path})
+					entries = append(entries, StatusEntry{Provider: string(name), Status: i18n.T("status.error"), Scope: pp.scope, Path: pp.path})
 					continue
 				}
 
@@ -120,7 +120,7 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 				if generated != existing {
 					status = i18n.T("status.desync")
 				}
-				entries = append(entries, StatusEntry{Provider: name, Status: status, Scope: pp.scope, Path: pp.path})
+				entries = append(entries, StatusEntry{Provider: string(name), Status: status, Scope: pp.scope, Path: pp.path})
 			}
 		}
 		if err := json.NewEncoder(w).Encode(StatusOutput{Providers: entries}); err != nil {
@@ -145,14 +145,14 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 				if errors.Is(err, os.ErrNotExist) {
 					statusWord = i18n.T("status.missing")
 				}
-				t.Row(st.Accent.Render(name), st.Err.Render(statusWord), scopeStyle(pp.scope, st), st.Muted.Render(displayPath))
+				t.Row(st.Accent.Render(string(name)), st.Err.Render(statusWord), scopeStyle(pp.scope, st), st.Muted.Render(displayPath))
 				continue
 			}
 
 			existing := string(data)
 			generated, err := p.Generate(cfg.Servers, existing)
 			if err != nil {
-				t.Row(st.Accent.Render(name), st.Err.Render(i18n.T("status.error")), scopeStyle(pp.scope, st), st.Muted.Render(displayPath))
+				t.Row(st.Accent.Render(string(name)), st.Err.Render(i18n.T("status.error")), scopeStyle(pp.scope, st), st.Muted.Render(displayPath))
 				continue
 			}
 
@@ -162,7 +162,7 @@ func RunStatus(projectRoot string, cfg *types.IrisConfig, registry *registry.Reg
 				statusWord = i18n.T("status.desync")
 				statusStyled = st.Warning.Render(statusWord)
 			}
-			t.Row(st.Accent.Render(name), statusStyled, scopeStyle(pp.scope, st), st.Muted.Render(displayPath))
+			t.Row(st.Accent.Render(string(name)), statusStyled, scopeStyle(pp.scope, st), st.Muted.Render(displayPath))
 		}
 	}
 	fmt.Fprintln(w, t.Render())

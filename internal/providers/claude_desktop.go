@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/pantheon-org/iris/internal/io"
+	"github.com/pantheon-org/iris/internal/types"
 )
 
 type ClaudeDesktopProvider struct {
@@ -17,7 +18,7 @@ func NewClaudeDesktopProvider() *ClaudeDesktopProvider {
 func newClaudeDesktopProviderWithPath(path string) *ClaudeDesktopProvider {
 	p := &ClaudeDesktopProvider{}
 	p.config = ProviderConfig{
-		Name:                  NameAnthropicClaudeDesktop,
+		Name:                  types.NameAnthropicClaudeDesktop,
 		DisplayName:           "Anthropic Claude Desktop",
 		LocalConfigPath:       nil,
 		SupportsProjectConfig: false,

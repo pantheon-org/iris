@@ -18,7 +18,7 @@ func TestOpenAICodexProvider_Config_ReturnsCorrectProviderConfig(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 	cfg := p.Config()
 
-	assert.Equal(t, "codex", cfg.Name)
+	assert.Equal(t, "codex", string(cfg.Name))
 	assert.Equal(t, "OpenAI Codex", cfg.DisplayName)
 	assert.True(t, cfg.SupportsProjectConfig)
 
@@ -117,7 +117,7 @@ func TestOpenAICodexProvider_Generate_WithEnv_IncludesEnvMap(t *testing.T) {
 func TestOpenAICodexProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 
-	content, err := os.ReadFile("testdata/openai_codex_input.toml")
+	content, err := os.ReadFile("fixtures/openai_codex_input.toml")
 	require.NoError(t, err)
 
 	servers, err := p.Parse(string(content))
@@ -156,7 +156,7 @@ func TestOpenAICodexProvider_Parse_MalformedTOML_WrapsErrMalformedConfig(t *test
 func TestOpenAICodexProvider_Generate_FixtureMatch(t *testing.T) {
 	p := providers.NewOpenaiCodexProvider()
 
-	existing, err := os.ReadFile("testdata/openai_codex_input.toml")
+	existing, err := os.ReadFile("fixtures/openai_codex_input.toml")
 	require.NoError(t, err)
 
 	servers, err := p.Parse(string(existing))
@@ -165,7 +165,7 @@ func TestOpenAICodexProvider_Generate_FixtureMatch(t *testing.T) {
 	got, err := p.Generate(servers, string(existing))
 	require.NoError(t, err)
 
-	expected, err := os.ReadFile("testdata/openai_codex_expected.toml")
+	expected, err := os.ReadFile("fixtures/openai_codex_expected.toml")
 	require.NoError(t, err)
 
 	assert.Equal(t, string(expected), got)

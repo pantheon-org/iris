@@ -34,7 +34,7 @@ func NewOpenaiCodexProviderWithPath(path string) *OpenaiCodexProvider {
 
 func (p *OpenaiCodexProvider) Config() ProviderConfig {
 	return ProviderConfig{
-		Name:                  NameOpenAICodex,
+		Name:                  types.NameOpenAICodex,
 		DisplayName:           "OpenAI Codex",
 		LocalConfigPath:       strPtr(".codex/config.toml"),
 		SupportsProjectConfig: true,

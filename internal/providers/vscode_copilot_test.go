@@ -33,7 +33,7 @@ func TestVSCodeCopilotProvider_ConfigFilePath(t *testing.T) {
 }
 
 func TestVSCodeCopilotProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
-	content, err := os.ReadFile("testdata/vscode_copilot_input.json")
+	content, err := os.ReadFile("fixtures/vscode_copilot_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func TestVSCodeCopilotProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 }
 
 func TestVSCodeCopilotProvider_Generate_FixtureMatch(t *testing.T) {
-	content, err := os.ReadFile("testdata/vscode_copilot_input.json")
+	content, err := os.ReadFile("fixtures/vscode_copilot_input.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func TestVSCodeCopilotProvider_Generate_FixtureMatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	expected, err := os.ReadFile("testdata/vscode_copilot_expected.json")
+	expected, err := os.ReadFile("fixtures/vscode_copilot_expected.json")
 	if err != nil {
 		t.Fatal(err)
 	}

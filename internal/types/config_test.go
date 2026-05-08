@@ -89,7 +89,7 @@ func TestIrisConfig_TOML_roundTrip(t *testing.T) {
 	original := fixture()
 
 	var buf []byte
-	bufWriter := &tomlBuffer{}
+	bufWriter := &types.TomlBuffer{}
 	err := toml.NewEncoder(bufWriter).Encode(original)
 	require.NoError(t, err)
 	buf = bufWriter.Bytes()
@@ -98,17 +98,4 @@ func TestIrisConfig_TOML_roundTrip(t *testing.T) {
 	require.NoError(t, toml.Unmarshal(buf, &got))
 
 	assert.Equal(t, original, got)
-}
-
-type tomlBuffer struct {
-	data []byte
-}
-
-func (b *tomlBuffer) Write(p []byte) (int, error) {
-	b.data = append(b.data, p...)
-	return len(p), nil
-}
-
-func (b *tomlBuffer) Bytes() []byte {
-	return b.data
 }

@@ -1,0 +1,12 @@
+{
+  "extraKey": "preserve-me",
+  "mcpServers": {
+    "filesystem": {
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem"
+      ],
+      "command": "npx"
+    }
+  }
+}

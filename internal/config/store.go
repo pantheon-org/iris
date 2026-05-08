@@ -16,16 +16,16 @@ const DefaultConfigFile = ".iris.json"
 type Store struct {
 	mu    sync.Mutex
 	path  string
-	codec Codec
+	codec types.Codec
 }
 
 func NewStore(path string) (*Store, error) {
 	if path == "" {
 		path = DefaultConfigFile
 	}
-	codec, err := CodecForExtension(filepath.Ext(path))
+	codec, err := types.CodecForExtension(filepath.Ext(path))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("config store: getting codec for %s: %w", path, err)
 	}
 	return &Store{path: path, codec: codec}, nil
 }

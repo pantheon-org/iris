@@ -203,7 +203,7 @@ func TestOpenCodeProvider_Generate_MergesCommandAndArgs(t *testing.T) {
 }
 
 func TestOpenCodeProvider_Parse_CorrectlyExtractsServers(t *testing.T) {
-	input, err := os.ReadFile("testdata/opencode_input.json")
+	input, err := os.ReadFile("fixtures/opencode_input.json")
 	if err != nil {
 		t.Fatalf("reading fixture: %v", err)
 	}

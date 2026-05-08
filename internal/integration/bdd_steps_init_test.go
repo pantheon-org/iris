@@ -289,7 +289,7 @@ func (s *scenarioCtx) theIrisConfigProvidersListIsSetTo(providerName string) err
 
 func (s *scenarioCtx) theImportCandidatesIncludeEntry(serverName, providerName, scope string) error {
 	for _, c := range s.importCandidates {
-		if c.ServerName == serverName && c.ProviderName == providerName && string(c.Scope) == scope {
+		if c.ServerName == serverName && string(c.ProviderName) == providerName && string(c.Scope) == scope {
 			return nil
 		}
 	}
@@ -317,7 +317,7 @@ func (s *scenarioCtx) theGroupedCandidateForServerListsProviders(serverName, p1,
 		}
 		has := func(name string) bool {
 			for _, p := range g.Providers {
-				if p == name {
+				if string(p) == name {
 					return true
 				}
 			}

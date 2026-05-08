@@ -45,7 +45,7 @@ func TestMistralVibeProvider_ConfigFilePath_WithEmptyRoot_ReturnsGlobalPath(t *t
 }
 
 func TestMistralVibeProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
-	content, err := os.ReadFile("testdata/mistral_vibe_input.toml")
+	content, err := os.ReadFile("fixtures/mistral_vibe_input.toml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestMistralVibeProvider_Parse_ExtractsServersFromFixture(t *testing.T) {
 }
 
 func TestMistralVibeProvider_Generate_FixtureMatch(t *testing.T) {
-	content, err := os.ReadFile("testdata/mistral_vibe_input.toml")
+	content, err := os.ReadFile("fixtures/mistral_vibe_input.toml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +81,7 @@ func TestMistralVibeProvider_Generate_FixtureMatch(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
-	expected, err := os.ReadFile("testdata/mistral_vibe_expected.toml")
+	expected, err := os.ReadFile("fixtures/mistral_vibe_expected.toml")
 	if err != nil {
 		t.Fatal(err)
 	}

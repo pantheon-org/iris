@@ -18,7 +18,7 @@ type mockProvider struct {
 }
 
 func (m *mockProvider) Config() providers.ProviderConfig {
-	return providers.ProviderConfig{Name: m.name, DisplayName: m.name}
+	return providers.ProviderConfig{Name: types.ProviderName(m.name), DisplayName: m.name}
 }
 
 func (m *mockProvider) Generate(_ map[string]types.MCPServer, _ string) (string, error) {

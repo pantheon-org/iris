@@ -3,7 +3,6 @@ package integration_test
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 
@@ -30,8 +29,12 @@ func (s *scenarioCtx) iSyncToAllProviders() error {
 
 func (s *scenarioCtx) iSyncToAllProvidersAgain() error {
 	s.reg = buildReg(s.root)
-	if err := cli.RunSync(s.root, s.cfg, s.reg, io.Discard, irisync.ScopeLocal, false, noColourStyles()); err != nil {
-		return fmt.Errorf("sync: %w", err)
+	if len(s.cfg.Providers) > 0 {
+		filtered, err := s.reg.Filter(s.cfg.Providers)
+		if err != nil {
+			return fmt.Errorf("filter providers: %w", err)
+		}
+		s.reg = filtered
 	}
 	s.syncResults = irisync.SyncAllProviders(s.root, irisync.ScopeLocal, s.reg, s.cfg.Servers)
 	return nil

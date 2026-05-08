@@ -9,7 +9,7 @@ import (
 )
 
 type ProviderConfig struct {
-	Name                  string
+	Name                  types.ProviderName
 	DisplayName           string
 	LocalConfigPath       *string // project-relative path (e.g. ".mcp.json"); nil = project config not supported
 	SupportsProjectConfig bool

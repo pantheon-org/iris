@@ -30,7 +30,7 @@ func (p *OpenCodeProvider) Config() ProviderConfig {
 		globalPath = p.globalPath
 	}
 	return ProviderConfig{
-		Name:                  NameAnomalycoOpenCode,
+		Name:                  types.NameAnomalycoOpenCode,
 		DisplayName:           "Anomalyco OpenCode",
 		LocalConfigPath:       strPtr("opencode.json"),
 		SupportsProjectConfig: true,

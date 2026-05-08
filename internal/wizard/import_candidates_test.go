@@ -43,8 +43,8 @@ func TestCollectImportCandidates_projectConfig_returnsProjectScopedCandidate(t *
 
 	require.Len(t, got, 1)
 	assert.Equal(t, "fmt", got[0].ServerName)
-	assert.Equal(t, "claude", got[0].ProviderName)
-	assert.Equal(t, wizard.ScopeProject, got[0].Scope)
+	assert.Equal(t, "claude", string(got[0].ProviderName))
+	assert.Equal(t, types.ScopeProject, got[0].Scope)
 	assert.Equal(t, "npx", got[0].Server.Command)
 }
 
@@ -62,7 +62,7 @@ func TestCollectImportCandidates_globalConfig_returnsGlobalScopedCandidate(t *te
 
 	require.Len(t, got, 1)
 	assert.Equal(t, "gsrv", got[0].ServerName)
-	assert.Equal(t, wizard.ScopeGlobal, got[0].Scope)
+	assert.Equal(t, types.ScopeGlobal, got[0].Scope)
 }
 
 func TestCollectImportCandidates_multipleProviders_returnsAllCandidates(t *testing.T) {
@@ -163,7 +163,7 @@ func TestImportCandidate_Label_formatIsNameProviderScope(t *testing.T) {
 	c := wizard.ImportCandidate{
 		ServerName:   "fmt",
 		ProviderName: "claude",
-		Scope:        wizard.ScopeProject,
+		Scope:        types.ScopeProject,
 	}
 	assert.Equal(t, "fmt  [claude] [project]", c.Label())
 }
@@ -177,35 +177,35 @@ func TestGroupImportCandidates_empty_returnsEmpty(t *testing.T) {
 
 func TestGroupImportCandidates_uniqueNames_oneEntryEach(t *testing.T) {
 	candidates := []wizard.ImportCandidate{
-		{ServerName: "fmt", ProviderName: "claude", Scope: wizard.ScopeProject},
-		{ServerName: "github", ProviderName: "cursor", Scope: wizard.ScopeProject},
+		{ServerName: "fmt", ProviderName: "claude", Scope: types.ScopeProject},
+		{ServerName: "github", ProviderName: "cursor", Scope: types.ScopeProject},
 	}
 	got := wizard.GroupImportCandidates(candidates)
 	require.Len(t, got, 2)
 	assert.Equal(t, "fmt", got[0].ServerName)
-	assert.Equal(t, []string{"claude"}, got[0].Providers)
+	assert.Equal(t, []types.ProviderName{"claude"}, got[0].Providers)
 	assert.Equal(t, "github", got[1].ServerName)
 }
 
 func TestGroupImportCandidates_sameNameTwoProviders_collapsedIntoOne(t *testing.T) {
 	candidates := []wizard.ImportCandidate{
-		{ServerName: "shared", ProviderName: "claude", Scope: wizard.ScopeProject},
-		{ServerName: "shared", ProviderName: "cursor", Scope: wizard.ScopeProject},
+		{ServerName: "shared", ProviderName: "claude", Scope: types.ScopeProject},
+		{ServerName: "shared", ProviderName: "cursor", Scope: types.ScopeProject},
 	}
 	got := wizard.GroupImportCandidates(candidates)
 	require.Len(t, got, 1)
 	assert.Equal(t, "shared", got[0].ServerName)
-	assert.Equal(t, []string{"claude", "cursor"}, got[0].Providers)
+	assert.Equal(t, []types.ProviderName{"claude", "cursor"}, got[0].Providers)
 }
 
 func TestGroupImportCandidates_sameNameSameProvider_deduplicatesProvider(t *testing.T) {
 	candidates := []wizard.ImportCandidate{
-		{ServerName: "shared", ProviderName: "claude", Scope: wizard.ScopeProject},
-		{ServerName: "shared", ProviderName: "claude", Scope: wizard.ScopeGlobal},
+		{ServerName: "shared", ProviderName: "claude", Scope: types.ScopeProject},
+		{ServerName: "shared", ProviderName: "claude", Scope: types.ScopeGlobal},
 	}
 	got := wizard.GroupImportCandidates(candidates)
 	require.Len(t, got, 1)
-	assert.Equal(t, []string{"claude"}, got[0].Providers)
+	assert.Equal(t, []types.ProviderName{"claude"}, got[0].Providers)
 }
 
 func TestGroupImportCandidates_preservesFirstDefinition(t *testing.T) {
@@ -221,12 +221,12 @@ func TestGroupImportCandidates_preservesFirstDefinition(t *testing.T) {
 }
 
 func TestGroupedCandidate_Label_singleProvider(t *testing.T) {
-	g := wizard.GroupedCandidate{ServerName: "fmt", Providers: []string{"claude"}}
+	g := wizard.GroupedCandidate{ServerName: "fmt", Providers: []types.ProviderName{"claude"}}
 	assert.Equal(t, "fmt  [claude]", g.Label())
 }
 
 func TestGroupedCandidate_Label_multipleProviders(t *testing.T) {
-	g := wizard.GroupedCandidate{ServerName: "fmt", Providers: []string{"claude", "cursor", "codex"}}
+	g := wizard.GroupedCandidate{ServerName: "fmt", Providers: []types.ProviderName{"claude", "cursor", "codex"}}
 	assert.Equal(t, "fmt  [claude · cursor · codex]", g.Label())
 }
 
