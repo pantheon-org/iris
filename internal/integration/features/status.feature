@@ -47,6 +47,20 @@ Feature: Status of provider configs
     And I run status
     Then the status output contains provider "claude" with status "desync"
 
+  Scenario: Status detects desync for codex when TOML config is manually modified
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to all providers
+    And I corrupt the provider config file "codex-config.toml"
+    And I run status
+    Then the status output contains provider "codex" with status "desync"
+
+  Scenario: Status detects desync for mistral-vibe when TOML config is manually modified
+    Given an MCP server "tool" with command "uvx" and args "some-tool"
+    When I sync to all providers
+    And I corrupt the provider config file "mistral-vibe-config.toml"
+    And I run status
+    Then the status output contains provider "mistral-vibe" with status "desync"
+
   Scenario: JSON status output contains all 14 providers
     Given an MCP server "tool" with command "uvx" and args "some-tool"
     When I sync to all providers

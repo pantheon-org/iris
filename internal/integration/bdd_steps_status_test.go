@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/BurntSushi/toml"
+
 	"github.com/pantheon-org/iris/internal/cli"
 )
 
@@ -30,7 +32,30 @@ func (s *scenarioCtx) iRunStatusWithJSONOutput() error {
 
 func (s *scenarioCtx) iCorruptTheProviderConfigFile(filename string) error {
 	path := filepath.Join(s.root, filename)
-	if err := os.WriteFile(path, []byte(`{"mcpServers":{}}`), 0644); err != nil {
+	var content []byte
+	switch {
+	case strings.HasSuffix(filename, ".toml") && strings.Contains(filename, "mistral"):
+		var buf strings.Builder
+		if err := toml.NewEncoder(&buf).Encode(map[string]interface{}{
+			"mcp_servers": []map[string]interface{}{{"name": "wrong-server", "transport": "stdio"}},
+		}); err != nil {
+			return fmt.Errorf("encode mistral toml corruption: %w", err)
+		}
+		content = []byte(buf.String())
+	case strings.HasSuffix(filename, ".toml"):
+		var buf strings.Builder
+		if err := toml.NewEncoder(&buf).Encode(map[string]interface{}{
+			"mcp_servers": map[string]interface{}{
+				"wrong-server": map[string]interface{}{"command": "echo"},
+			},
+		}); err != nil {
+			return fmt.Errorf("encode toml corruption: %w", err)
+		}
+		content = []byte(buf.String())
+	default:
+		content = []byte(`{"mcpServers":{}}`)
+	}
+	if err := os.WriteFile(path, content, 0644); err != nil {
 		return fmt.Errorf("corrupt config: %w", err)
 	}
 	return nil
