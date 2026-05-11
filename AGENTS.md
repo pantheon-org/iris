@@ -60,7 +60,20 @@ All Go formatting is enforced by `mise run lint` (golangci-lint with gofmt). Key
 
 ## Git workflow
 
-A new provider PR always commits **all 6 files atomically** (see Provider testdata fixtures below).
+A new provider PR always commits all files atomically:
+
+| File | Purpose |
+|------|---------|
+| `internal/providers/<name>.go` | Provider implementation |
+| `internal/providers/<name>_test.go` | Tests (Config, Parse, Generate, Exists) |
+| `internal/providers/fixtures/<name>_input.json` | Realistic on-disk config |
+| `internal/providers/fixtures/<name>_expected.json` | Exact iris output |
+| `internal/types/provider.go` | Add `NameXxx` constant |
+| `cmd/iris/main.go` | Register `New<Name>Provider()` |
+| `docs/providers/<slug>.md` | Provider documentation |
+| `README.md` | Add to supported providers table |
+
+Create a feature branch, push, open a PR. Run `mise run test` and `mise run lint` at session end to confirm no regressions.
 
 ## Provider testdata fixtures
 
