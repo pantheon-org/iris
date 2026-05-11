@@ -74,6 +74,8 @@ The `providers` field is written automatically by `iris init -I` and tells `iris
 | Kimi Code (`kimi`) | — | `~/.kimi/mcp.json` |
 | Mistral Vibe (`mistral-vibe`) | `.vibe/config.toml` | `~/.vibe/config.toml` |
 | IntelliJ IDEA (`intellij`) | `.idea/mcp.json` | — |
+| Cline (`cline`) | — | `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` |
+| Kiro (`kiro`) | `.kiro/settings/mcp.json` | `~/.kiro/settings/mcp.json` |
 
 ## Development
 
