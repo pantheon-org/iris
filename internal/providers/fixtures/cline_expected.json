@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "brave-search": {
+      "args": [
+        "mcp-server-brave-search"
+      ],
+      "command": "uvx",
+      "env": {
+        "BRAVE_API_KEY": "your-brave-api-key"
+      }
+    },
+    "fetch": {
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "command": "uvx"
+    },
+    "filesystem": {
+      "args": [
+        "-y",
+        "@anthropic/mcp-server-filesystem",
+        "/Users/me/projects"
+      ],
+      "command": "npx",
+      "env": {
+        "ALLOW_DIRECTORIES": "/Users/me/projects"
+      }
+    }
+  }
+}
