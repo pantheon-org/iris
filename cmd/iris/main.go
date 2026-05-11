@@ -45,6 +45,7 @@ func buildRegistry() *registry.Registry {
 	reg.Register(providers.NewKimiProvider())
 	reg.Register(providers.NewMistralVibeProvider())
 	reg.Register(providers.NewIntelliJProvider())
+	reg.Register(providers.NewClineProvider())
 	return reg
 }
 

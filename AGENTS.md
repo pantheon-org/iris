@@ -49,6 +49,18 @@ Never close a session with a regression in either metric.
 - Wrap all errors from external packages: `fmt.Errorf("context: %w", err)`.
 - Global providers (Gemini, Codex) expose `NewXxxProviderWithPath(path string)` constructors for test isolation — use them instead of mutating `HOME`.
 - For `gh` CLI commands, always prefix with `dotenvx run --` to load `GH_TOKEN`.
+- For `git` commands, use `rtk git <subcommand>` — not bare `git` or `gh <subcommand>`. See `@RTK.md`.
+- Only use `dotenvx run -- gh <subcommand>` for API-level operations (`gh pr create`, `gh api`). For local ops (commit, push, branch, checkout), `rtk git` is sufficient.
+
+## gofmt formatting
+
+All Go formatting is enforced by `mise run lint` (golangci-lint with gofmt). Key rules:
+
+- **Const value alignment**: in a `const (...)` block, value names align to the column of the longest name. Run `gofmt -d <file>` to preview what will fail lint before committing.
+
+## Git workflow
+
+A new provider PR always commits **all 6 files atomically** (see Provider testdata fixtures below).
 
 ## Provider testdata fixtures
 
@@ -61,6 +73,6 @@ Do not use inline JSON/TOML strings in provider tests — always reference fixtu
 When adding a new provider, create both fixture files before writing the tests.
 To regenerate `_expected` files after a deliberate format change: run the build-tagged generator (see CONTRIBUTING.md).
 
-@RTK.md
+@docs/rtk.md
 
-@CODE_REVIEW_GRAPH.md
+@docs/code-review-graph.md

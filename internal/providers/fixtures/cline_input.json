@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "brave-search": {
+      "alwaysAllow": [
+        "search"
+      ],
+      "args": [
+        "mcp-server-brave-search"
+      ],
+      "command": "uvx",
+      "disabled": false,
+      "env": {
+        "BRAVE_API_KEY": "your-brave-api-key"
+      },
+      "timeout": 60
+    },
+    "fetch": {
+      "args": [
+        "mcp-server-fetch"
+      ],
+      "command": "uvx",
+      "transportType": "stdio"
+    },
+    "filesystem": {
+      "args": [
+        "-y",
+        "@anthropic/mcp-server-filesystem",
+        "/Users/me/projects"
+      ],
+      "command": "npx",
+      "env": {
+        "ALLOW_DIRECTORIES": "/Users/me/projects"
+      },
+      "transportType": "stdio"
+    }
+  }
+}
