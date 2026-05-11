@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "context7": {
+      "headers": {
+        "CONTEXT7_API_KEY": "your-key"
+      },
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "web-search": {
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-bravesearch"
+      ],
+      "command": "npx",
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      }
+    }
+  }
+}
