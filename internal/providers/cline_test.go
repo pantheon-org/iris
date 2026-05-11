@@ -3,10 +3,26 @@ package providers_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/pantheon-org/iris/internal/providers"
 )
+
+func TestClineProvider_DefaultPath_RootedAtUserConfigDir(t *testing.T) {
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		t.Skip("os.UserConfigDir() unavailable:", err)
+	}
+	p := providers.NewClineProvider()
+	got := p.ConfigFilePath("")
+	if !strings.HasPrefix(got, configDir) {
+		t.Errorf("default path %q does not start with UserConfigDir %q", got, configDir)
+	}
+	if !strings.HasSuffix(got, "cline_mcp_settings.json") {
+		t.Errorf("default path %q does not end with cline_mcp_settings.json", got)
+	}
+}
 
 func TestClineProvider_Config(t *testing.T) {
 	tmp := t.TempDir()

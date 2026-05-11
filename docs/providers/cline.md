@@ -7,9 +7,17 @@
 | Scope   | Path |
 |---------|------|
 | Project | — |
-| Global  | `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` |
+| Global  | See OS-specific paths below |
 
 Project-level config is not supported.
+
+### OS-specific global config paths
+
+| OS      | Path |
+|---------|------|
+| macOS   | `~/Library/Application Support/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` |
+| Linux   | `~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json` |
+| Windows | `%APPDATA%\Code\User\globalStorage\saoudrizwan.claude-dev\settings\cline_mcp_settings.json` |
 
 ## Format
 
