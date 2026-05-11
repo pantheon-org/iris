@@ -1,6 +1,8 @@
 package providers
 
 import (
+	"path/filepath"
+
 	"github.com/pantheon-org/iris/internal/io"
 	"github.com/pantheon-org/iris/internal/types"
 )
@@ -10,8 +12,9 @@ type ClineProvider struct {
 }
 
 func clineConfigPath() string {
-	return io.UserHomePath(
-		"Library", "Application Support", "Code", "User", "globalStorage",
+	return filepath.Join(
+		io.UserConfigDir(),
+		"Code", "User", "globalStorage",
 		"saoudrizwan.claude-dev", "settings", "cline_mcp_settings.json",
 	)
 }
