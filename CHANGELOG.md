@@ -1,5 +1,14 @@
 # Changelog
 
+## [2026.5.15](https://github.com/pantheon-org/iris/compare/v2026.5.14...v2026.5.15) (2026-05-11)
+
+
+### Features
+
+* **providers:** add Cline MCP provider ([#133](https://github.com/pantheon-org/iris/issues/133)) ([09b25a4](https://github.com/pantheon-org/iris/commit/09b25a49a5039d3824ebef2d6262c7f8da580403))
+* **providers:** add Kiro MCP provider ([#134](https://github.com/pantheon-org/iris/issues/134)) ([7d3372f](https://github.com/pantheon-org/iris/commit/7d3372fd728034c36fb5a51abef3a96992ca8a76))
+* **providers:** use pointer path in WarpProvider for test isolation ([#131](https://github.com/pantheon-org/iris/issues/131)) ([4cf1522](https://github.com/pantheon-org/iris/commit/4cf152268b839244889e46e06084db7ddbd80869))
+
 ## [2026.5.14](https://github.com/pantheon-org/iris/compare/v2026.5.13...v2026.5.14) (2026-05-08)
 
 
