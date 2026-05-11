@@ -26,6 +26,7 @@ const (
 	NameMistralAIVibe          = "mistral-vibe"
 	NameIntelliJIDEA           = "intellij"
 	NameCline                  = "cline"
+	NameKiro                   = "kiro"
 )
 
 type Provider struct {
