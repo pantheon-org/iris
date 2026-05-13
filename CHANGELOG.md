@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026.5.16](https://github.com/pantheon-org/iris/compare/v2026.5.15...v2026.5.16) (2026-05-11)
+
+
+### Bug Fixes
+
+* **providers:** make cline config path cross-platform ([#136](https://github.com/pantheon-org/iris/issues/136)) ([ab86cc7](https://github.com/pantheon-org/iris/commit/ab86cc709638fc00cd457c5be41740f6e7c723d9))
+
 ## [2026.5.15](https://github.com/pantheon-org/iris/compare/v2026.5.14...v2026.5.15) (2026-05-11)
 
 
